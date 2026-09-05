@@ -1,0 +1,252 @@
+{
+  "table": "Payments",
+  "tableId": "tblMVncbESIuLAxee",
+  "fields": [
+    {
+      "id": "fld0YnvFophlluwv1",
+      "name": "Invoice Number",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldmO0iefI28iXYLv",
+      "name": "Amount",
+      "type": "currency"
+    },
+    {
+      "id": "fldhG8r3GNGHZkJuy",
+      "name": "Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldqa4rFuj4Fkq13A",
+      "name": "Method",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldX3hoxU7qHLZL6c",
+      "name": "Received",
+      "type": "date"
+    },
+    {
+      "id": "fldmjXP0ECkgGecIN",
+      "name": "Confirmed By",
+      "type": "email"
+    },
+    {
+      "id": "fld68pNXFzQHdxDoR",
+      "name": "Note",
+      "type": "multilineText"
+    },
+    {
+      "id": "fld22Oz2CqqOjtTvC",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec3oXsRAnMQ9VYSX",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "1039 · Balance (net)",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-07-21",
+        "Status": "Confirmed",
+        "Amount": 26400,
+        "Confirmed By": "jordan@digitalonda.com"
+      }
+    },
+    {
+      "id": "rec4ya5ukfbP4yz2p",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "WIRE-8204",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-05-22",
+        "Status": "Confirmed",
+        "Amount": 15500,
+        "Confirmed By": "Jordan",
+        "Method": "Wire"
+      }
+    },
+    {
+      "id": "rec7DVawpQe1pKTf4",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "McKee — full fee",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-07-01",
+        "Status": "Confirmed",
+        "Amount": 38000,
+        "Confirmed By": "Liezel",
+        "Method": "Wire"
+      }
+    },
+    {
+      "id": "rec8w89r5Q0ggcGv8",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "WIRE-8202",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-09-12",
+        "Status": "Confirmed",
+        "Amount": 20000,
+        "Confirmed By": "Jordan",
+        "Method": "Wire"
+      }
+    },
+    {
+      "id": "rec9ZuDcpS2vnFpkL",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "ACH-8305",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-05-14",
+        "Status": "Confirmed",
+        "Amount": 13750,
+        "Confirmed By": "Jordan",
+        "Method": "ACH"
+      }
+    },
+    {
+      "id": "recBzi0KB25Tcl5ey",
+      "createdTime": "2026-08-17T10:58:18.000Z",
+      "fields": {
+        "Invoice Number": "INV-2026-104",
+        "Deal": [
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Note": "Paid in full after the retreat.",
+        "Received": "2026-08-12",
+        "Status": "Confirmed",
+        "Amount": 40000,
+        "Confirmed By": "liezel@bennemtin.example",
+        "Method": "Wire"
+      }
+    },
+    {
+      "id": "recEQJ0GcTOlPSXMw",
+      "createdTime": "2026-08-17T10:58:18.000Z",
+      "fields": {
+        "Invoice Number": "INV-2026-131",
+        "Deal": [
+          "rec69b6siA662sfhm"
+        ],
+        "Note": "Matched on invoice number and amount by the bank feed. Awaiting human confirmation.",
+        "Received": "2026-08-16",
+        "Status": "Proposed",
+        "Amount": 19000,
+        "Method": "ACH"
+      }
+    },
+    {
+      "id": "recGOrMoetJlB3MZR",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "1042 · Full fee",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-07-21",
+        "Status": "Confirmed",
+        "Amount": 38000,
+        "Confirmed By": "jordan@digitalonda.com"
+      }
+    },
+    {
+      "id": "recMbLWYtKTG6XJ03",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "Gartner — net fee",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-06-15",
+        "Status": "Confirmed",
+        "Amount": 26400,
+        "Confirmed By": "Liezel",
+        "Method": "ACH"
+      }
+    },
+    {
+      "id": "recRim48QpLSesUZp",
+      "createdTime": "2026-08-17T10:58:18.000Z",
+      "fields": {
+        "Invoice Number": "INV-2026-118",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Note": "Deposit, Chicago.",
+        "Received": "2026-07-26",
+        "Status": "Confirmed",
+        "Amount": 18000,
+        "Confirmed By": "liezel@bennemtin.example",
+        "Method": "ACH"
+      }
+    },
+    {
+      "id": "reca9wEcYgA0VSQsc",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "ACH-8304",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-07-22",
+        "Status": "Confirmed",
+        "Amount": 15500,
+        "Confirmed By": "Jordan",
+        "Method": "ACH"
+      }
+    },
+    {
+      "id": "recaMmJ3TwmXVbty9",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "WIRE-8205",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-03-14",
+        "Status": "Confirmed",
+        "Amount": 13750,
+        "Confirmed By": "Jordan",
+        "Method": "Wire"
+      }
+    },
+    {
+      "id": "recekbVvwfgILefgS",
+      "createdTime": "2026-08-15T13:52:58.000Z",
+      "fields": {
+        "Invoice Number": "Sysco — 50% deposit",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-07-10",
+        "Status": "Confirmed",
+        "Amount": 21500,
+        "Confirmed By": "Liezel",
+        "Method": "Wire"
+      }
+    },
+    {
+      "id": "recgXhXZf4yWpc1uA",
+      "createdTime": "2026-08-17T10:58:18.000Z",
+      "fields": {
+        "Invoice Number": "INV-2026-119",
+        "Deal": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Note": "Deposit, Reno.",
+        "Received": "2026-07-26",
+        "Status": "Confirmed",
+        "Amount": 17000,
+        "Confirmed By": "liezel@bennemtin.example",
+        "Method": "ACH"
+      }
+    },
+    {
+      "id": "recniqP9qIUogWKmw",
+      "createdTime": "2026-08-15T13:52:57.000Z",
+      "fields": {
+        "Invoice Number": "WIRE-8200",
+        "Note": "Migrated from the Cash base.",
+        "Received": "2026-07-18",
+        "Status": "Confirmed",
+        "Amount": 19250,
+        "Confirmed By": "Jordan",
+        "Method": "Wire"
+      }
+    }
+  ]
+}

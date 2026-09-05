@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Louis">
+  <rect width="64" height="64" rx="14" fill="#F6F3E9"/>
+  <text x="32" y="41" text-anchor="middle" font-family="'Space Mono', monospace" font-size="26" font-weight="700" fill="#1C1A15">L</text>
+  <circle cx="47" cy="38" r="4" fill="#E24B0F"/>
+</svg>

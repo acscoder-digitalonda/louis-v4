@@ -1,0 +1,90 @@
+{
+  "table": "Notifications",
+  "tableId": "tblPOmRr8njqmGrSX",
+  "fields": [
+    {
+      "id": "fld5kkbiniNS9XuP5",
+      "name": "User",
+      "type": "email"
+    },
+    {
+      "id": "fldlbb18RcPoweype",
+      "name": "Type",
+      "type": "singleSelect"
+    },
+    {
+      "id": "flddmqTK9HPkF9JCc",
+      "name": "Title",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldUlwK8NtHkrMrXE",
+      "name": "Body",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldHoSJWpu4zR6C1b",
+      "name": "Link",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldbt4fWJ1acq1IYi",
+      "name": "Read",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldVWInEr0BceHcwv",
+      "name": "Emailed",
+      "type": "checkbox"
+    }
+  ],
+  "records": [
+    {
+      "id": "recBXZQdAKlPI4xCR",
+      "createdTime": "2026-08-17T10:58:20.000Z",
+      "fields": {
+        "User": "liezel@bennemtin.example",
+        "Link": "/queue",
+        "Body": "7:30 AM CT → 7:00 AM CT, from Priya Kelleher’s email.",
+        "Title": "AV Check Time conflict — Northwind Chicago",
+        "Type": "Review Item"
+      }
+    },
+    {
+      "id": "recYGqFd14Ju8UvMa",
+      "createdTime": "2026-08-17T10:58:20.000Z",
+      "fields": {
+        "User": "team@digitalonda.com",
+        "Link": "/settings?tab=mirror",
+        "Body": "1 draft flagged by the checker · 1 stale queue item · 1 client missing Company Domain.",
+        "Emailed": true,
+        "Title": "QA sweep — 3 findings",
+        "Type": "QA Digest"
+      }
+    },
+    {
+      "id": "recmOsrPcKZHc3Crs",
+      "createdTime": "2026-08-17T10:58:20.000Z",
+      "fields": {
+        "User": "liezel@bennemtin.example",
+        "Link": "/deals/recQ6aXpgUkF7eBFf?tab=logistics",
+        "Body": "Run-of-show and ground transport are still open.",
+        "Emailed": true,
+        "Title": "Logistics incomplete at T-11 — Northwind Chicago",
+        "Type": "Red Alert"
+      }
+    },
+    {
+      "id": "recz8RFCV1f4aTJvt",
+      "createdTime": "2026-08-17T10:58:20.000Z",
+      "fields": {
+        "User": "liezel@bennemtin.example",
+        "Link": "/deals/recTcKBVBU9PWAgzD?tab=sales",
+        "Body": "The hold was placed 24 days ago with no movement. Release it or force a decision.",
+        "Emailed": true,
+        "Title": "Hold going stale — Bluepeak Health Alliance",
+        "Type": "Red Alert"
+      }
+    }
+  ]
+}

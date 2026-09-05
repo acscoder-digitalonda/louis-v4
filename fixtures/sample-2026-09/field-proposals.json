@@ -1,0 +1,86 @@
+{
+  "table": "Field Proposals",
+  "tableId": "tbl1pnbXNOQcBQzKR",
+  "fields": [
+    {
+      "id": "fldLIiQ4qhT8SbUmg",
+      "name": "Field Key",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldLtKfmL7geqbhb3",
+      "name": "Field",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld6xEHheqTYBsKRd",
+      "name": "Old Value",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld2Pxg258HTUGcHk",
+      "name": "New Value",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldhKZASxmfYUM87j",
+      "name": "Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldPzIl5eiRmWjc8h",
+      "name": "Confidence",
+      "type": "percent"
+    },
+    {
+      "id": "fldjLMQXGx6kW6xAP",
+      "name": "Resolved By",
+      "type": "email"
+    },
+    {
+      "id": "fldvrcqUTrgmWhkSq",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fld8aldZWj62CTjOS",
+      "name": "Source Email",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec1iqyGn3qUkEomv",
+      "createdTime": "2026-08-17T10:58:17.000Z",
+      "fields": {
+        "New Value": "30000",
+        "Old Value": "32000",
+        "Field Key": "negotiatedFee",
+        "Field": "Negotiated Fee",
+        "Confidence": 0.68,
+        "Status": "Proposed",
+        "Deal": [
+          "rec5ZcclTADcn3Egc"
+        ]
+      }
+    },
+    {
+      "id": "recHE9GvlEOCbzumU",
+      "createdTime": "2026-08-17T10:58:17.000Z",
+      "fields": {
+        "New Value": "7:00 AM CT, Grand Ballroom",
+        "Old Value": "7:30 AM CT, Grand Ballroom",
+        "Source Email": [
+          "recnkRtXM7DdGISPP"
+        ],
+        "Field Key": "avCheckTime",
+        "Field": "AV Check Time",
+        "Confidence": 0.94,
+        "Status": "Proposed",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ]
+      }
+    }
+  ]
+}

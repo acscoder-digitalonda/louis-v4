@@ -1,0 +1,204 @@
+{
+  "table": "Usage Log",
+  "tableId": "tblRm2hdoKtcRWQ3U",
+  "fields": [
+    {
+      "id": "fldeDVrUg6EOoCIfy",
+      "name": "Worker",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldBtRecmzG1oo2mN",
+      "name": "At",
+      "type": "dateTime"
+    },
+    {
+      "id": "fldFbJ9NUAcSFv0q1",
+      "name": "Task",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldBjNNY5SMNJI6Az",
+      "name": "Model",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldlfZJA6CuTOQ7ZO",
+      "name": "Tier",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldrXZY7sGmqh0Q3r",
+      "name": "Tokens In",
+      "type": "number"
+    },
+    {
+      "id": "fldjWzaWzD2OO72iy",
+      "name": "Tokens Out",
+      "type": "number"
+    },
+    {
+      "id": "fldzmXATc3OUgVeSN",
+      "name": "Est Cost",
+      "type": "number"
+    },
+    {
+      "id": "fld0u59QmUwFuMs5Z",
+      "name": "Backend",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldWMIQlwBRqfvGYh",
+      "name": "Duration ms",
+      "type": "number"
+    },
+    {
+      "id": "fld028gz8kAf9NqKR",
+      "name": "OK",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldDuTXrBNaTiKlg3",
+      "name": "Error",
+      "type": "multilineText"
+    },
+    {
+      "id": "fld9ts0E5BmUHfMet",
+      "name": "Estimated",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldVdUR72bke2GI9O",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "recJ3qOLVd18nRWA7",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-haiku-4-5",
+        "At": "2026-08-16T10:58:21.311Z",
+        "Task": "check",
+        "Duration ms": 1290,
+        "Worker": "F7",
+        "Tokens Out": 90,
+        "Tier": "haiku",
+        "Tokens In": 900,
+        "Est Cost": 0.00135
+      }
+    },
+    {
+      "id": "recNIDYiVGs5X95We",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-haiku-4-5",
+        "At": "2026-08-15T10:58:21.311Z",
+        "Task": "check",
+        "Duration ms": 1320,
+        "Worker": "F3",
+        "Tokens Out": 120,
+        "Tier": "haiku",
+        "Tokens In": 1100,
+        "Est Cost": 0.0017
+      }
+    },
+    {
+      "id": "recQwrVvNtvMylLmi",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-haiku-4-5",
+        "At": "2026-08-15T10:58:21.311Z",
+        "Task": "classify",
+        "Duration ms": 1238,
+        "Worker": "F2",
+        "Tokens Out": 38,
+        "Tier": "haiku",
+        "Tokens In": 1420,
+        "Est Cost": 0.00161
+      }
+    },
+    {
+      "id": "recROzVg9KEgiZIkR",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-sonnet-5",
+        "At": "2026-08-16T10:58:21.311Z",
+        "Task": "draft",
+        "Duration ms": 1620,
+        "Worker": "F7",
+        "Tokens Out": 420,
+        "Tier": "sonnet",
+        "Tokens In": 1800,
+        "Est Cost": 0.0117
+      }
+    },
+    {
+      "id": "recT0xIkthttuWIGV",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-haiku-4-5",
+        "At": "2026-08-17T10:58:21.311Z",
+        "Task": "qa",
+        "Duration ms": 1380,
+        "Worker": "F13",
+        "Tokens Out": 180,
+        "Tier": "haiku",
+        "Tokens In": 2400,
+        "Est Cost": 0.0033
+      }
+    },
+    {
+      "id": "recftBukdlTKCOlSP",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-sonnet-5",
+        "At": "2026-08-15T10:58:21.311Z",
+        "Task": "extract",
+        "Duration ms": 1460,
+        "Worker": "F2",
+        "Tokens Out": 260,
+        "Tier": "sonnet",
+        "Tokens In": 3180,
+        "Est Cost": 0.01344
+      }
+    },
+    {
+      "id": "recpztmm26cUlVguv",
+      "createdTime": "2026-08-17T10:58:22.000Z",
+      "fields": {
+        "OK": true,
+        "Backend": "claude-code",
+        "Estimated": true,
+        "Model": "claude-sonnet-5",
+        "At": "2026-08-15T10:58:21.311Z",
+        "Task": "research",
+        "Duration ms": 2100,
+        "Worker": "F3",
+        "Tokens Out": 900,
+        "Tier": "sonnet",
+        "Tokens In": 2100,
+        "Est Cost": 0.0198
+      }
+    }
+  ]
+}

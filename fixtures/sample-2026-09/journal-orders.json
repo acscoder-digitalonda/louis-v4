@@ -1,0 +1,109 @@
+{
+  "table": "Journal Orders",
+  "tableId": "tblZG2Yj1PGiYqzoY",
+  "fields": [
+    {
+      "id": "fldeuPgl8HOMObBoJ",
+      "name": "Reference",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldAzRIOqLwoLp8lr",
+      "name": "Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldfO6uVPmk7Hp6bP",
+      "name": "Quantity",
+      "type": "number"
+    },
+    {
+      "id": "fldluxwo0vrRYWUBP",
+      "name": "Ship To",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldDHl3QhxX5WC6Tb",
+      "name": "Ship By",
+      "type": "date"
+    },
+    {
+      "id": "fldvVW3tbKJVyTxCJ",
+      "name": "Warehouse Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldsgK3lntPfauhDm",
+      "name": "Inserts",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldRBHxqQM1FfAWzo",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldUGv8cl6xGsBWQe",
+      "name": "Client",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "recLjTNOWlI2Otim3",
+      "createdTime": "2026-08-17T10:58:17.000Z",
+      "fields": {
+        "Status": "Interested",
+        "Ship By": "2026-08-21",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Client": [
+          "recv2po4DarIamMTQ"
+        ],
+        "Reference": "Northwind Chicago — bulk for attendees",
+        "Quantity": 620,
+        "Ship To": "Northwind Logistics receiving dock, Chicago IL",
+        "Inserts": true,
+        "Warehouse Notes": "Needs inserts. Confirm the number before the print run — the T-35 nudge has fired."
+      }
+    },
+    {
+      "id": "recRtyTcuzUet7ZRh",
+      "createdTime": "2026-08-17T10:58:17.000Z",
+      "fields": {
+        "Status": "Bulk Ordered",
+        "Ship By": "2026-08-26",
+        "Deal": [
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Client": [
+          "recG7vLwTLGizFqU4"
+        ],
+        "Reference": "Aldergate retreat — post-event dropship",
+        "Quantity": 180,
+        "Ship To": "Individual partner addresses (CSV supplied)",
+        "Inserts": true,
+        "Warehouse Notes": "Dropship run following the retreat."
+      }
+    },
+    {
+      "id": "recWbKClSQXJOjrch",
+      "createdTime": "2026-08-17T10:58:17.000Z",
+      "fields": {
+        "Status": "Promo Sent",
+        "Ship By": "2026-07-30",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Client": [
+          "recv2po4DarIamMTQ"
+        ],
+        "Reference": "Northwind Chicago — promo copies",
+        "Quantity": 6,
+        "Ship To": "Priya Kelleher, Northwind Logistics, Chicago IL",
+        "Warehouse Notes": "Signed copies for the planning team."
+      }
+    }
+  ]
+}

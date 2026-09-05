@@ -1,0 +1,310 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   PAPER & INK — structure only.
+   There is not one colour literal in this file. Colour lives in src/lib/theme.ts
+   and arrives as CSS custom properties injected by the root layout, so themes and
+   admin accent overrides are data, not code. `npm run lint:tokens` enforces it.
+   ========================================================================== */
+
+:root {
+  --r: 16px;
+  --r-well: 12px;
+  --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --shell-pad: 16px;
+  --bar-h: 52px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  ::selection {
+    background: var(--accent-subtle);
+    color: var(--text-primary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Links inherit by default. Most anchors here are navigation dressed as pills, rows or
+     tabs, and tinting those turns the whole chrome accent-coloured. Textual links opt in
+     with `.textlink`. */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .textlink {
+    color: var(--link);
+  }
+  .textlink:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Motion only where it communicates. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* ---- type scale (paper-ink signatures) ---------------------------------- */
+
+  .micro {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .rowname {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .sub {
+    color: var(--text-secondary);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .hero-num {
+    font-weight: 700;
+    font-size: clamp(30px, 8vw, 48px);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  /* Body copy is the only sentence-case text; never letterspace it. */
+  .body-copy {
+    font-size: 11.5px;
+    line-height: 1.55;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ---- surfaces: flat paper stack, one hairline --------------------------- */
+
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px;
+  }
+
+  .well {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: var(--r-well);
+  }
+
+  .bar {
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    border-color: var(--border);
+  }
+
+  /* ---- pill: the universal control ---------------------------------------- */
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+    cursor: pointer;
+  }
+  .pill:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .pill-ghost {
+    background: var(--bg-raised);
+    border-color: var(--border);
+    color: var(--text-secondary);
+  }
+  .pill-ghost:hover:not(:disabled) {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .pill-outline {
+    background: transparent;
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+  .pill-outline:hover:not(:disabled) {
+    background: var(--bg-sunken);
+  }
+
+  /* Max one primary per screen. */
+  .pill-accent {
+    background: var(--accent);
+    color: var(--text-inverse);
+    border-color: var(--accent);
+  }
+  .pill-accent:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+
+  .pill-count {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- LED status (replaces colour-filled chips) -------------------------- */
+
+  .led {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  .led::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--led-color, var(--text-muted));
+    flex: none;
+  }
+  .led-on {
+    color: var(--led-color, var(--accent));
+  }
+  .led-hollow::before {
+    background: var(--bg-sunken);
+    border: 1px solid var(--border-strong);
+  }
+
+  /* ---- inline editing ------------------------------------------------------ */
+
+  .editable {
+    border-radius: 6px;
+    padding: 3px 6px;
+    margin: -3px -6px;
+    cursor: text;
+    transition: background 160ms ease;
+  }
+  .editable:hover {
+    background: var(--bg-sunken);
+  }
+
+  .field-input {
+    width: 100%;
+    background: var(--bg-sunken);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 3px 6px;
+    margin: -3px -6px;
+  }
+
+  .locked {
+    cursor: default;
+  }
+  .locked:hover::after {
+    content: ' ⌁';
+    color: var(--text-muted);
+  }
+
+  /* ---- skeletons: never a full-screen spinner ----------------------------- */
+
+  .skeleton {
+    background: var(--bg-sunken);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--bg-raised) 70%, transparent),
+      transparent
+    );
+    animation: shimmer 1.3s infinite;
+  }
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* ---- totals row: the print "sum rule" ----------------------------------- */
+
+  .sum-rule {
+    border-top: 1px solid var(--text-primary);
+  }
+
+  /* ---- scroll containers --------------------------------------------------- */
+
+  .scroll-x {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

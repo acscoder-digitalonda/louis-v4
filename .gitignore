@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# env — NEVER commit real values (.env.example is the documented contract)
+.env
+.env.local
+.env*.local
+
+# credentials — never, ever
+service-account.json
+*-token.json
+credentials.json
+
+# misc
+.DS_Store
+.vercel
+coverage/
+*.log
+
+# Phase C seed inputs — real client names, addresses, fees and mail content.
+# fixtures/sample-*/ is fabricated demo data and is meant to be committed; this is not.
+fixtures/seed-*/

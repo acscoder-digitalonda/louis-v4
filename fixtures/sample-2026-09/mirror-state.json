@@ -1,0 +1,37 @@
+{
+  "table": "Mirror State",
+  "tableId": "tblMHTIXIMzJmGiKc",
+  "fields": [
+    {
+      "id": "fldz0zgqZskywXSr4",
+      "name": "Entity",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldxGd48lP1bRYAyZ",
+      "name": "Surface",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fld2PZrGQ44doalzL",
+      "name": "Record ID",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldeXFFgqmy3BgimB",
+      "name": "Last Pushed",
+      "type": "dateTime"
+    },
+    {
+      "id": "fldcnEK2ad48Dmpie",
+      "name": "OK",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldQzI1OLrxCbKWoT",
+      "name": "Error",
+      "type": "multilineText"
+    }
+  ],
+  "records": []
+}

@@ -1,0 +1,70 @@
+{
+  "table": "Research Briefs",
+  "tableId": "tblW9kiO8SRJl61ll",
+  "fields": [
+    {
+      "id": "fldJd5MJzAzhKY4sq",
+      "name": "Model Used",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldbcKPNHcUEuCuKD",
+      "name": "Company Facts",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldFRQPPKn76wndmo",
+      "name": "Mission / Vision / Values",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldQMkiKmeuYvSsxe",
+      "name": "Budget Signals",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldn852OzFnKNHbrK",
+      "name": "Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldg49gmwT0cdF7BR",
+      "name": "Sources",
+      "type": "multilineText"
+    },
+    {
+      "id": "fld8iz1QWFuA6eeGg",
+      "name": "Checked By",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldJeAN6HMl9Poo6e",
+      "name": "Checker Verdict",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldAFRDg3IC687HTN",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "recOKjsjaUfIarBQY",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Checked By": "claude-haiku-4-5",
+        "Deal": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Mission / Vision / Values": "Stated values: \"Everyone home safe, every day.\" Safety is the organising idea of the whole business.",
+        "Model Used": "claude-sonnet-5",
+        "Checker Verdict": "{\"ok\":false,\"model\":\"claude-haiku-4-5\",\"issues\":[\"Budget range is second-hand from the agent — no source link. Treat as unverified.\"],\"checkedAt\":\"2026-08-15T10:58:19.265Z\"}",
+        "Budget Signals": "Ran a comparable summit last year with an external keynote. Northlight indicated a mid-five-figure range.",
+        "Company Facts": "Vantage Rail Group operates regional freight across eight states, roughly 4,000 employees. Public safety record improved two years running, then flattened.",
+        "Sources": "https://vantagerail.example/about\nhttps://vantagerail.example/safety-report-2025",
+        "Notes": "Northlight is a first-time bureau for us — worth confirming commission terms before the proposal."
+      }
+    }
+  ]
+}

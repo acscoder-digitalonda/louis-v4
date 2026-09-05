@@ -1,0 +1,803 @@
+{
+  "table": "Deals",
+  "tableId": "tbllF8wDLdwj0RuGB",
+  "fields": [
+    {
+      "id": "fldrCSUeo6O2W5N3x",
+      "name": "Deal Name",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldJwaAmhPayzwGTR",
+      "name": "Stage",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fld9rkwTENJfo1sod",
+      "name": "Source",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldBWdg5FyjYXincQ",
+      "name": "Deal Type",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldv4T0MpLLfsnzPt",
+      "name": "Owner",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldZkNrP4nxTwitec",
+      "name": "List Fee",
+      "type": "currency"
+    },
+    {
+      "id": "fld3NfEQMQIXzRkCp",
+      "name": "Negotiated Fee",
+      "type": "currency"
+    },
+    {
+      "id": "fldfwSLTN16G4FoLX",
+      "name": "Decision Date",
+      "type": "date"
+    },
+    {
+      "id": "fldNMMi3vSvbWP68G",
+      "name": "Proposal Sent",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldr3B7b4TqWH13Hl",
+      "name": "Hold Date",
+      "type": "date"
+    },
+    {
+      "id": "fld9xTXLsAbvQC2b0",
+      "name": "Event Date",
+      "type": "date"
+    },
+    {
+      "id": "fldjT4DtXKkpjROAB",
+      "name": "Location",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld9aESgMxYcthwFa",
+      "name": "AV Check Time",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldpyfY51SwoPBDAt",
+      "name": "Stage Time",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldh8pyJ9OQSw63Qx",
+      "name": "Event URL",
+      "type": "url"
+    },
+    {
+      "id": "fld9cHVbjdHq8V3Qs",
+      "name": "Questionnaire Received",
+      "type": "checkbox"
+    },
+    {
+      "id": "fld3hyRq4pVpz85nj",
+      "name": "Audience Profile",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldWV4N4zmuBWdSmu",
+      "name": "Desired Outcomes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldurepeHdidDF7Td",
+      "name": "Kickoff Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldTMJ28pUCH15PPR",
+      "name": "Post-Keynote Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldV6S9EoMwQbanKA",
+      "name": "Hotel",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldgqmlmrlMneYmtc",
+      "name": "Travel Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldAcOjZdTVvTEeg2",
+      "name": "Logistics Complete",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldw9hDxKMU4YBVOH",
+      "name": "Payment Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldrzSkPEOeKSoIjd",
+      "name": "Contract Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldV6K9tAdKtsn5uD",
+      "name": "Drive Folder",
+      "type": "url"
+    },
+    {
+      "id": "fldXefybYzOfWTRJ6",
+      "name": "Clients",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldPQAN6mLL3cqm51",
+      "name": "Contacts",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldwEt6nI4m4mC7Uh",
+      "name": "Client",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldhb95zffgeMB0PI",
+      "name": "Bureau Agent",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldRRbk0z0CZQp1to",
+      "name": "Tasks",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldKrjvEEWYvrlmIV",
+      "name": "Drafts",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldfkUwrXr8UrczOZ",
+      "name": "Emails",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldOsznm7OlRo94iu",
+      "name": "Field Proposals",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldnLOh3iEKf4KwxX",
+      "name": "Research Briefs",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldYRHgXDvhvV7TN7",
+      "name": "Journal Orders",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldmRCfgYGWPHLseQ",
+      "name": "Payments",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fld0lgw9l1vrrVcAH",
+      "name": "Schedule Legs",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldcWAING3FCYQOUj",
+      "name": "Usage Log",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec1E0SQIBM8F3NGz",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 30000,
+        "Source": "Bureau",
+        "Event Date": "2027-03-04",
+        "Deal Type": "Keynote",
+        "Stage": "Inquiry",
+        "Contacts": [
+          "recHv7OOJhnUZoDgv"
+        ],
+        "Location": "Nashville, TN",
+        "Deal Name": "Silverline Hospitality — GM Conference",
+        "Kickoff Notes": "Bureau inquiry via Summit Stage. 300 GMs; hold 3/4 pending budget approval.",
+        "Client": [
+          "recJgpka6CDh5iT65"
+        ]
+      }
+    },
+    {
+      "id": "rec4pEyIvD0IGzLvW",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 43000,
+        "Source": "Direct",
+        "Event Date": "2027-02-12",
+        "Deal Type": "Keynote",
+        "Stage": "Inquiry",
+        "Location": "Houston, TX",
+        "Deal Name": "Sysco Leadership Summit",
+        "Client": [
+          "recSYKXji7u2JhCIu"
+        ]
+      }
+    },
+    {
+      "id": "rec5ZcclTADcn3Egc",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Negotiated Fee": 32000,
+        "Source": "Direct",
+        "Event Date": "2026-11-21",
+        "Deal Type": "Keynote",
+        "Stage": "Sales",
+        "Drafts": [
+          "recc2qNRtdqwU025r"
+        ],
+        "Proposal Sent": true,
+        "Field Proposals": [
+          "rec1iqyGn3qUkEomv"
+        ],
+        "Contacts": [
+          "rec0cv2jgMbJjYvLk",
+          "recQRnHz0Cmjukg3d"
+        ],
+        "Tasks": [
+          "recOufWEp8lgEDa6U",
+          "rec3DwbHmsSd8WZwd"
+        ],
+        "List Fee": 35000,
+        "Decision Date": "2026-08-14",
+        "Location": "Portland, OR",
+        "Hold Date": "2026-11-21",
+        "Deal Name": "Cascade Grove Foods — Regional Managers Meeting",
+        "Kickoff Notes": "Proposal went out on the call. Rachel said she needed board sign-off.",
+        "Owner": "liezel@bennemtin.example",
+        "Client": [
+          "recPNwSxKCyGRSVKZ"
+        ]
+      }
+    },
+    {
+      "id": "rec5cKdMK5HczO1lB",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Schedule Legs": [
+          "recYWQFTVidZLCMzp",
+          "rec7wFbUgAAQ21jSe"
+        ],
+        "Negotiated Fee": 34000,
+        "Audience Profile": "Same programme, western region. 380 people, heavier on long-haul drivers.",
+        "AV Check Time": "8:00 AM PT, Silver Hall",
+        "Questionnaire Received": true,
+        "Source": "Direct",
+        "Event Date": "2026-09-11",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Drafts": [
+          "recIH1XpNKu0JbMtv"
+        ],
+        "Contacts": [
+          "recKvFtpA14GJAcUA",
+          "recIfmf0NPQUBt3rH"
+        ],
+        "Tasks": [
+          "recfWAYYLsYthacyj",
+          "recDco1z0u5CSiYue"
+        ],
+        "List Fee": 38000,
+        "Location": "Reno, NV",
+        "Payments": [
+          "recgXhXZf4yWpc1uA"
+        ],
+        "Stage Time": "9:30 AM PT, 50 min + 10 Q&A",
+        "Deal Name": "Northwind Logistics — Safety Leadership Summit (Reno)",
+        "Contract Status": "Signed",
+        "Owner": "liezel@bennemtin.example",
+        "Payment Status": "Partial",
+        "Client": [
+          "recv2po4DarIamMTQ"
+        ]
+      }
+    },
+    {
+      "id": "rec69b6siA662sfhm",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Schedule Legs": [
+          "recWlbqZrsmCeXeLL",
+          "recIkNXlUUj6kJafB"
+        ],
+        "Negotiated Fee": 38000,
+        "Source": "Bureau",
+        "Event Date": "2026-11-03",
+        "Deal Type": "Keynote",
+        "Stage": "Closed-Won",
+        "Drafts": [
+          "recBHVskgKh3Czqs5"
+        ],
+        "Contacts": [
+          "recG8CTvAWkRoicm8",
+          "recBgkLbqWxouE6Qk"
+        ],
+        "Tasks": [
+          "recJASnxBEmaVrWRp",
+          "recpYdn9upXyVfkZU"
+        ],
+        "List Fee": 40000,
+        "Location": "Charlotte, NC",
+        "Payments": [
+          "recEQJ0GcTOlPSXMw"
+        ],
+        "Deal Name": "Aldergate Financial Group — Advisor Kickoff",
+        "Contract Status": "Out",
+        "Kickoff Notes": "Contract out with Aldergate legal. Deposit invoice raised; the bank feed has a candidate match.",
+        "Owner": "liezel@bennemtin.example",
+        "Payment Status": "Invoiced",
+        "Client": [
+          "recG7vLwTLGizFqU4"
+        ]
+      }
+    },
+    {
+      "id": "recBE8JR15cZJGaf5",
+      "createdTime": "2026-08-15T13:52:55.000Z",
+      "fields": {
+        "Negotiated Fee": 38000,
+        "Audience Profile": "Challenges: Slow/no-growth snack category; gap vs competition narrowing. Doing more with less while honoring values.\n\nTheme: Find a Way",
+        "AV Check Time": "10:05 AM ET",
+        "Source": "Direct",
+        "Event Date": "2026-07-17",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Contacts": [
+          "recZAsccYlYvm9rSb"
+        ],
+        "Drive Folder": "https://drive.google.com/drive/folders/mckee-foods",
+        "Hotel": "#88231",
+        "Location": "Chattanooga, TN",
+        "Stage Time": "1:10 PM ET",
+        "Deal Name": "McKee Foods — FY27 Strategy Conference",
+        "Kickoff Notes": "70% of workforce reports to manufacturing. FY27 'Find a Way' rallying cry. Combining Sales + Marketing under Strategy Conference for the first time.",
+        "Client": [
+          "recpMEZWNGN2RBuFB"
+        ]
+      }
+    },
+    {
+      "id": "recDYj9LijgVs2Fpr",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 36000,
+        "Source": "Direct",
+        "Event Date": "2027-01-21",
+        "Deal Type": "Keynote",
+        "Stage": "Inquiry",
+        "Contacts": [
+          "recFKfacXHI64teQX"
+        ],
+        "Location": "Austin, TX",
+        "Deal Name": "Brightstack Software — RevKick FY28",
+        "Kickoff Notes": "Inbound via site form. Sales kickoff, 800 reps, wants resilience + goal-setting angle.",
+        "Client": [
+          "recoyva6tYeSM6gyd"
+        ]
+      }
+    },
+    {
+      "id": "recJ3DEIuIScvR4a7",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 42000,
+        "AV Check Time": "3:00 PM MT",
+        "Source": "Direct",
+        "Event Date": "2027-02-10",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Contacts": [
+          "rec9vLfbMr8P9nOkH",
+          "rec2VGZczhCDDokqw"
+        ],
+        "Location": "Phoenix, AZ",
+        "Stage Time": "4:30 PM MT",
+        "Deal Name": "Summit Ridge IT Alliance — CIO Exchange",
+        "Kickoff Notes": "Closing keynote for 350 CIOs; wants burnout/mental-health thread woven in.",
+        "Client": [
+          "recZ2UZwSg4dxcmnW"
+        ]
+      }
+    },
+    {
+      "id": "recK19Bmx80ErePa9",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 34500,
+        "AV Check Time": "8:00 AM CT",
+        "Source": "Direct",
+        "Event Date": "2026-12-09",
+        "Deal Type": "Keynote",
+        "Stage": "Closed-Won",
+        "Contacts": [
+          "rec1C9uAMsZIGL3Ca",
+          "reccPTlnbX74mJBof"
+        ],
+        "Location": "Chicago, IL",
+        "Stage Time": "9:30 AM CT",
+        "Deal Name": "GLBA Annual Conference 2026",
+        "Kickoff Notes": "Opening keynote, 1,100 attendees. Book signing after — confirm journal shipment window.",
+        "Client": [
+          "recY3AEvZPrgNdK0o"
+        ]
+      }
+    },
+    {
+      "id": "recNQTIeC2Ht6DicM",
+      "createdTime": "2026-08-15T13:52:55.000Z",
+      "fields": {
+        "Negotiated Fee": 33000,
+        "Source": "Bureau",
+        "Event Date": "2026-11-02",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Location": "Orlando, FL",
+        "Deal Name": "Gartner IT Symposium",
+        "Client": [
+          "recr0F4ViJFLhlzIn"
+        ]
+      }
+    },
+    {
+      "id": "recQ6aXpgUkF7eBFf",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Schedule Legs": [
+          "recdty3zkErpO7Uvb",
+          "recqYBnD3xhNmOgQn"
+        ],
+        "Negotiated Fee": 36000,
+        "Audience Profile": "620 dispatchers, terminal managers and safety leads. Two years into a zero-incident push that has plateaued.",
+        "AV Check Time": "7:30 AM CT, Grand Ballroom",
+        "Questionnaire Received": true,
+        "Source": "Direct",
+        "Event Date": "2026-08-28",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Drafts": [
+          "reczIU17kMa0VNDp8"
+        ],
+        "Field Proposals": [
+          "recHE9GvlEOCbzumU"
+        ],
+        "Contacts": [
+          "recKvFtpA14GJAcUA"
+        ],
+        "Tasks": [
+          "recVkX8eMBa7XT12a",
+          "recdJYyC9F1wmcHDx",
+          "rec23mud39FEyUazg"
+        ],
+        "Hotel": "Hyatt Regency — conf #NW88231",
+        "Desired Outcomes": "Everyone leaves with one personal commitment. Reconnect safety with why people do the work.",
+        "Journal Orders": [
+          "recWbKClSQXJOjrch",
+          "recLjTNOWlI2Otim3"
+        ],
+        "List Fee": 38000,
+        "Emails": [
+          "recnkRtXM7DdGISPP"
+        ],
+        "Location": "Chicago, IL",
+        "Payments": [
+          "recRim48QpLSesUZp"
+        ],
+        "Stage Time": "9:00 AM CT, 50 min + 10 Q&A",
+        "Deal Name": "Northwind Logistics — Safety Leadership Summit (Chicago)",
+        "Contract Status": "Signed",
+        "Owner": "liezel@bennemtin.example",
+        "Payment Status": "Partial",
+        "Client": [
+          "recv2po4DarIamMTQ"
+        ]
+      }
+    },
+    {
+      "id": "recQuiDQX6HZE5P2o",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 28000,
+        "Source": "Direct",
+        "Event Date": "2027-04-15",
+        "Deal Type": "Keynote",
+        "Stage": "Inquiry",
+        "Contacts": [
+          "recKZqZKEdZy8E9Oj"
+        ],
+        "Location": "Salt Lake City, UT",
+        "Deal Name": "Trailhead Logistics — Driver Appreciation Summit",
+        "Kickoff Notes": "Early inquiry — comparing 3 speakers, decision expected Oct 2026.",
+        "Client": [
+          "reccsCHGOIPzxULyh"
+        ]
+      }
+    },
+    {
+      "id": "recTcKBVBU9PWAgzD",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Negotiated Fee": 29500,
+        "Source": "Direct",
+        "Event Date": "2026-12-26",
+        "Deal Type": "Keynote",
+        "Stage": "Sales",
+        "Drafts": [
+          "rectakTK7k03S2xb1"
+        ],
+        "Contacts": [
+          "rec9HV75sLpOiTrLb"
+        ],
+        "Tasks": [
+          "recbhtuZdcTETeOpR"
+        ],
+        "List Fee": 35000,
+        "Location": "Minneapolis, MN",
+        "Hold Date": "2026-07-24",
+        "Deal Name": "Bluepeak Health Alliance — Nursing Leadership Forum",
+        "Kickoff Notes": "Hold placed in July. Two chase calls, no reply. Another enquiry is asking about the same week.",
+        "Owner": "liezel@bennemtin.example",
+        "Client": [
+          "reczfQx0Osf8IAV4w"
+        ]
+      }
+    },
+    {
+      "id": "recWC7U4Nn4XE5x7k",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 1,
+        "Source": "Direct",
+        "Event Date": "2026-08-05",
+        "Deal Type": "Keynote",
+        "Stage": "Inquiry",
+        "Location": "Houston, TX",
+        "Deal Name": "Test app",
+        "Client": [
+          "recoVtiY2BGwjhJnc"
+        ]
+      }
+    },
+    {
+      "id": "recWVzKbxkSBjvWha",
+      "createdTime": "2026-08-15T13:52:55.000Z",
+      "fields": {
+        "Negotiated Fee": 40000,
+        "AV Check Time": "12:30 PM ET",
+        "Source": "Direct",
+        "Event Date": "2026-11-12",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Contacts": [
+          "recpOePdH87rruPyq",
+          "recCDJS60iSTASv4V"
+        ],
+        "Location": "Charlotte, NC",
+        "Stage Time": "2:00 PM ET",
+        "Deal Name": "Harbor & Vale Financial — Advisor Summit",
+        "Kickoff Notes": "Top-200 advisors offsite. Wants strong close on purpose-driven client relationships.",
+        "Client": [
+          "recu1LpEZ7ua4ctPb"
+        ]
+      }
+    },
+    {
+      "id": "recY24yh2PvU8G3C0",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 31000,
+        "AV Check Time": "10:00 AM CT",
+        "Source": "Bureau",
+        "Event Date": "2026-07-22",
+        "Deal Type": "Keynote",
+        "Stage": "Delivered",
+        "Contacts": [
+          "recoBpT0LU5KVo83P",
+          "recgLqZtQIU9htTrC"
+        ],
+        "Post-Keynote Notes": "Send follow-up reel + 2027 chapter tour proposal by Sep 1.",
+        "Location": "Milwaukee, WI",
+        "Stage Time": "1:15 PM CT",
+        "Deal Name": "Lakeshore CU League — Emerging Leaders Day",
+        "Kickoff Notes": "Delivered 7/22 — standing ovation; league wants to discuss 2027 chapter tour.",
+        "Client": [
+          "recf4HeIoCZiOR0qU"
+        ]
+      }
+    },
+    {
+      "id": "recZttSBWoifJTXuq",
+      "createdTime": "2026-08-15T13:52:55.000Z",
+      "fields": {
+        "Negotiated Fee": 32000,
+        "AV Check Time": "7:30 AM ET",
+        "Source": "Bureau",
+        "Event Date": "2026-10-06",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Contacts": [
+          "recs3sKTD5ZEHo7tX",
+          "recYmKvF7yT3RxwLJ"
+        ],
+        "Location": "Columbus, OH",
+        "Stage Time": "8:45 AM ET",
+        "Deal Name": "Copperline Manufacturing — National Safety Kickoff",
+        "Kickoff Notes": "Plant managers + floor supervisors, 600 pax. Tie 'Bucket List' framing to zero-incident culture.",
+        "Client": [
+          "recqfEheEzhFeTvTh"
+        ]
+      }
+    },
+    {
+      "id": "reccs0FFVTT370Pp3",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 33000,
+        "AV Check Time": "7:45 AM PT",
+        "Source": "Bureau",
+        "Event Date": "2026-08-10",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Location": "San Diego, CA",
+        "Deal Name": "WSIA Annual Marketplace",
+        "Client": [
+          "reclINs6cuNY0ZAoh"
+        ]
+      }
+    },
+    {
+      "id": "recgmm7OwQricDtj8",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Source": "Bureau",
+        "Event Date": "2027-01-10",
+        "Deal Type": "Keynote",
+        "Stage": "Inquiry",
+        "Drafts": [
+          "recraGDiq9RNv3MTb"
+        ],
+        "Contacts": [
+          "recguXURsrymsYnSo",
+          "recNh7gbPfWcPAZgY",
+          "recYJrknHN8gsb2cW"
+        ],
+        "Tasks": [
+          "recke4djPjOWLFxk5"
+        ],
+        "List Fee": 35000,
+        "Emails": [
+          "recQn4GUAVfhjOE6d"
+        ],
+        "Location": "Kansas City, MO",
+        "Research Briefs": [
+          "recOKjsjaUfIarBQY"
+        ],
+        "Deal Name": "Vantage Rail Group — Frontline Leaders Summit",
+        "Kickoff Notes": "Inbound through the website form. 400 frontline supervisors. Northlight asked for availability across the whole week.",
+        "Owner": "liezel@bennemtin.example",
+        "Client": [
+          "reczDiJxi91VyqfiQ"
+        ]
+      }
+    },
+    {
+      "id": "recq8Mxk7TBdOiLQQ",
+      "createdTime": "2026-08-17T10:58:11.000Z",
+      "fields": {
+        "Negotiated Fee": 40000,
+        "Questionnaire Received": true,
+        "Source": "Bureau",
+        "Event Date": "2026-08-08",
+        "Deal Type": "Keynote",
+        "Stage": "Delivered",
+        "Drafts": [
+          "rec2GBEDxXEXlIT9z"
+        ],
+        "Contacts": [
+          "recG8CTvAWkRoicm8",
+          "rec9HMHyeyubbUhLr"
+        ],
+        "Tasks": [
+          "recuhq1CWqwSnS3Ju",
+          "recdHbRgwSaruyMRf"
+        ],
+        "Post-Keynote Notes": "Standing ovation. Elena asked about running the same session for the advisor network in Q2. Journal came up twice in the room.",
+        "Journal Orders": [
+          "recRtyTcuzUet7ZRh"
+        ],
+        "List Fee": 40000,
+        "Location": "Asheville, NC",
+        "Payments": [
+          "recBzi0KB25Tcl5ey"
+        ],
+        "Deal Name": "Aldergate Financial Group — Partner Retreat",
+        "Contract Status": "Signed",
+        "Owner": "liezel@bennemtin.example",
+        "Payment Status": "Paid",
+        "Client": [
+          "recG7vLwTLGizFqU4"
+        ]
+      }
+    },
+    {
+      "id": "rectsmMKyDFO7NKFe",
+      "createdTime": "2026-08-15T13:52:55.000Z",
+      "fields": {
+        "Negotiated Fee": 38000,
+        "Source": "Direct",
+        "Event Date": "2026-10-13",
+        "Deal Type": "Keynote",
+        "Stage": "Closed-Won",
+        "Location": "Napa Valley, CA",
+        "Deal Name": "JPMorgan Chase — Leadership Offsite",
+        "Kickoff Notes": "4th JPMorgan engagement this year. Leadership audience, financial-services regulatory context.",
+        "Client": [
+          "recgeEKNonGdNiZve"
+        ]
+      }
+    },
+    {
+      "id": "recuMZrsueqDG2jFU",
+      "createdTime": "2026-08-15T13:52:55.000Z",
+      "fields": {
+        "Negotiated Fee": 38500,
+        "AV Check Time": "9:15 AM MT",
+        "Source": "Direct",
+        "Event Date": "2026-09-18",
+        "Deal Type": "Keynote",
+        "Stage": "Pre-Event",
+        "Contacts": [
+          "reclqUCDUYvgN3iX0",
+          "reciiPLiFjseNet8R"
+        ],
+        "Location": "Denver, CO",
+        "Stage Time": "11:00 AM MT",
+        "Deal Name": "Meridian Health Partners — Leadership Forum 2026",
+        "Kickoff Notes": "Goal: reconnect clinical leadership after merger; theme 'One Team, One Mission'. Audience ~450 directors+.",
+        "Client": [
+          "recaKGQaBUpLFCXGR"
+        ]
+      }
+    },
+    {
+      "id": "recwhZ4I5uwByL7D4",
+      "createdTime": "2026-08-15T13:52:54.000Z",
+      "fields": {
+        "Negotiated Fee": 27500,
+        "Source": "Direct",
+        "Event Date": "2026-05-14",
+        "Deal Type": "Keynote",
+        "Stage": "Debriefed",
+        "Contacts": [
+          "reclT8S1TVSn6YU7g"
+        ],
+        "Location": "Fresno, CA",
+        "Deal Name": "Orchard Peak Foods — Ops Leadership Retreat",
+        "Kickoff Notes": "Retreat for 120 ops leaders; five-year vision framing.",
+        "Client": [
+          "recRXdOv0NKrFWjfO"
+        ]
+      }
+    }
+  ]
+}

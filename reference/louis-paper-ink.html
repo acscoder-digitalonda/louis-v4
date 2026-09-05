@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Louis — Event Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gutter:#E9E4D4;
+    --paper:#F6F3E9;
+    --panel:#FDFBF3;
+    --well:#ECE7D6;
+    --ink:#1C1A15;
+    --ink-60:#6E695B;
+    --ink-12:rgba(28,26,21,.12);
+    --accent:#E24B0F;
+    --accent-soft:#F7DFCE;
+    --r:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:'Space Mono',monospace;font-size:13px;line-height:1.5;padding-bottom:96px;-webkit-text-size-adjust:100%}
+  .micro{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-60)}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
+
+  /* top bar */
+  .top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--ink-12)}
+  .top .in{max-width:640px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+  .wordmark{font-weight:700;font-size:15px;letter-spacing:.3em;text-transform:uppercase}
+  .wordmark em{font-style:normal;color:var(--accent)}
+  .toppills{display:flex;gap:8px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:8px 14px;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;text-decoration:none}
+  .pill.ghost{border:1px solid var(--ink-12);color:var(--ink);background:var(--panel)}
+  .pill.accent{background:var(--accent);color:#FFF6ED}
+  .pill.outline{border:1px solid var(--ink);color:var(--ink)}
+  .pill.outline em{font-style:normal;color:var(--accent)}
+
+  /* hero */
+  .hero{background:var(--panel);border:1px solid var(--ink-12);border-radius:var(--r);padding:22px 20px;margin-top:18px}
+  .hero .kicker{display:flex;justify-content:space-between;align-items:center}
+  .tminus{font-weight:700;font-size:10px;letter-spacing:.14em;background:var(--accent);color:#FFF6ED;border-radius:999px;padding:6px 12px}
+  h1{font-weight:700;font-size:clamp(28px,7.4vw,42px);line-height:1.1;letter-spacing:.04em;text-transform:uppercase;margin-top:14px}
+  .place{color:var(--ink-60);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:13px 16px;margin-top:20px;padding-top:18px;border-top:1px solid var(--ink-12)}
+  .facts div{display:flex;flex-direction:column;gap:3px}
+  .facts b{font-weight:700;font-size:13px}
+
+  /* readiness */
+  .readline{margin-top:20px}
+  .readtop{display:flex;justify-content:space-between;align-items:baseline}
+  .readtop .n{font-weight:700;font-size:17px}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;padding:6px 12px;background:var(--well);border:1px solid var(--ink-12);color:var(--ink)}
+  .tag::before{content:"";width:6px;height:6px;border-radius:99px;background:var(--ink)}
+  .tag.due{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .tag.due::before{background:var(--accent)}
+
+  .cta{display:flex;gap:9px;margin-top:20px}
+  .cta .pill{flex:1;justify-content:center;padding:14px 12px;font-size:10px}
+
+  /* sections */
+  .sect{display:flex;justify-content:space-between;align-items:baseline;margin:28px 0 11px}
+  .sect a{color:var(--accent);font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;text-decoration:none}
+
+  /* review queue */
+  .queue{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+  .queue::-webkit-scrollbar{display:none}
+  .qcard{scroll-snap-align:start;flex:0 0 84%;max-width:330px;background:var(--panel);border:1px solid var(--ink-12);border-radius:var(--r);padding:16px}
+  .qcard .src{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+  .qcard .src::before{content:"";width:6px;height:6px;border-radius:99px;background:var(--accent)}
+  .qcard p{font-size:11.5px;line-height:1.55}
+  .qcard p b{font-weight:700}
+  .qcard .acts{display:flex;gap:8px;margin-top:13px}
+  .qcard .acts .pill{padding:7px 13px}
+
+  /* upcoming rows */
+  .list{display:flex;flex-direction:column;gap:9px}
+  .row{background:var(--panel);border:1px solid var(--ink-12);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:13px}
+  .date{flex:none;width:50px;height:50px;border-radius:12px;background:var(--well);border:1px solid var(--ink-12);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
+  .date .m{font-size:8px;font-weight:700;letter-spacing:.14em;color:var(--ink-60)}
+  .date .d{font-weight:700;font-size:17px}
+  .row .body{flex:1;min-width:0}
+  .row .name{font-weight:700;font-size:12px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .sub{color:var(--ink-60);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+  .row .right{flex:none;text-align:right;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+  .fee{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+  .status{display:inline-flex;align-items:center;gap:6px;font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-60)}
+  .status::before{content:"";width:6px;height:6px;border-radius:99px}
+  .status.owed{color:var(--accent)}
+  .status.owed::before{background:var(--accent)}
+  .status.paid::before{background:var(--ink)}
+  .status.contract::before{background:var(--ink-12);border:1px solid var(--ink-60)}
+
+  .note{color:var(--ink-60);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;margin-top:22px;line-height:2}
+  .note b{color:var(--ink)}
+
+  /* bottom nav */
+  .bnav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:color-mix(in srgb,var(--paper) 94%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--ink-12)}
+  .bnav .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:10px 12px calc(12px + env(safe-area-inset-bottom))}
+  .bnav a{text-align:center;text-decoration:none;color:var(--ink-60);font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;display:flex;flex-direction:column;gap:5px;align-items:center}
+  .bnav a .ic{width:34px;height:20px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:12px}
+  .bnav a.on{color:var(--ink)}
+  .bnav a.on .ic{background:var(--accent);color:#FFF6ED}
+
+  /* side menu — desktop */
+  .rail{display:none}
+
+  /* desktop enhancement */
+  @media (min-width:960px){
+    body{padding-bottom:60px}
+    .bnav{display:none}
+    .wrap,.top .in{max-width:1180px}
+    .grid{display:grid;grid-template-columns:190px 1.55fr 1fr;gap:26px;align-items:start}
+    .rail{display:flex;flex-direction:column;position:sticky;top:78px;margin-top:18px}
+    .rail a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-60);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:11px 0;border-bottom:1px solid var(--ink-12)}
+    .rail a .grow{flex:1}
+    .rail a .cnt{color:var(--accent)}
+    .rail a.on{color:var(--ink)}
+    .rail a.on::before{content:"";width:7px;height:7px;border-radius:99px;background:var(--accent);flex:none}
+    .rail .railnote{margin-top:16px;color:var(--ink-60);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;line-height:2}
+    .hero{padding:30px 28px}
+    h1{font-size:52px}
+    .queue{flex-direction:column;overflow:visible;margin:0;padding:0}
+    .qcard{flex:none;max-width:none}
+    .deskcol .sect:first-child{margin-top:18px}
+    .note{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in">
+    <span class="wordmark">Louis<em>.</em></span>
+    <div class="toppills">
+      <a class="pill ghost" href="#">Tue Jul 14</a>
+      <a class="pill outline" href="#">Review <em>3</em></a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <aside class="rail">
+      <a class="on" href="#"><span class="grow">Today</span></a>
+      <a href="#"><span class="grow">Upcoming</span><span class="cnt">12</span></a>
+      <a href="#"><span class="grow">Past events</span></a>
+      <a href="#"><span class="grow">Clients</span></a>
+      <a href="#"><span class="grow">Payments</span></a>
+      <a href="#"><span class="grow">Assets</span></a>
+      <a href="#"><span class="grow">Review queue</span><span class="cnt">3</span></a>
+      <div class="railnote">Synced 6:04p<br>Backups: Cal + Email ✓</div>
+    </aside>
+    <div>
+      <section class="hero">
+        <div class="kicker">
+          <span class="micro">Next engagement</span>
+          <span class="tminus">T–3 days</span>
+        </div>
+        <h1>McKee Foods</h1>
+        <div class="place">Chattanooga, TN · Fri Jul 17</div>
+
+        <div class="facts">
+          <div><span class="micro">AV check</span><b>10:05 AM</b></div>
+          <div><span class="micro">Stage time</span><b>1:10 PM ET</b></div>
+          <div><span class="micro">On-site contact</span><b>Kara Wallace</b></div>
+          <div><span class="micro">Phone</span><b>(423) 593-2185</b></div>
+        </div>
+
+        <div class="readline">
+          <div class="readtop"><span class="micro">Readiness</span><span class="n">5/6</span></div>
+          <div class="tags">
+            <span class="tag">Hotel</span>
+            <span class="tag">AV</span>
+            <span class="tag">Questionnaire</span>
+            <span class="tag">Contact</span>
+            <span class="tag">Paid</span>
+            <span class="tag due">Deck due</span>
+          </div>
+        </div>
+
+        <div class="cta">
+          <a class="pill accent" href="#">Send field guide</a>
+          <a class="pill ghost" href="#">Open record</a>
+        </div>
+      </section>
+
+      <div class="sect"><span class="micro">Up next</span><a href="#">All 12 →</a></div>
+      <div class="list">
+        <div class="row">
+          <div class="date"><span class="m">AUG</span><span class="d">10</span></div>
+          <div class="body"><div class="name">WSIA Marketplace</div><div class="sub">San Diego · WSB Bureau</div></div>
+          <div class="right"><span class="fee">$33,000</span><span class="status owed">Owed</span></div>
+        </div>
+        <div class="row">
+          <div class="date"><span class="m">OCT</span><span class="d">13</span></div>
+          <div class="body"><div class="name">JPMorgan Chase</div><div class="sub">Napa Valley · Direct · 4th this yr</div></div>
+          <div class="right"><span class="fee">$38,000</span><span class="status owed">Owed</span></div>
+        </div>
+        <div class="row">
+          <div class="date"><span class="m">NOV</span><span class="d">02</span></div>
+          <div class="body"><div class="name">Gartner Symposium</div><div class="sub">Orlando · WWSG Bureau</div></div>
+          <div class="right"><span class="fee">$33,000</span><span class="status paid">Paid</span></div>
+        </div>
+        <div class="row">
+          <div class="date"><span class="m">FEB</span><span class="d">12</span></div>
+          <div class="body"><div class="name">Sysco Summit</div><div class="sub">Houston · Direct</div></div>
+          <div class="right"><span class="fee">$43,000</span><span class="status contract">Contract</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deskcol">
+      <div class="sect"><span class="micro">Review queue</span><a href="#">History →</a></div>
+      <div class="queue">
+        <div class="qcard">
+          <span class="src micro">Auto · email · 2:47p</span>
+          <p>AV check moved to <b>10:05 AM</b> — caught in Kara Wallace's email. Update McKee Foods?</p>
+          <div class="acts"><a class="pill accent" href="#">Accept</a><a class="pill ghost" href="#">Edit</a></div>
+        </div>
+        <div class="qcard">
+          <span class="src micro">Auto · form · 11:20a</span>
+          <p>Pre-keynote questionnaire in from <b>Gartner</b> — 14 fields parsed into the record.</p>
+          <div class="acts"><a class="pill accent" href="#">Review</a><a class="pill ghost" href="#">Dismiss</a></div>
+        </div>
+        <div class="qcard">
+          <span class="src micro">Auto · attachment · Mon</span>
+          <p>Hotel confirmation <b>#88231</b> detected for WSIA — filed to logistics.</p>
+          <div class="acts"><a class="pill accent" href="#">Accept</a><a class="pill ghost" href="#">Dismiss</a></div>
+        </div>
+      </div>
+      <p class="note">Synced 6:04p · Backups: Cal + Email ✓</p>
+    </div>
+  </div>
+</div>
+
+<nav class="bnav">
+  <div class="in">
+    <a class="on" href="#"><span class="ic">◉</span>Today</a>
+    <a href="#"><span class="ic">▦</span>Events</a>
+    <a href="#"><span class="ic">◔</span>Cash</a>
+    <a href="#"><span class="ic">⚙</span>Set</a>
+  </div>
+</nav>
+
+</body>
+</html>

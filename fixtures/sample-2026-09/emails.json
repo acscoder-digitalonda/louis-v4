@@ -1,0 +1,93 @@
+{
+  "table": "Emails",
+  "tableId": "tbl9YEESZKJT5fUA9",
+  "fields": [
+    {
+      "id": "fldwVhhbTlVx2q0sf",
+      "name": "Subject",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld34JWqcLFqYqtNr",
+      "name": "From",
+      "type": "email"
+    },
+    {
+      "id": "fldI2OF67WitAR3nr",
+      "name": "To",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldgSskpVvbtgXF6x",
+      "name": "Thread ID",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld6qc3FFKQZo20dI",
+      "name": "Received",
+      "type": "dateTime"
+    },
+    {
+      "id": "fldqGtGaq2dyL7YHR",
+      "name": "Body Ref",
+      "type": "url"
+    },
+    {
+      "id": "fld5lqPnPnowLi9RA",
+      "name": "Classification",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldQaKKoafd3X2dzO",
+      "name": "Extraction Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldDxVaEjnprqlQwg",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fld3TXhAynkwm16ZY",
+      "name": "Field Proposals",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "recQn4GUAVfhjOE6d",
+      "createdTime": "2026-08-17T10:58:16.000Z",
+      "fields": {
+        "From": "dev@northlighttalent.example",
+        "Classification": "Inquiry",
+        "Received": "2026-08-15T10:58:15.684Z",
+        "Deal": [
+          "recgmm7OwQricDtj8"
+        ],
+        "To": "ops@bennemtin.example",
+        "Extraction Status": "Extracted",
+        "Thread ID": "demo-thread-2",
+        "Subject": "Speaking enquiry — Vantage Rail, frontline summit"
+      }
+    },
+    {
+      "id": "recnkRtXM7DdGISPP",
+      "createdTime": "2026-08-17T10:58:16.000Z",
+      "fields": {
+        "From": "pkelleher@northwindlogistics.example",
+        "Field Proposals": [
+          "recHE9GvlEOCbzumU"
+        ],
+        "Classification": "Update",
+        "Received": "2026-08-15T10:58:15.683Z",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "To": "ops@bennemtin.example",
+        "Extraction Status": "Extracted",
+        "Thread ID": "demo-thread-1",
+        "Subject": "Re: run of show — AV moved earlier"
+      }
+    }
+  ]
+}

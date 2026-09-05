@@ -1,0 +1,117 @@
+{
+  "table": "Audit Log",
+  "tableId": "tblCm9vZudqZIXRlL",
+  "fields": [
+    {
+      "id": "fldtEG6a5k6iBAAiW",
+      "name": "Entity",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldvdiUFqh90Spar3",
+      "name": "Record ID",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldkF0mpYGlAywL3M",
+      "name": "Field",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldaHLLW5LblFzEEw",
+      "name": "Old Value",
+      "type": "multilineText"
+    },
+    {
+      "id": "fld5uHyhjfm2WeajU",
+      "name": "New Value",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldtCagpy9LWzUsSS",
+      "name": "Actor",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldRyytLuHnOQk4Xa",
+      "name": "Actor Kind",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldoD9ockpqd47Ytp",
+      "name": "Source",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldNLQdqkj2KysO5x",
+      "name": "Reversible",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldCQiltSbt5mhhZR",
+      "name": "At",
+      "type": "dateTime"
+    }
+  ],
+  "records": [
+    {
+      "id": "recDLXE8KAsDd3OMN",
+      "createdTime": "2026-08-17T10:58:21.000Z",
+      "fields": {
+        "New Value": "Hyatt Regency — conf #NW88231",
+        "At": "2026-08-15T10:58:20.595Z",
+        "Reversible": true,
+        "Actor Kind": "Agent",
+        "Field": "Hotel",
+        "Source": "recnkRtXM7DdGISPP",
+        "Actor": "agent:F2",
+        "Entity": "deals",
+        "Record ID": "recQ6aXpgUkF7eBFf"
+      }
+    },
+    {
+      "id": "recJsn5ZgyVsDj0IL",
+      "createdTime": "2026-08-17T10:58:21.000Z",
+      "fields": {
+        "New Value": "Closed-Won",
+        "At": "2026-08-11T10:58:20.595Z",
+        "Reversible": true,
+        "Actor Kind": "Human",
+        "Old Value": "Sales",
+        "Field": "Stage",
+        "Actor": "liezel@bennemtin.example",
+        "Entity": "deals",
+        "Record ID": "rec69b6siA662sfhm"
+      }
+    },
+    {
+      "id": "recOKvbUZSUnrtKaV",
+      "createdTime": "2026-08-17T10:58:21.000Z",
+      "fields": {
+        "New Value": "Delivered",
+        "At": "2026-08-08T10:58:20.595Z",
+        "Reversible": true,
+        "Actor Kind": "Human",
+        "Old Value": "Pre-Event",
+        "Field": "Stage",
+        "Actor": "liezel@bennemtin.example",
+        "Entity": "deals",
+        "Record ID": "recq8Mxk7TBdOiLQQ"
+      }
+    },
+    {
+      "id": "recbKAveDTVwt9vPI",
+      "createdTime": "2026-08-17T10:58:21.000Z",
+      "fields": {
+        "New Value": "ack → nelamin@vantagerail.example",
+        "At": "2026-08-15T10:58:20.595Z",
+        "Actor Kind": "Agent",
+        "Field": "Auto-sent",
+        "Source": "form",
+        "Actor": "agent:F1",
+        "Entity": "drafts",
+        "Record ID": "recgmm7OwQricDtj8"
+      }
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "table": "Schedule Legs",
+  "tableId": "tblyNpy61TkKRYjgG",
+  "fields": [
+    {
+      "id": "fld7RqKYOvaTR4oy2",
+      "name": "Label",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldSzFiAGK2M3b3Gj",
+      "name": "Amount",
+      "type": "currency"
+    },
+    {
+      "id": "fldZCfSdlEQzwbUKn",
+      "name": "Due",
+      "type": "date"
+    },
+    {
+      "id": "fldMElvI8C6d309NJ",
+      "name": "Paid",
+      "type": "checkbox"
+    },
+    {
+      "id": "fld08SqAS11jIIjo7",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec35bNbdsUg13wbI",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance 50%",
+        "Amount": 21500,
+        "Due": "2027-02-12"
+      }
+    },
+    {
+      "id": "rec62vcRPHfkncpVF",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 19250,
+        "Due": "2026-09-18"
+      }
+    },
+    {
+      "id": "rec7wFbUgAAQ21jSe",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Deal": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Label": "Balance",
+        "Amount": 17000,
+        "Due": "2026-09-11"
+      }
+    },
+    {
+      "id": "recBHKysMgXY8m0h6",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 16000,
+        "Due": "2026-10-06"
+      }
+    },
+    {
+      "id": "recCJlxFdOEajsMkD",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 15500,
+        "Due": "2026-07-22"
+      }
+    },
+    {
+      "id": "recF4dAHUabAerj2E",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Full fee",
+        "Amount": 38000,
+        "Due": "2026-11-12"
+      }
+    },
+    {
+      "id": "recIkNXlUUj6kJafB",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Deal": [
+          "rec69b6siA662sfhm"
+        ],
+        "Label": "Balance",
+        "Amount": 19000,
+        "Due": "2026-11-03"
+      }
+    },
+    {
+      "id": "recIxNBHE89XS3flO",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 21000,
+        "Due": "2027-02-10"
+      }
+    },
+    {
+      "id": "recVN34gdxmIjsr8x",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 13750,
+        "Due": "2026-05-14"
+      }
+    },
+    {
+      "id": "recWlbqZrsmCeXeLL",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Deal": [
+          "rec69b6siA662sfhm"
+        ],
+        "Label": "Deposit 50%",
+        "Amount": 19000,
+        "Due": "2026-08-19"
+      }
+    },
+    {
+      "id": "recYWQFTVidZLCMzp",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Deal": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Label": "Deposit 50%",
+        "Paid": true,
+        "Amount": 17000,
+        "Due": "2026-07-23"
+      }
+    },
+    {
+      "id": "recYafbAaPxRoEd0u",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 20000,
+        "Due": "2026-11-12"
+      }
+    },
+    {
+      "id": "recZgnsVVn2Frfkqh",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 20000,
+        "Due": "2026-09-12"
+      }
+    },
+    {
+      "id": "recd7Ubzb6rOfF7yW",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 19250,
+        "Due": "2026-07-18"
+      }
+    },
+    {
+      "id": "recdty3zkErpO7Uvb",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Label": "Deposit 50%",
+        "Paid": true,
+        "Amount": 18000,
+        "Due": "2026-07-23"
+      }
+    },
+    {
+      "id": "recgNbwk0h6X3uB9m",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 13750,
+        "Due": "2026-03-14"
+      }
+    },
+    {
+      "id": "reciM8WAtLlr8IyOB",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance",
+        "Amount": 17250,
+        "Due": "2026-12-09"
+      }
+    },
+    {
+      "id": "reciZURQBODrvMDdw",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 16000,
+        "Due": "2026-08-06"
+      }
+    },
+    {
+      "id": "recld0V2hh6WVMY8r",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 21000,
+        "Due": "2026-12-10"
+      }
+    },
+    {
+      "id": "recpo5iHGbEyqtcmu",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Balance (net)",
+        "Amount": 26400,
+        "Due": "2026-09-09"
+      }
+    },
+    {
+      "id": "recqYBnD3xhNmOgQn",
+      "createdTime": "2026-08-17T10:58:19.000Z",
+      "fields": {
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Label": "Balance",
+        "Amount": 18000,
+        "Due": "2026-08-28"
+      }
+    },
+    {
+      "id": "recs8S1eJmKMRGiiE",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 15500,
+        "Due": "2026-05-22"
+      }
+    },
+    {
+      "id": "recvD1wv3bLN4eZju",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit (50%)",
+        "Amount": 17250,
+        "Due": "2026-10-09"
+      }
+    },
+    {
+      "id": "recxPJgrVjGutFiMO",
+      "createdTime": "2026-08-15T13:52:59.000Z",
+      "fields": {
+        "Label": "Deposit 50%",
+        "Amount": 21500,
+        "Due": "2026-07-10"
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "louis",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Louis v3 — keynote deal pipeline. Airtable is the database; this is the skin.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "lint:tokens": "node scripts/check-no-hex.mjs",
+    "ci": "npm run typecheck && npm run lint && npm run lint:tokens && npm run test && npm run build",
+    "base:bootstrap": "tsx scripts/bootstrap-base.ts",
+    "fields:refresh": "tsx scripts/refresh-fields.ts",
+    "worker": "tsx workers/run.ts",
+    "worker:stage": "tsx workers/run.ts f5-stage-engine",
+    "worker:timers": "tsx workers/run.ts f6-timers",
+    "worker:drafts": "tsx workers/run.ts f7-drafts",
+    "worker:email": "tsx workers/run.ts f2-email-intake",
+    "worker:research": "tsx workers/run.ts f3-research",
+    "worker:mirror": "tsx workers/run.ts f9-mirror",
+    "worker:qa": "tsx workers/run.ts f13-qa-sweep",
+    "migrate:v2": "tsx scripts/migrate-v2.ts",
+    "base:create": "tsx scripts/create-base.ts",
+    "repair:stages": "tsx scripts/repair-stage-choices.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "fixtures:export": "tsx scripts/fixtures-export.ts",
+    "purge:records": "tsx scripts/purge-records.ts",
+    "seed:templates": "tsx scripts/seed-templates.ts",
+    "schema:sync": "tsx scripts/sync-schema.ts",
+    "repair:links": "tsx scripts/repair-link-fields.ts",
+    "revert:batch": "tsx scripts/revert-batch.ts",
+    "test": "tsx --test \"src/**/*.test.ts\" \"workers/**/*.test.ts\"",
+    "import:bookings": "tsx --env-file=.env.local scripts/import-bookings.ts",
+    "repair:bureaus": "tsx --env-file=.env.local scripts/repair-bureau-names.ts"
+  },
+  "dependencies": {
+    "fuse.js": "^7.1.0",
+    "next": "^15.5.4",
+    "next-auth": "^4.24.11",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.4",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

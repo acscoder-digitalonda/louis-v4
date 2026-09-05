@@ -1,0 +1,32 @@
+{
+  "table": "Templates",
+  "tableId": "tbl9xuNlqtPJQvC6M",
+  "fields": [
+    {
+      "id": "fldXpMiblPVELDh41",
+      "name": "Key",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldvy3HAPPDo7v7CU",
+      "name": "Label",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldWClb0eENa8LsAI",
+      "name": "Subject",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldPuf4dCs9lWE2PK",
+      "name": "Body",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldbbpgIJ6vBHgRET",
+      "name": "Notes",
+      "type": "multilineText"
+    }
+  ],
+  "records": []
+}

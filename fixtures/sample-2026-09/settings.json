@@ -1,0 +1,22 @@
+{
+  "table": "Settings",
+  "tableId": "tblFcglTz8fKPNUmt",
+  "fields": [
+    {
+      "id": "fldgOYqNNT2ekdS8B",
+      "name": "Key",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldQZWW8wKmoLpT3g",
+      "name": "Value",
+      "type": "multilineText"
+    },
+    {
+      "id": "fld611KjeiRuCO4mj",
+      "name": "Updated",
+      "type": "dateTime"
+    }
+  ],
+  "records": []
+}

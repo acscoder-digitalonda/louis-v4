@@ -1,0 +1,712 @@
+industry,client_organization,bookings,last_year,virtual_any
+Agriculture,CHS Inc.,1,2025,False
+Agriculture,Mosaic,1,2024,False
+Associations & Nonprofits,YPO,9,2024,False
+Associations & Nonprofits,WALMART,2,2023,True
+Associations & Nonprofits,ISACA,2,2022,True
+Associations & Nonprofits,Awci,2,2021,False
+Associations & Nonprofits,ABMDA (American Building Materials Distributors Association? - distributor group),1,2026,False
+Associations & Nonprofits,Foodservice Consultants Society International (FCSI) - the Americas Division,1,2026,False
+Associations & Nonprofits,YPO New Jersey,1,2026,False
+Associations & Nonprofits,American Water Works Association (AWWA),1,2025,False
+Associations & Nonprofits,Blank Rome LLP,1,2025,False
+Associations & Nonprofits,Business Development Resources (BDR),1,2025,False
+Associations & Nonprofits,YPO (Young Presidents' Organization) - BelAir Chapter,1,2025,False
+Associations & Nonprofits,YPO (Young Presidents' Organization) - Ecuador Chapter,1,2025,True
+Associations & Nonprofits,YPO (Young Presidents' Organization) - LA Chapter,1,2025,False
+Associations & Nonprofits,American Bakers Association (ABA),1,2024,False
+Associations & Nonprofits,Experiential Designers and Producers Association (EDPA),1,2024,False
+Associations & Nonprofits,Georgia Municipal Association (GMA),1,2024,False
+Associations & Nonprofits,"YPO (Bloomington, IL Chapter)",1,2024,False
+Associations & Nonprofits,YPO (Dror Geron's chapter/group),1,2024,False
+Associations & Nonprofits,YPO (Indianapolis Chapter),1,2024,False
+Associations & Nonprofits,YPO (Louisville Chapter),1,2024,False
+Associations & Nonprofits,YPO (St. Louis Chapter),1,2024,False
+Associations & Nonprofits,YPO LA,1,2024,False
+Associations & Nonprofits,YPO Mexico City,1,2024,False
+Associations & Nonprofits,BOYS & GIRLS CLUB,1,2023,False
+Associations & Nonprofits,CATULPA,1,2023,True
+Associations & Nonprofits,ECIA,1,2023,False
+Associations & Nonprofits,GREATER OMAHA CHAMBER,1,2023,False
+Associations & Nonprofits,PACKAGING DISTRIBUTORS PDA,1,2023,False
+Associations & Nonprofits,PDA,1,2023,False
+Associations & Nonprofits,TRAFFIC CLUB,1,2023,False
+Associations & Nonprofits,YPO BEVERLY,1,2023,False
+Associations & Nonprofits,YPO NYC,1,2023,False
+Associations & Nonprofits,ABC,1,2022,False
+Associations & Nonprofits,ACI,1,2022,False
+Associations & Nonprofits,AWCI (R2),1,2022,False
+Associations & Nonprofits,ERIN'S HOUSE,1,2022,False
+Associations & Nonprofits,FLORIDA HR,1,2022,False
+Associations & Nonprofits,HUNT CLUB,1,2022,True
+Associations & Nonprofits,NTCA,1,2022,True
+Associations & Nonprofits,SCRA (R),1,2022,False
+Associations & Nonprofits,SOCIETY FOR HR,1,2022,False
+Associations & Nonprofits,Bickerdyke Society,1,2021,False
+Associations & Nonprofits,Cpmca,1,2021,False
+Associations & Nonprofits,Ifda,1,2021,False
+Associations & Nonprofits,Mcaa,1,2021,False
+Associations & Nonprofits,Nfda,1,2021,False
+Associations & Nonprofits,Smps,1,2021,True
+Associations & Nonprofits,Smps Pre,1,2021,True
+Associations & Nonprofits,Synnex,1,2021,True
+Associations & Nonprofits,Vpppa,1,2021,False
+Associations & Nonprofits,AHTD,1,2020,False
+Associations & Nonprofits,ATD,1,2020,False
+Associations & Nonprofits,BICKERDYKE SOCIETY,1,2020,False
+Associations & Nonprofits,CAR WASH ASSOCIATION,1,2020,False
+Associations & Nonprofits,IIDA,1,2020,False
+Associations & Nonprofits,MEETINGS & CONVENTIONS MAGAZINE,1,2020,False
+Associations & Nonprofits,NACAS,1,2020,True
+Associations & Nonprofits,SCRA,1,2020,False
+Associations & Nonprofits,SITE,1,2020,False
+Associations & Nonprofits,VPPPA,1,2020,False
+Associations & Nonprofits,ACEC (American Council of Engineering Companies),1,2019,False
+Associations & Nonprofits,ASAE (American Society of Association Executives),1,2019,False
+Associations & Nonprofits,Flexible Packaging Association,1,2019,False
+Building Products,James Hardie,1,2024,False
+Education & Youth,Corona-Norco Unified School District,2,2025,False
+Education & Youth,Forward Academy,1,2026,False
+Education & Youth,Ohio Association of School Business Officials (OASBO),1,2025,False
+Education & Youth,Tony Robbins (Trigger Media / student leadership event),1,2025,False
+Education & Youth,National School Public Relations Association (NSPRA),1,2024,False
+Education & Youth,Paciolan,1,2024,False
+Education & Youth,PwC (PricewaterhouseCoopers),1,2024,False
+Education & Youth,University of Georgia - Carl Vinson Institute of Government (Georgia General Assembly Biennial Institute),1,2024,False
+Education & Youth,ACCESSLEX,1,2023,False
+Education & Youth,AcessLex,1,2023,False
+Education & Youth,BGCA,1,2023,False
+Education & Youth,RUSH UNIVERSITY,1,2023,False
+Education & Youth,AOA,1,2022,False
+Education & Youth,AWSP,1,2022,False
+Education & Youth,BUENA HIGH SCHOOL,1,2022,False
+Education & Youth,CASE,1,2022,False
+Education & Youth,LearnWell VIRTUAL,1,2022,True
+Education & Youth,NBOA,1,2022,False
+Education & Youth,SHELTON HIGH,1,2022,True
+Education & Youth,Appa,1,2021,True
+Education & Youth,Cast,1,2021,False
+Education & Youth,Delta College,1,2021,True
+Education & Youth,Medquarter,1,2021,True
+Education & Youth,Sai,1,2021,False
+Education & Youth,REGION 4,1,2020,False
+Education & Youth,SCHOOL NUTRITION ASSOC,1,2020,False
+Education & Youth,3RC Bootcamp (Ben Nemtin's own speaking bootcamp),1,2019,False
+Education & Youth,BBYO Camp Perlman,1,2019,False
+Education & Youth,Cal State (California State University),1,2019,False
+Education & Youth,FIU Online (Florida International University),1,2019,False
+Education & Youth,Indiana Apartment Association,1,2019,False
+Education & Youth,TASA (Texas Association of School Administrators),1,2019,False
+Entertainment,Entertainment 360,1,2026,False
+Executive Networks (YPO etc.),CEO's,1,2023,False
+Executive Networks (YPO etc.),EO,1,2023,False
+Executive Networks (YPO etc.),HMP GLOBAL,1,2023,False
+Executive Networks (YPO etc.),PRIMORIS,1,2023,False
+Executive Networks (YPO etc.),GOT,1,2022,False
+Executive Networks (YPO etc.),LEADERSHIP ALABAMA,1,2022,False
+Executive Networks (YPO etc.),Eo Xcentric,1,2021,False
+Executive Networks (YPO etc.),Equitable,1,2021,True
+Executive Networks (YPO etc.),Heartland,1,2021,False
+Executive Networks (YPO etc.),Nghs,1,2021,False
+Executive Networks (YPO etc.),Ypo,1,2021,False
+Executive Networks (YPO etc.),XCentric,1,2020,False
+Executive Networks (YPO etc.),YPO (Young Presidents Organization) - private dinner,1,2019,False
+Financial Services,WELLS FARGO,9,2023,True
+Financial Services,CIGNA,6,2022,True
+Financial Services,FM GLOBAL,5,2023,False
+Financial Services,New York Life Insurance,4,2025,False
+Financial Services,Thrivent,4,2021,True
+Financial Services,LSEG (London Stock Exchange Group),3,2025,True
+Financial Services,FIDELITY,3,2023,True
+Financial Services,JOHN HANCOCK,3,2023,True
+Financial Services,KINECTA,3,2023,True
+Financial Services,SEI,3,2023,False
+Financial Services,PACIFIC LIFE,3,2022,False
+Financial Services,LINCOLN,3,2020,False
+Financial Services,CoBank,2,2026,False
+Financial Services,Fidelity Investments,2,2026,False
+Financial Services,Janney Montgomery Scott,2,2026,True
+Financial Services,The Hanover Insurance Group,2,2026,False
+Financial Services,First Financial Resources (FFR),2,2025,False
+Financial Services,Canada Life,2,2024,True
+Financial Services,LPL Financial,2,2024,False
+Financial Services,MetLife,2,2024,True
+Financial Services,KANSAS CITY LIFE,2,2023,False
+Financial Services,DELOITTE,2,2022,True
+Financial Services,KESTRA,2,2022,False
+Financial Services,PENN MUTUAL,2,2022,True
+Financial Services,TRUSTMARK,2,2022,True
+Financial Services,Desjardins,2,2021,False
+Financial Services,Sei,2,2021,False
+Financial Services,CAPITAL ONE,2,2020,True
+Financial Services,NORTHWESTERN,2,2020,True
+Financial Services,NORTHWESTERN MUTUAL,2,2020,False
+Financial Services,Baystate Financial,1,2026,False
+Financial Services,Blue Cross Blue Shield of South Carolina (BCBSSC),1,2026,False
+Financial Services,FFR (Financial advisors membership group),1,2026,False
+Financial Services,Manulife,1,2026,False
+Financial Services,Master Builders of Iowa (MBI),1,2026,False
+Financial Services,Paul Davis (Paul Davis Restoration),1,2026,False
+Financial Services,Rocket Companies,1,2026,True
+Financial Services,The American College of Financial Services,1,2026,False
+Financial Services,The Standard (Standard Insurance),1,2026,False
+Financial Services,Trellance Cooperative Holdings,1,2026,False
+Financial Services,Wealth Enhancement Group,1,2026,True
+Financial Services,AICPA (American Institute of CPAs),1,2025,False
+Financial Services,AllianceBernstein (Bernstein Private Wealth Management),1,2025,False
+Financial Services,Forward Academy (FRWD),1,2025,False
+Financial Services,GWN Securities,1,2025,False
+Financial Services,Margate Wealth Management,1,2025,True
+Financial Services,Million Dollar Round Table (MDRT),1,2025,False
+Financial Services,Mutual of Omaha,1,2025,False
+Financial Services,National Association of Fraternal Insurance Counselors (NAFIC),1,2025,False
+Financial Services,O'Shaughnessy Asset Management (Canvas),1,2025,False
+Financial Services,Old Republic Risk Management (ORRM),1,2025,False
+Financial Services,Port Huron Town Hall (Merchant Investment Management sponsor),1,2025,False
+Financial Services,Prudential Financial,1,2025,False
+Financial Services,Robert W. Baird & Co.,1,2025,False
+Financial Services,Soltis Investment Advisors,1,2025,False
+Financial Services,The Collective Genius,1,2025,False
+Financial Services,Voya Financial,1,2025,True
+Financial Services,AXIS (AXIS Capital),1,2024,False
+Financial Services,American Family Insurance / DreamBank,1,2024,True
+Financial Services,Baird,1,2024,False
+Financial Services,Bernstein (AllianceBernstein Private Wealth),1,2024,False
+Financial Services,CAPTRUST Financial Advisors,1,2024,False
+Financial Services,CCC Intelligent Solutions (CCCIS),1,2024,False
+Financial Services,Charles Schwab,1,2024,True
+Financial Services,Columbia Threadneedle Investments,1,2024,False
+Financial Services,Farm Bureau Insurance,1,2024,False
+Financial Services,First National Bank of Omaha (FNBO),1,2024,False
+Financial Services,First National Bank of Omaha (FNBO) - Technology Organization,1,2024,False
+Financial Services,Global Atlantic,1,2024,False
+Financial Services,Guardian (Guardian Life),1,2024,False
+Financial Services,HUB,1,2024,False
+Financial Services,INSURICA,1,2024,False
+Financial Services,MassMutual Ascend (Raymond James event),1,2024,False
+Financial Services,Merchant Investment Management,1,2024,False
+Financial Services,NAIFA (National Association of Insurance and Financial Advisors),1,2024,False
+Financial Services,New York Life,1,2024,False
+Financial Services,OneDigital,1,2024,False
+Financial Services,Open Lending Corporation,1,2024,False
+Financial Services,Ownership Works,1,2024,False
+Financial Services,Pacific Advisors,1,2024,True
+Financial Services,Signature Travel Network,1,2024,True
+Financial Services,TIAA,1,2024,False
+Financial Services,TRUE Network Advisors,1,2024,True
+Financial Services,VRMA (Vacation Rental Management Association),1,2024,False
+Financial Services,Vertex Inc.,1,2024,False
+Financial Services,Wells Fargo,1,2024,True
+Financial Services,Wolters Kluwer,1,2024,False
+Financial Services,iA Financial Group,1,2024,False
+Financial Services,ADVISORS EXCEL,1,2023,False
+Financial Services,AIG,1,2023,False
+Financial Services,ALLOYA,1,2023,True
+Financial Services,AMERICAN FMI,1,2023,False
+Financial Services,BAIRD,1,2023,False
+Financial Services,Baird European Strategic Forum,1,2023,False
+Financial Services,CANADA LIFE,1,2023,False
+Financial Services,COREBRIDGE,1,2023,False
+Financial Services,FIDELITY INVESTMENTS,1,2023,True
+Financial Services,GULF WINDS CREDIT UNION,1,2023,False
+Financial Services,HSBC,1,2023,True
+Financial Services,INSURANCE MANAGERS ASSOCIATION,1,2023,False
+Financial Services,KPMG,1,2023,False
+Financial Services,LPL,1,2023,False
+Financial Services,LPL FINANCIAL,1,2023,False
+Financial Services,MANULIFE,1,2023,False
+Financial Services,NACHA,1,2023,False
+Financial Services,NATIONAL INTERSTATE,1,2023,False
+Financial Services,NEPC,1,2023,False
+Financial Services,OAIC,1,2023,False
+Financial Services,ORION,1,2023,False
+Financial Services,SANCTUARY WEALTH,1,2023,False
+Financial Services,SIGNATURE TRAVEL,1,2023,False
+Financial Services,STATE ST,1,2023,False
+Financial Services,THRIVENT,1,2023,False
+Financial Services,WOLTERS KLUWER,1,2023,False
+Financial Services,AASCIF (2),1,2022,False
+Financial Services,ABELS FINANCIAL,1,2022,True
+Financial Services,AFT,1,2022,False
+Financial Services,ALL STATE,1,2022,True
+Financial Services,ANTHEM / ELEVANCE,1,2022,False
+Financial Services,BAKER TILLY,1,2022,False
+Financial Services,BETHESDA FOUNDATION,1,2022,False
+Financial Services,BIG I NY,1,2022,False
+Financial Services,CAMBRDIGE FINANCIAL,1,2022,False
+Financial Services,CREDIT ACCEPTANCE,1,2022,False
+Financial Services,DESJARDINS (R2),1,2022,False
+Financial Services,EXPRESS EMPLOYMENT,1,2022,True
+Financial Services,FEDERAL HOME LOAN BANK,1,2022,False
+Financial Services,FIDELITY (FIS),1,2022,False
+Financial Services,FIFTH AVE FINANCIAL,1,2022,True
+Financial Services,HM INSURANCE (R2),1,2022,False
+Financial Services,INVESTOR GROUP,1,2022,False
+Financial Services,JOHN HANCOCK PRE,1,2022,False
+Financial Services,KANSAS CITY LIFE INSURANCE,1,2022,False
+Financial Services,LIBERTY MUTUAL,1,2022,True
+Financial Services,LINCOLN FINANCIAL,1,2022,False
+Financial Services,LINCOLN PRESIDENT'S CABINET,1,2022,False
+Financial Services,MASSMUTUAL,1,2022,False
+Financial Services,PGIS/TRUE NETWORK,1,2022,False
+Financial Services,RAYMOND JAMES,1,2022,True
+Financial Services,SECURIAN,1,2022,False
+Financial Services,SEI (R),1,2022,False
+Financial Services,SHOPPERS DRUG MART (R),1,2022,False
+Financial Services,TAI,1,2022,True
+Financial Services,TD,1,2022,True
+Financial Services,VISTA EQUITY,1,2022,False
+Financial Services,WELLS FARGO ADVISORS,1,2022,True
+Financial Services,XERO/INVNT,1,2022,False
+Financial Services,Aascif,1,2021,False
+Financial Services,Advisor Group,1,2021,False
+Financial Services,Af Group,1,2021,False
+Financial Services,Aicpa,1,2021,True
+Financial Services,Assetmark,1,2021,True
+Financial Services,Bank Of America,1,2021,True
+Financial Services,Barnum Financial,1,2021,True
+Financial Services,Big I Kentucky,1,2021,False
+Financial Services,Brightworth,1,2021,True
+Financial Services,Buchanan Auto Group,1,2021,False
+Financial Services,Cherry Bekhert,1,2021,True
+Financial Services,Dmc Network,1,2021,False
+Financial Services,Dprcg,1,2021,False
+Financial Services,First Horizon Bank,1,2021,False
+Financial Services,Hm Insurance Group,1,2021,False
+Financial Services,John Hancock,1,2021,True
+Financial Services,John Hancock Virtual,1,2021,True
+Financial Services,Lincoln,1,2021,False
+Financial Services,Lincoln President'S Cabinet,1,2021,False
+Financial Services,Navy Federal Credit Union,1,2021,True
+Financial Services,Penn Mutual,1,2021,False
+Financial Services,Performline,1,2021,True
+Financial Services,Protective Life,1,2021,True
+Financial Services,Sunlife,1,2021,True
+Financial Services,Texas Land Title Association,1,2021,False
+Financial Services,Washington Trust,1,2021,True
+Financial Services,Wi Credit Union,1,2021,True
+Financial Services,Wings Financial,1,2021,True
+Financial Services,AASCIF,1,2020,False
+Financial Services,ACEC,1,2020,True
+Financial Services,AGENCY ONE,1,2020,True
+Financial Services,ALLSTATE,1,2020,True
+Financial Services,AMERICAN COLLEGE OF FOOT & ANKLE SURGEONS,1,2020,False
+Financial Services,AMERITAS,1,2020,True
+Financial Services,BANK OF AMERICA,1,2020,False
+Financial Services,BEACON,1,2020,True
+Financial Services,BLUE CROSS,1,2020,False
+Financial Services,BLUE CROSS BLUE SHIELD,1,2020,False
+Financial Services,BRIGHTWORTH,1,2020,False
+Financial Services,CCUA,1,2020,True
+Financial Services,CENTERSTONE,1,2020,False
+Financial Services,COX AUTO,1,2020,False
+Financial Services,CPCU SOCIETY IN2RISK,1,2020,True
+Financial Services,CRISTUS HEALTH,1,2020,False
+Financial Services,CSAA,1,2020,False
+Financial Services,EQUITABLE LIFE INSURANCE,1,2020,False
+Financial Services,FINSECA,1,2020,True
+Financial Services,GAINESVILLE,1,2020,True
+Financial Services,GARTNERS,1,2020,False
+Financial Services,HFMA,1,2020,False
+Financial Services,HOME DEPOT,1,2020,False
+Financial Services,ICAPITAL NETWORK,1,2020,True
+Financial Services,ICUL,1,2020,True
+Financial Services,ISLAND WEALTH,1,2020,True
+Financial Services,LAMP,1,2020,False
+Financial Services,LPL FOCUS,1,2020,False
+Financial Services,LRECW,1,2020,False
+Financial Services,MAFSI,1,2020,False
+Financial Services,MOTHER TO MOTHER,1,2020,False
+Financial Services,OHIO REALTORS,1,2020,True
+Financial Services,ONE RESOURCE GROUP,1,2020,False
+Financial Services,PPAI EXPO,1,2020,False
+Financial Services,RB HEALTH,1,2020,True
+Financial Services,SMASHFLY,1,2020,True
+Financial Services,TIDEWELL,1,2020,False
+Financial Services,TRANSFORM (AALU),1,2020,False
+Financial Services,UNUM,1,2020,False
+Financial Services,VITUITY,1,2020,True
+Financial Services,WINSHUTTLE,1,2020,True
+Financial Services,America First Credit Union,1,2019,False
+Financial Services,Capital One,1,2019,False
+Financial Services,Community Bankers of Illinois,1,2019,False
+Financial Services,FICP (Financial & Insurance Conference Professionals),1,2019,False
+Financial Services,Guardian Life Insurance,1,2019,False
+Financial Services,Gunnison Valley Health,1,2019,False
+Financial Services,Jack Henry (Symitar),1,2019,False
+Financial Services,LOMA (Life Office Management Association),1,2019,False
+Financial Services,MDRT (Million Dollar Round Table),1,2019,False
+Financial Services,Nationwide,1,2019,False
+Financial Services,Principal Financial Group,1,2019,False
+Financial Services,The American College,1,2019,False
+Government & Public Sector,US PROBATION OFFICE,1,2023,False
+Government & Public Sector,CJPIA,1,2022,False
+Government & Public Sector,CSFMO,1,2022,False
+Government & Public Sector,LEAGUE OF CITIES,1,2022,False
+Government & Public Sector,NASHVILLE AGA,1,2022,True
+Government & Public Sector,Apwa,1,2021,False
+Government & Public Sector,APWA,1,2020,False
+Healthcare & Pharma,Sanofi,2,2026,True
+Healthcare & Pharma,IU Health,2,2024,True
+Healthcare & Pharma,FHA,2,2023,False
+Healthcare & Pharma,CHARTWELL,2,2022,True
+Healthcare & Pharma,GLOBUS MEDICAL,2,2022,False
+Healthcare & Pharma,Bridgeway,2,2021,False
+Healthcare & Pharma,Health Connect Partners,2,2019,False
+Healthcare & Pharma,Acadia Pharmaceuticals,1,2026,False
+Healthcare & Pharma,GSK (GlaxoSmithKline),1,2026,False
+Healthcare & Pharma,Senior Star (senior living communities),1,2026,True
+Healthcare & Pharma,Alcon,1,2025,False
+Healthcare & Pharma,American Pharmacists Association (APhA),1,2025,False
+Healthcare & Pharma,Baptist Health South Florida,1,2025,False
+Healthcare & Pharma,BioGuard,1,2025,False
+Healthcare & Pharma,GPIN (Group Purchasing/Physician Independent Network),1,2025,False
+Healthcare & Pharma,Kura Oncology / Kyowa Kirin (Blueprint Medicines),1,2025,False
+Healthcare & Pharma,Mirum Pharmaceuticals,1,2025,False
+Healthcare & Pharma,National Athletic Trainers' Association (NATA),1,2025,False
+Healthcare & Pharma,PERC (Ophthalmology/Optometry Alliance),1,2025,False
+Healthcare & Pharma,Serious Business (hair/salon industry event),1,2025,False
+Healthcare & Pharma,United Therapeutics,1,2025,False
+Healthcare & Pharma,APTA Private Practice (Physical Therapy Section),1,2024,False
+Healthcare & Pharma,Abbott Laboratories,1,2024,False
+Healthcare & Pharma,Access (DMC event planning company) - 'Envision' internal conference,1,2024,False
+Healthcare & Pharma,American Case Management Association (ACMA),1,2024,False
+Healthcare & Pharma,BWH Hotels (Best Western Hotels & Resorts),1,2024,False
+Healthcare & Pharma,CHG Healthcare,1,2024,True
+Healthcare & Pharma,California Association of Health Plans (CAHP),1,2024,False
+Healthcare & Pharma,Club Management Association of America (CMAA),1,2024,False
+Healthcare & Pharma,Incentive Research Foundation (IRF),1,2024,False
+Healthcare & Pharma,Optum / UnitedHealth Group,1,2024,False
+Healthcare & Pharma,Pacific Retirement Services,1,2024,False
+Healthcare & Pharma,Prime Therapeutics,1,2024,False
+Healthcare & Pharma,SCA Health (Surgical Care Affiliates),1,2024,False
+Healthcare & Pharma,Schlegel Villages,1,2024,False
+Healthcare & Pharma,Schwarzkopf Professional (Henkel Corporation),1,2024,False
+Healthcare & Pharma,Sentara Health Plans/Optima Health,1,2024,False
+Healthcare & Pharma,Terumo Blood & Cell Technologies,1,2024,False
+Healthcare & Pharma,The Child Care Success Company (CCSC),1,2024,False
+Healthcare & Pharma,UnitedHealthcare,1,2024,False
+Healthcare & Pharma,Voluntary Protection Programs Participants' Association (VPPPA),1,2024,False
+Healthcare & Pharma,Zoetis,1,2024,False
+Healthcare & Pharma,ACHE,1,2023,False
+Healthcare & Pharma,ADM,1,2023,False
+Healthcare & Pharma,AMERICAN COLLEGE OF HEALTHCARE,1,2023,False
+Healthcare & Pharma,AMTA,1,2023,False
+Healthcare & Pharma,BBYO,1,2023,False
+Healthcare & Pharma,BCBS ALABAMA (R2),1,2023,False
+Healthcare & Pharma,BCBSSC,1,2023,False
+Healthcare & Pharma,BE THE MATCH,1,2023,False
+Healthcare & Pharma,DTA,1,2023,False
+Healthcare & Pharma,ELLIE MENTAL HEALTH,1,2023,False
+Healthcare & Pharma,MANAGED HEALTHCARE ASS.,1,2023,False
+Healthcare & Pharma,NAHC,1,2023,False
+Healthcare & Pharma,NJHA,1,2023,False
+Healthcare & Pharma,NORTHERN WESTCHESTER,1,2023,True
+Healthcare & Pharma,SURGICAL CARE,1,2023,False
+Healthcare & Pharma,VERADIGM,1,2023,False
+Healthcare & Pharma,YPO,1,2023,True
+Healthcare & Pharma,AAP,1,2022,False
+Healthcare & Pharma,AAPD,1,2022,False
+Healthcare & Pharma,ABBVIE,1,2022,False
+Healthcare & Pharma,AHA (R),1,2022,False
+Healthcare & Pharma,AMERICAN NURSES,1,2022,False
+Healthcare & Pharma,AMERICAN OSTEOPATHIC,1,2022,False
+Healthcare & Pharma,ASPIRUS HEALTHCARE (R2),1,2022,False
+Healthcare & Pharma,AUDIENCE COMM/GSK,1,2022,False
+Healthcare & Pharma,BAYER,1,2022,True
+Healthcare & Pharma,BRIDGEWAY (R2),1,2022,False
+Healthcare & Pharma,CISCO/MERAKI,1,2022,True
+Healthcare & Pharma,COMMUNITY HEALTH SYSTEMS,1,2022,False
+Healthcare & Pharma,CROSS COUNTRY HEALTHCARE,1,2022,False
+Healthcare & Pharma,EYE RECOMMEND,1,2022,False
+Healthcare & Pharma,FHCA,1,2022,False
+Healthcare & Pharma,HAWTHORN SR LIVING,1,2022,False
+Healthcare & Pharma,HEALTHSOURCE (R2),1,2022,False
+Healthcare & Pharma,HONEYWELL (R),1,2022,False
+Healthcare & Pharma,IAHCSMM (NOW HSPA),1,2022,False
+Healthcare & Pharma,IFDA,1,2022,False
+Healthcare & Pharma,IIDA,1,2022,False
+Healthcare & Pharma,IN DEAL CARES,1,2022,False
+Healthcare & Pharma,JOHN KNOX,1,2022,True
+Healthcare & Pharma,LHA,1,2022,True
+Healthcare & Pharma,METRO CONNECTIONS,1,2022,False
+Healthcare & Pharma,NABH,1,2022,False
+Healthcare & Pharma,OPTUM,1,2022,False
+Healthcare & Pharma,RESTORE HYPER,1,2022,False
+Healthcare & Pharma,ROCHE,1,2022,True
+Healthcare & Pharma,SENOVVA,1,2022,True
+Healthcare & Pharma,TRANSITIONS OPTICAL,1,2022,False
+Healthcare & Pharma,TRANSITIONS/ADM,1,2022,False
+Healthcare & Pharma,VPPPA (R2),1,2022,False
+Healthcare & Pharma,Abbot Virtual,1,2021,True
+Healthcare & Pharma,Abbott Diabetes,1,2021,True
+Healthcare & Pharma,Aha,1,2021,False
+Healthcare & Pharma,American Dental Association,1,2021,True
+Healthcare & Pharma,Aspirus Healthcare,1,2021,True
+Healthcare & Pharma,Aya,1,2021,True
+Healthcare & Pharma,Aya Aa Kickoff,1,2021,True
+Healthcare & Pharma,Bcbs Alabama,1,2021,False
+Healthcare & Pharma,Bcbssc,1,2021,True
+Healthcare & Pharma,Bd,1,2021,True
+Healthcare & Pharma,Bryan Health,1,2021,True
+Healthcare & Pharma,Cardinal Health,1,2021,True
+Healthcare & Pharma,Cigna,1,2021,True
+Healthcare & Pharma,Cihi,1,2021,True
+Healthcare & Pharma,Dsoa,1,2021,True
+Healthcare & Pharma,Endo Pharma,1,2021,False
+Healthcare & Pharma,Esc 4,1,2021,True
+Healthcare & Pharma,Florida Ha,1,2021,False
+Healthcare & Pharma,Floyd Lee Locums,1,2021,False
+Healthcare & Pharma,Healthsource,1,2021,False
+Healthcare & Pharma,Hmhs,1,2021,False
+Healthcare & Pharma,John Knox,1,2021,False
+Healthcare & Pharma,Leading Age Ca,1,2021,True
+Healthcare & Pharma,Leading Age Fl,1,2021,False
+Healthcare & Pharma,Louisiana Hospital Association,1,2021,False
+Healthcare & Pharma,Medirevv,1,2021,True
+Healthcare & Pharma,Naccme,1,2021,True
+Healthcare & Pharma,Nd Behavioral Health,1,2021,False
+Healthcare & Pharma,Nghs,1,2021,False
+Healthcare & Pharma,Rb Health,1,2021,True
+Healthcare & Pharma,Sodexo,1,2021,True
+Healthcare & Pharma,Sunrise Dental,1,2021,False
+Healthcare & Pharma,AHA,1,2020,False
+Healthcare & Pharma,ASPIRUS HEALTHCARE,1,2020,False
+Healthcare & Pharma,ASSOC OF AIR MEDICAL SERVICES,1,2020,True
+Healthcare & Pharma,ASTA,1,2020,True
+Healthcare & Pharma,AUTODESK,1,2020,False
+Healthcare & Pharma,BRIDGEWAY,1,2020,False
+Healthcare & Pharma,CHEM,1,2020,False
+Healthcare & Pharma,FLORIDA HA,1,2020,False
+Healthcare & Pharma,HEALTHSOURCE,1,2020,False
+Healthcare & Pharma,HMHS,1,2020,False
+Healthcare & Pharma,IREM,1,2020,True
+Healthcare & Pharma,LAP OF LOVE,1,2020,False
+Healthcare & Pharma,LAURA BUSH INSTITUTE FOR WOMEN'S HEALTH,1,2020,False
+Healthcare & Pharma,LOUISIANA HOSPITAL ASSOC,1,2020,False
+Healthcare & Pharma,NOOM,1,2020,True
+Healthcare & Pharma,NPMA,1,2020,True
+Healthcare & Pharma,SCPRT,1,2020,False
+Healthcare & Pharma,SUNRISE DENTAL,1,2020,False
+Healthcare & Pharma,TCASE,1,2020,False
+Healthcare & Pharma,VIEWPOINT,1,2020,False
+Healthcare & Pharma,VISIT DETROIT,1,2020,False
+Healthcare & Pharma,ASDA (American Student Dental Association),1,2019,False
+Healthcare & Pharma,Arkansas Hospital Association,1,2019,False
+Healthcare & Pharma,Aya Healthcare,1,2019,False
+Healthcare & Pharma,Beacon Health System,1,2019,False
+Healthcare & Pharma,Cedars-Sinai,1,2019,False
+Healthcare & Pharma,Emory (Nemtin International Training),1,2019,False
+Healthcare & Pharma,Iowa Primary Care Association,1,2019,False
+Healthcare & Pharma,Maryland Healthcare Education Institute,1,2019,False
+Healthcare & Pharma,Parkview Health,1,2019,False
+Healthcare & Pharma,PennWell (Endeavor),1,2019,False
+Healthcare & Pharma,Texas Healthcare Trustees,1,2019,False
+Healthcare & Pharma,Vizient,1,2019,False
+Hospitality & Events,Runningman (endurance/obstacle event),1,2025,False
+Hospitality & Events,World Micro,1,2024,False
+Hospitality & Events,DELTA VACA,1,2023,False
+Hospitality & Events,EURONET,1,2023,False
+Hospitality & Events,INTERNATIONAL SPA,1,2023,False
+Hospitality & Events,FREEMAN,1,2022,False
+Hospitality & Events,GDA LIVE,1,2022,False
+Hospitality & Events,SCI,1,2022,True
+Hospitality & Events,T-MOBILE L.E.A.D.,1,2022,True
+Hospitality & Events,Alhi,1,2021,False
+Hospitality & Events,Deloitte,1,2021,True
+Hospitality & Events,Keller Williams,1,2021,True
+Hospitality & Events,Lifespace,1,2021,True
+Hospitality & Events,MPI WEC,1,2020,False
+Hospitality & Events,PCMA,1,2020,False
+Hospitality & Events,Smart Meetings,1,2019,False
+Industrial & Energy,Caterpillar (CAT),1,2026,False
+Industrial & Energy,Event Connections / Renewal by Andersen (RbA),1,2026,False
+Industrial & Energy,Hayward Industries,1,2026,False
+Industrial & Energy,Southeastern Electric Exchange (SEE),1,2026,False
+Industrial & Energy,Tennessee Valley Authority (TVA),1,2026,False
+Industrial & Energy,Mueller Water Products,1,2025,False
+Industrial & Energy,Cheniere Energy (LNG),1,2024,False
+Industrial & Energy,Constellation Energy,1,2024,False
+Industrial & Energy,TransAlta Corporation,1,2024,False
+Industrial & Energy,thINK Forum (Canon),1,2024,False
+Industrial & Energy,SUPPORTWORKS,1,2023,False
+Industrial & Energy,GULF POWER,1,2022,False
+Industrial & Energy,ICA (R),1,2022,True
+Industrial & Energy,MSCA,1,2022,False
+Industrial & Energy,RAYTHEON,1,2022,True
+Industrial & Energy,STARNET WORLDWIDE (R),1,2022,False
+Industrial & Energy,3M,1,2021,True
+Industrial & Energy,Monster Energy,1,2021,True
+Industrial & Energy,Siemens,1,2021,False
+Industrial & Energy,Wheels Inc,1,2021,True
+Industrial & Energy,ASSOC. OF THE WALL & CEILING IND.,1,2020,False
+Industrial & Energy,MECHANICAL SERVICE CONTRACTORS,1,2020,False
+Industrial & Energy,NATIONAL UTILITY CONTRACTOR ASSOC,1,2020,False
+Industrial & Energy,PLCA,1,2020,False
+Industrial & Energy,PREGIS,1,2020,False
+Industrial & Energy,ARI Fleet / Holman,1,2019,False
+Industrial & Energy,PwC (PricewaterhouseCoopers),1,2019,False
+Media & Agencies,Podium (audiobook/author services co.),1,2026,False
+Media & Agencies,Team One (advertising agency),1,2025,False
+Media & Agencies,Tony Robbins / UPW (Unleash the Power Within),1,2024,True
+Media & Agencies,CONCEPT ARTS,1,2023,True
+Media & Agencies,ZILLOW,1,2023,False
+Media & Agencies,LIVENATION,1,2022,False
+Media & Agencies,MIGHTY DREAM PHARELL,1,2022,False
+Media & Agencies,REALSCREEN/BRUNICO,1,2022,False
+Media & Agencies,WORLDVIEW PANEL SXSW,1,2022,True
+Needs review,BLP,1,2023,False
+Needs review,EYCA,1,2023,False
+Needs review,MIKE ALLES,1,2023,False
+Needs review,PFIFC,1,2023,False
+Needs review,SCOTTSDALE,1,2023,False
+Needs review,ACAM,1,2022,False
+Needs review,CASAMATA,1,2022,False
+Needs review,UMEC,1,2022,True
+Needs review,Cbh,1,2021,True
+Needs review,Stratum,1,2021,True
+Needs review,HMI,1,2020,False
+Non-Profit/Community,Lincoln Young Professionals Group,1,2019,False
+Professional Services,Deloitte,6,2025,True
+Professional Services,Ernst & Young LLP (EY Canada),1,2026,False
+Professional Services,KPMG,1,2024,False
+Professional Services,MCDERMOTT,1,2022,False
+Professional Services,MILLIMAN,1,2022,False
+Professional Services,Bdo,1,2021,True
+Professional Services,Deloitte Fireside,1,2021,True
+Professional Services,Grant Thornton,1,2021,True
+Professional Services,Moss Adams,1,2021,False
+Professional Services,Rentokil,1,2021,True
+Professional Services,Rentokill Virtual Live,1,2021,True
+Professional Services,CDI (CEO group),1,2019,False
+Real Estate,AMS Properties,1,2024,False
+Real Estate,CBRE,1,2024,False
+Real Estate,HomeLife,1,2024,False
+Real Estate,Industrial Asset Management Council (IAMC),1,2024,False
+Real Estate,AZ ASS. OF REALTORS,1,2023,False
+Real Estate,DOUGLAS ELLIMAN,1,2023,False
+Real Estate,FVREB,1,2023,False
+Real Estate,REALTYONE,1,2023,True
+Real Estate,UTAH ASSOCIATION OF REALTORS,1,2023,False
+Real Estate,AYALA LAND,1,2022,True
+Real Estate,EMERSON,1,2022,False
+Real Estate,NAR,1,2022,False
+Real Estate,REALTY ONE (R),1,2022,True
+Real Estate,TRANSWESTERN,1,2022,False
+Real Estate,Realty One,1,2021,False
+Real Estate,Weichert Real Estate,1,2021,False
+Real Estate,ENGEL & VOLKERS,1,2020,False
+Real Estate,REALTY ONE,1,2020,True
+Real Estate,WEICHART REAL ESTATE,1,2020,False
+Real Estate,Georgia Apartment Association,1,2019,False
+Retail & Consumer,FOODMARKETPLACE (FMI),4,2022,True
+Retail & Consumer,COCACOLA,2,2023,True
+Retail & Consumer,KELLOGG,2,2023,True
+Retail & Consumer,WALMART,2,2023,False
+Retail & Consumer,Ace Hardware,1,2026,False
+Retail & Consumer,Dr Pepper (Keurig Dr Pepper - Orange County distribution),1,2026,False
+Retail & Consumer,United Aqua Group (UAG),1,2026,False
+Retail & Consumer,Wakefern Food Corp,1,2026,False
+Retail & Consumer,Women's Foodservice Forum (WFF),1,2026,False
+Retail & Consumer,Aunt Millie's,1,2025,False
+Retail & Consumer,Boston Pizza International,1,2025,False
+Retail & Consumer,Intelligent Change,1,2025,False
+Retail & Consumer,Japan Tobacco International (JTI),1,2025,True
+Retail & Consumer,Kimberly-Clark,1,2025,True
+Retail & Consumer,NARTA (North American Retail Travel Assoc.),1,2025,False
+Retail & Consumer,Shell Oil / Jiffy Lube International,1,2025,False
+Retail & Consumer,ALLPRO Corporation,1,2024,False
+Retail & Consumer,Henkel Corporation,1,2024,False
+Retail & Consumer,Plexus Worldwide,1,2024,False
+Retail & Consumer,Puratos,1,2024,False
+Retail & Consumer,Sonic,1,2024,False
+Retail & Consumer,WinField United,1,2024,False
+Retail & Consumer,GOT JUNK,1,2023,False
+Retail & Consumer,ORANGE THEORY,1,2023,False
+Retail & Consumer,USLAW,1,2023,False
+Retail & Consumer,Winesense,1,2023,False
+Retail & Consumer,ZEIGLER AUTO,1,2023,False
+Retail & Consumer,DENNY’S,1,2022,False
+Retail & Consumer,IJO,1,2022,True
+Retail & Consumer,NHDA,1,2022,False
+Retail & Consumer,PIZZA FACTORY,1,2022,False
+Retail & Consumer,Axonify,1,2021,True
+Retail & Consumer,Franchise Update,1,2021,False
+Retail & Consumer,Rb Hygene,1,2021,True
+Retail & Consumer,Starnet Worldwide,1,2021,False
+Sports & Entertainment,COWBOYS,1,2023,False
+Technology,Google,4,2025,False
+Technology,PINK ELEPHANT (R),2,2022,False
+Technology,Autodesk,2,2021,True
+Technology,HONEYWELL,2,2020,False
+Technology,Meta (Facebook),1,2026,True
+Technology,"Vertex (Vertex Inc, tax software)",1,2026,False
+Technology,Aline (Senior Living Technology),1,2025,False
+Technology,All Star Purchasing Co-op,1,2025,False
+Technology,Jobsity,1,2025,True
+Technology,Microsoft,1,2025,False
+Technology,National Association of Landscape Professionals (NALP),1,2025,False
+Technology,Quorum Software,1,2025,False
+Technology,Redaptive,1,2025,False
+Technology,Tundra Technical Solutions,1,2025,False
+Technology,WorkForce Software (Vision conference),1,2025,False
+Technology,Association of Kentucky Fried Chicken Franchisees (AKFCF),1,2024,False
+Technology,AuditBoard,1,2024,True
+Technology,AutoLeap,1,2024,True
+Technology,BBYO,1,2024,False
+Technology,KCI Technologies,1,2024,False
+Technology,NETSCOUT Systems,1,2024,False
+Technology,NetApp,1,2024,False
+Technology,Postman,1,2024,False
+Technology,Professional Development Week (PDW) / DPI Canada,1,2024,False
+Technology,Spotter,1,2024,False
+Technology,Virginia Tech / Virginia Dept of General Services (Public Procurement Forum),1,2024,False
+Technology,Virginia Tech / Virginia Institute of Procurement,1,2024,True
+Technology,W Services Group,1,2024,False
+Technology,CET/ INDEAL RESCHEDULE,1,2023,False
+Technology,DELOITTE,1,2023,False
+Technology,REPLICATED,1,2023,True
+Technology,SERVICENOW,1,2023,True
+Technology,VISION,1,2023,False
+Technology,ADVANCED,1,2022,True
+Technology,BUFFINI MASTERMIND,1,2022,False
+Technology,CISCO INSIGHT,1,2022,True
+Technology,COACH HUB VIRTUAL 2,1,2022,True
+Technology,COACHHUB VIRTUAL,1,2022,True
+Technology,DELL,1,2022,False
+Technology,HMHS (R2),1,2022,False
+Technology,INTELISYS,1,2022,True
+Technology,KELLOGG,1,2022,True
+Technology,NISC,1,2022,False
+Technology,STATS PERFORM,1,2022,True
+Technology,STIBO SYSTEMS,1,2022,False
+Technology,TRIPLESEAT,1,2022,False
+Technology,VIZIENT / PROVISTA,1,2022,False
+Technology,XERO,1,2022,False
+Technology,Ahtd,1,2021,False
+Technology,Autodesk Workshop,1,2021,False
+Technology,Bmc,1,2021,True
+Technology,Equinix,1,2021,True
+Technology,Esc,1,2021,True
+Technology,National Emergency Number Assn,1,2021,False
+Technology,Netflix,1,2021,True
+Technology,Northwestern Ips Summit,1,2021,True
+Technology,Pcma,1,2021,False
+Technology,Pink Elephant,1,2021,False
+Technology,Pinterest,1,2021,True
+Technology,School Nutrition Association,1,2021,True
+Technology,Werpn,1,2021,True
+Technology,PERFORM LINE,1,2020,False
+Technology,SIEMENS,1,2020,False
+Technology,TRIMBLE INC.,1,2020,True
+Technology,WEC,1,2020,False
+Technology,Central Access,1,2019,False
+Technology,Deloitte,1,2019,False
+Technology,EA Summit,1,2019,False
+Technology,Home Depot,1,2019,False
+Technology,LIFT Labs (Comcast),1,2019,False
+Technology,ROC Tech Conference / Greater Rochester Chamber,1,2019,False
+Technology,Salvation Army / Boys & Girls Club (Irving),1,2019,False
+Technology,T2 Systems,1,2019,False
+Technology,TaxJar,1,2019,True
+Unknown,IASB,1,2025,False

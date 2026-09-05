@@ -1,0 +1,181 @@
+{
+  "table": "Drafts",
+  "tableId": "tbl5wrbwNxZkPZ0q2",
+  "fields": [
+    {
+      "id": "fld2PrU4UYKP4JU8y",
+      "name": "Subject",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldzZdUzGnCEn35aW",
+      "name": "Type",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldtwpi0fKwf4rUTt",
+      "name": "Body",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldQYnNPNoe7o1gZR",
+      "name": "Status",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldIamo61CbqHyHhY",
+      "name": "To",
+      "type": "email"
+    },
+    {
+      "id": "fldKLfCUPUKdtdKYN",
+      "name": "Approver",
+      "type": "email"
+    },
+    {
+      "id": "fldUIjodHpwoVZdhK",
+      "name": "Sent At",
+      "type": "dateTime"
+    },
+    {
+      "id": "fldOscAv7NWpEj3tM",
+      "name": "Thread ID",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld4gUV5AZIf64xn9",
+      "name": "Checker Verdict",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldJ5fmT8IkdSsKUc",
+      "name": "Revisions",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldhPd44g3Gz3ouPY",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec2GBEDxXEXlIT9z",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Thank you — and one small ask",
+        "Checker Verdict": "{\"ok\":true,\"issues\":[],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "esokolova@aldergate.example",
+        "Revisions": "[]",
+        "Status": "Proposed",
+        "Deal": [
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Body": "Hi Elena,\n\nThank you for having me at the Partner Retreat. The room was generous and the questions were excellent.\n\nIf the session landed, a short testimonial would mean a great deal — two or three sentences is plenty.\n\nAnd you mentioned a Q2 session for the advisor network; I would love to talk about it whenever suits.\n\nBest,\nBen",
+        "Type": "Debrief"
+      }
+    },
+    {
+      "id": "recBHVskgKh3Czqs5",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Welcome aboard — a few things for the Advisor Kickoff",
+        "Checker Verdict": "{\"ok\":true,\"issues\":[],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "jwhitlock@aldergate.example",
+        "Revisions": "[]",
+        "Approver": "liezel@bennemtin.com",
+        "Status": "Sent",
+        "Sent At": "2026-08-11T10:58:13.359Z",
+        "Deal": [
+          "rec69b6siA662sfhm"
+        ],
+        "Body": "Hi Jonah,\n\nDelighted this is happening. Three things to get us moving:\n\n1. The questionnaire — it takes about ten minutes and shapes the whole session.\n2. Speaker assets (bio, headshots, AV rider).\n3. A planning call about four weeks out.\n\nWe will take care of the rest.\n\nBest,\nThe Ben Nemtin team",
+        "Type": "Kit"
+      }
+    },
+    {
+      "id": "recIH1XpNKu0JbMtv",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Reno — AV window and onsite contact",
+        "Checker Verdict": "{\"ok\":false,\"issues\":[\"Stage time is not set on the deal — confirm the slot before sending.\"],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "tokafor@northwindlogistics.example",
+        "Revisions": "[]",
+        "Status": "Proposed",
+        "Deal": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Body": "Hi Tomas,\n\nAhead of Reno I want to confirm the AV check window and who I should look for on the morning.\n\nBest,\nThe Ben Nemtin team",
+        "Type": "Chase"
+      }
+    },
+    {
+      "id": "recc2qNRtdqwU025r",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Checking in — Regional Managers Meeting",
+        "Checker Verdict": "{\"ok\":true,\"issues\":[],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "rlindqvist@cascadegrove.example",
+        "Revisions": "[]",
+        "Status": "Proposed",
+        "Deal": [
+          "rec5ZcclTADcn3Egc"
+        ],
+        "Body": "Hi Rachel,\n\nJust a short note to check in on the Regional Managers Meeting. We are still holding the date, and I wanted to make sure you have everything you need for the board conversation.\n\nAnything I can answer?\n\nBest,\nBen",
+        "Type": "Follow-Up"
+      }
+    },
+    {
+      "id": "recraGDiq9RNv3MTb",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Thanks for reaching out about the Frontline Leaders Summit",
+        "Checker Verdict": "{\"ok\":true,\"issues\":[],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "nelamin@vantagerail.example",
+        "Revisions": "[]",
+        "Approver": "auto",
+        "Status": "Sent",
+        "Sent At": "2026-08-15T10:58:13.359Z",
+        "Deal": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Body": "Hi Nadia,\n\nThank you for getting in touch about the Frontline Leaders Summit. I have your details and will come back to you within one business day with availability and next steps.\n\nBest,\nThe Ben Nemtin team",
+        "Type": "Ack"
+      }
+    },
+    {
+      "id": "rectakTK7k03S2xb1",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Should we release the hold?",
+        "Checker Verdict": "{\"ok\":true,\"issues\":[],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "sbrandt@bluepeakhealth.example",
+        "Revisions": "[]",
+        "Status": "Proposed",
+        "Deal": [
+          "recTcKBVBU9PWAgzD"
+        ],
+        "Body": "Hi Sofia,\n\nWe have been holding the week for the Nursing Leadership Forum. Another enquiry has come in for the same dates, so before I let them go I wanted to check whether this is still live on your side.\n\nA yes, a no, or a \"not yet\" are all genuinely useful — I would rather know than guess.\n\nBest,\nBen",
+        "Type": "Forcing"
+      }
+    },
+    {
+      "id": "reczIU17kMa0VNDp8",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Subject": "Quick nudge — run-of-show for Chicago",
+        "Checker Verdict": "{\"ok\":true,\"issues\":[],\"model\":\"claude-haiku-4-5\",\"checkedAt\":\"2026-08-16T10:58:13.359Z\"}",
+        "To": "pkelleher@northwindlogistics.example",
+        "Revisions": "[]",
+        "Approver": "liezel@bennemtin.com",
+        "Status": "Sent",
+        "Sent At": "2026-08-13T10:58:13.359Z",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Body": "Hi Priya,\n\nWe are eleven days out and I do not have the run-of-show yet. It is the last piece we need to lock the AV window.\n\nBest,\nThe Ben Nemtin team",
+        "Type": "Chase"
+      }
+    }
+  ]
+}

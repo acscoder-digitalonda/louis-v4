@@ -1,0 +1,376 @@
+{
+  "table": "Clients",
+  "tableId": "tblrMl2530lYOQlRX",
+  "fields": [
+    {
+      "id": "flddqtilJkFsP1q8I",
+      "name": "Company Name",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld0hxkLzbDZcQopV",
+      "name": "Company Domain",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldNyBDMmihUDyBdT",
+      "name": "Industry",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldKzI3Z2jpcXe7Db",
+      "name": "Website",
+      "type": "url"
+    },
+    {
+      "id": "fldSHRSLNTpPxcWBW",
+      "name": "HQ",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldiM3o8aR72i6rUn",
+      "name": "Relationship Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldS0cBukF0oNCvyT",
+      "name": "Deals",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldA98HmPqW3GZp02",
+      "name": "Contacts",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldanT7s8zbN8rZsy",
+      "name": "Contacts 2",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldNfE3HWAZKdGsam",
+      "name": "Deals 2",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldqJdnBKFbUcBwt5",
+      "name": "Journal Orders",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "recG7vLwTLGizFqU4",
+      "createdTime": "2026-08-17T10:58:08.000Z",
+      "fields": {
+        "Company Domain": "aldergate.example",
+        "Deals 2": [
+          "rec69b6siA662sfhm",
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Industry": "Financial Services",
+        "HQ": "Charlotte, NC",
+        "Contacts 2": [
+          "recBgkLbqWxouE6Qk",
+          "rec9HMHyeyubbUhLr"
+        ],
+        "Company Name": "Aldergate Financial Group",
+        "Relationship Notes": "Booked through Summit Stage Speakers. Two engagements: one delivered, one signing.",
+        "Journal Orders": [
+          "recRtyTcuzUet7ZRh"
+        ]
+      }
+    },
+    {
+      "id": "recJgpka6CDh5iT65",
+      "createdTime": "2026-08-15T13:52:53.000Z",
+      "fields": {
+        "Company Domain": "silverlinehg.com",
+        "Website": "https://silverlinehg.com",
+        "Deals 2": [
+          "rec1E0SQIBM8F3NGz"
+        ],
+        "Industry": "Food Services",
+        "Company Name": "Silverline Hospitality Group",
+        "Relationship Notes": "Bureau\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recPNwSxKCyGRSVKZ",
+      "createdTime": "2026-08-17T10:58:08.000Z",
+      "fields": {
+        "Company Domain": "cascadegrove.example",
+        "Deals 2": [
+          "rec5ZcclTADcn3Egc"
+        ],
+        "Industry": "Food & Beverage",
+        "HQ": "Portland, OR",
+        "Contacts 2": [
+          "rec0cv2jgMbJjYvLk",
+          "recQRnHz0Cmjukg3d"
+        ],
+        "Company Name": "Cascade Grove Foods",
+        "Relationship Notes": "Direct. Decision date has passed with no reply — the follow-up timer has fired."
+      }
+    },
+    {
+      "id": "recRXdOv0NKrFWjfO",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "orchardpeakfoods.com",
+        "Website": "https://orchardpeakfoods.com",
+        "Deals 2": [
+          "recwhZ4I5uwByL7D4"
+        ],
+        "Industry": "Food Services",
+        "Company Name": "Orchard Peak Foods",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recSYKXji7u2JhCIu",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Deals 2": [
+          "rec4pEyIvD0IGzLvW"
+        ],
+        "Industry": "Food Services",
+        "Company Name": "Sysco",
+        "Relationship Notes": "Direct\n\nLeadership Summit. Direct."
+      }
+    },
+    {
+      "id": "recY3AEvZPrgNdK0o",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "glbenefits.org",
+        "Website": "https://glbenefits.org",
+        "Deals 2": [
+          "recK19Bmx80ErePa9"
+        ],
+        "Industry": "Association",
+        "Company Name": "Great Lakes Benefits Association",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recZ2UZwSg4dxcmnW",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "summitridgeit.org",
+        "Website": "https://summitridgeit.org",
+        "Deals 2": [
+          "recJ3DEIuIScvR4a7"
+        ],
+        "Industry": "IT",
+        "Company Name": "Summit Ridge IT Alliance",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recaKGQaBUpLFCXGR",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "meridianhealthpartners.com",
+        "Website": "https://meridianhealthpartners.com",
+        "Deals 2": [
+          "recuMZrsueqDG2jFU"
+        ],
+        "Industry": "Healthcare",
+        "Company Name": "Meridian Health Partners",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "reccsCHGOIPzxULyh",
+      "createdTime": "2026-08-15T13:52:53.000Z",
+      "fields": {
+        "Company Domain": "trailheadlogistics.com",
+        "Website": "https://trailheadlogistics.com",
+        "Deals 2": [
+          "recQuiDQX6HZE5P2o"
+        ],
+        "Industry": "Other",
+        "Company Name": "Trailhead Logistics",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recf4HeIoCZiOR0qU",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "lakeshorecul.org",
+        "Website": "https://lakeshorecul.org",
+        "Deals 2": [
+          "recY24yh2PvU8G3C0"
+        ],
+        "Industry": "Financial Services",
+        "Company Name": "Lakeshore Credit Union League",
+        "Relationship Notes": "Bureau\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recgeEKNonGdNiZve",
+      "createdTime": "2026-08-15T13:52:53.000Z",
+      "fields": {
+        "Deals 2": [
+          "rectsmMKyDFO7NKFe"
+        ],
+        "Industry": "Financial Services",
+        "Company Name": "JPMorgan Chase",
+        "Relationship Notes": "Direct\n\nRepeat client — multiple leadership events per year. Direct relationship."
+      }
+    },
+    {
+      "id": "reclINs6cuNY0ZAoh",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Deals 2": [
+          "reccs0FFVTT370Pp3"
+        ],
+        "Industry": "Association",
+        "Company Name": "WSIA",
+        "Relationship Notes": "Bureau\n\nBooked via Washington Speakers Bureau. Annual Marketplace event."
+      }
+    },
+    {
+      "id": "recoVtiY2BGwjhJnc",
+      "createdTime": "2026-08-15T13:52:53.000Z",
+      "fields": {
+        "Website": "https://digitalonda.com",
+        "Deals 2": [
+          "recWC7U4Nn4XE5x7k"
+        ],
+        "Industry": "IT",
+        "Company Name": "DigitalOnda",
+        "Relationship Notes": "Both\n\nTest client"
+      }
+    },
+    {
+      "id": "recoyva6tYeSM6gyd",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "brightstack.io",
+        "Website": "https://brightstack.io",
+        "Deals 2": [
+          "recDYj9LijgVs2Fpr"
+        ],
+        "Industry": "Technology",
+        "Company Name": "Brightstack Software",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recpMEZWNGN2RBuFB",
+      "createdTime": "2026-08-15T13:52:53.000Z",
+      "fields": {
+        "Company Domain": "mckee.com",
+        "Website": "https://www.mckeefoods.com",
+        "Deals 2": [
+          "recBE8JR15cZJGaf5"
+        ],
+        "Industry": "Food Services",
+        "Company Name": "McKee Foods",
+        "Relationship Notes": "Direct\n\nSnacks / impulse category. FY27 'Find a Way' messaging. Chattanooga HQ."
+      }
+    },
+    {
+      "id": "recqfEheEzhFeTvTh",
+      "createdTime": "2026-08-15T13:52:53.000Z",
+      "fields": {
+        "Company Domain": "copperlinemfg.com",
+        "Website": "https://copperlinemfg.com",
+        "Deals 2": [
+          "recZttSBWoifJTXuq"
+        ],
+        "Industry": "Manufacturing",
+        "Company Name": "Copperline Manufacturing",
+        "Relationship Notes": "Bureau\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recr0F4ViJFLhlzIn",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Deals 2": [
+          "recNQTIeC2Ht6DicM"
+        ],
+        "Industry": "Technology",
+        "Company Name": "Gartner",
+        "Relationship Notes": "Bureau\n\nIT Symposium. Booked via Worldwide Speakers Group."
+      }
+    },
+    {
+      "id": "recu1LpEZ7ua4ctPb",
+      "createdTime": "2026-08-15T13:52:52.000Z",
+      "fields": {
+        "Company Domain": "harborvale.com",
+        "Website": "https://harborvale.com",
+        "Deals 2": [
+          "recWVzKbxkSBjvWha"
+        ],
+        "Industry": "Financial Services",
+        "Company Name": "Harbor & Vale Financial",
+        "Relationship Notes": "Direct\n\nDemo record (fictional company)."
+      }
+    },
+    {
+      "id": "recv2po4DarIamMTQ",
+      "createdTime": "2026-08-17T10:58:08.000Z",
+      "fields": {
+        "Company Domain": "northwindlogistics.example",
+        "Deals 2": [
+          "recQ6aXpgUkF7eBFf",
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Industry": "Transportation & Logistics",
+        "HQ": "Chicago, IL",
+        "Contacts 2": [
+          "recKvFtpA14GJAcUA",
+          "recIfmf0NPQUBt3rH"
+        ],
+        "Company Name": "Northwind Logistics",
+        "Relationship Notes": "Direct. Two events this year in different regions — Chicago and Reno.",
+        "Journal Orders": [
+          "recWbKClSQXJOjrch",
+          "recLjTNOWlI2Otim3"
+        ]
+      }
+    },
+    {
+      "id": "reczDiJxi91VyqfiQ",
+      "createdTime": "2026-08-17T10:58:08.000Z",
+      "fields": {
+        "Company Domain": "vantagerail.example",
+        "Deals 2": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Industry": "Rail & Infrastructure",
+        "HQ": "Kansas City, MO",
+        "Contacts 2": [
+          "recNh7gbPfWcPAZgY",
+          "recYJrknHN8gsb2cW"
+        ],
+        "Company Name": "Vantage Rail Group",
+        "Relationship Notes": "Booked through Northlight Talent. Brand-new inquiry."
+      }
+    },
+    {
+      "id": "reczfQx0Osf8IAV4w",
+      "createdTime": "2026-08-17T10:58:08.000Z",
+      "fields": {
+        "Company Domain": "bluepeakhealth.example",
+        "Deals 2": [
+          "recTcKBVBU9PWAgzD"
+        ],
+        "Industry": "Healthcare",
+        "HQ": "Minneapolis, MN",
+        "Contacts 2": [
+          "rec9HV75sLpOiTrLb"
+        ],
+        "Company Name": "Bluepeak Health Alliance",
+        "Relationship Notes": "Direct. Hold placed in July and never moved."
+      }
+    }
+  ]
+}

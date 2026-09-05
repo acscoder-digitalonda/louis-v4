@@ -1,0 +1,74 @@
+{
+  "table": "Users",
+  "tableId": "tblxzI4liWH6z2k4q",
+  "fields": [
+    {
+      "id": "fldfZ98RdUj5OJn9n",
+      "name": "Email",
+      "type": "email"
+    },
+    {
+      "id": "fldAP6A6intbleCmM",
+      "name": "Name",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fld5LgLNoP1XsUFG2",
+      "name": "Role",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldBXiH5QdrfLDeNj",
+      "name": "Active",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldSbUSnEv3VP3tYq",
+      "name": "Landing Page",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldlrfhJSCWG2dBHx",
+      "name": "Notification Prefs",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldPUtkgq13bpxYaN",
+      "name": "Show Money Amounts",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldSJemoMuktC3XUt",
+      "name": "Theme",
+      "type": "singleSelect"
+    }
+  ],
+  "records": [
+    {
+      "id": "recDiR9MgQpL0GIMS",
+      "createdTime": "2026-08-15T14:14:44.000Z",
+      "fields": {
+        "Role": "admin",
+        "Active": true,
+        "Show Money Amounts": true,
+        "Theme": "system",
+        "Landing Page": "/pipeline",
+        "Email": "jordan@digitalonda.com",
+        "Notification Prefs": "{\"review-item\":\"in-app\",\"red-alert\":\"both\",\"worker-failure\":\"both\",\"payment-confirmed\":\"in-app\",\"contract-signed\":\"in-app\",\"cap-warning\":\"both\",\"qa-digest\":\"both\",\"mention\":\"both\"}"
+      }
+    },
+    {
+      "id": "recjyJSsktm8peFnS",
+      "createdTime": "2026-08-15T13:54:21.000Z",
+      "fields": {
+        "Role": "admin",
+        "Active": true,
+        "Show Money Amounts": true,
+        "Theme": "system",
+        "Landing Page": "/pipeline",
+        "Email": "team@digitalonda.com",
+        "Notification Prefs": "{\"review-item\":\"in-app\",\"red-alert\":\"both\",\"worker-failure\":\"both\",\"payment-confirmed\":\"in-app\",\"contract-signed\":\"in-app\",\"cap-warning\":\"both\",\"qa-digest\":\"both\",\"mention\":\"both\"}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "baseId": "app5In2fKegyPm4sU",
+  "exportedAt": "2026-09-04T13:04:35.765Z",
+  "note": "Raw dump keyed by Airtable field names. Record IDs are preserved for reference, but a reload creates new records with new IDs — linked-record fields will not reconnect automatically.",
+  "tables": [
+    {
+      "name": "Clients",
+      "id": "tblrMl2530lYOQlRX",
+      "file": "clients.json",
+      "records": 21
+    },
+    {
+      "name": "Contacts",
+      "id": "tbldJAabQl9uGeEgc",
+      "file": "contacts.json",
+      "records": 28
+    },
+    {
+      "name": "Deals",
+      "id": "tbllF8wDLdwj0RuGB",
+      "file": "deals.json",
+      "records": 23
+    },
+    {
+      "name": "Tasks",
+      "id": "tblz5uATg1uO8cyj2",
+      "file": "tasks.json",
+      "records": 13
+    },
+    {
+      "name": "Drafts",
+      "id": "tbl5wrbwNxZkPZ0q2",
+      "file": "drafts.json",
+      "records": 7
+    },
+    {
+      "name": "Emails",
+      "id": "tbl9YEESZKJT5fUA9",
+      "file": "emails.json",
+      "records": 2
+    },
+    {
+      "name": "Field Proposals",
+      "id": "tbl1pnbXNOQcBQzKR",
+      "file": "field-proposals.json",
+      "records": 2
+    },
+    {
+      "name": "Audit Log",
+      "id": "tblCm9vZudqZIXRlL",
+      "file": "audit-log.json",
+      "records": 4
+    },
+    {
+      "name": "Research Briefs",
+      "id": "tblW9kiO8SRJl61ll",
+      "file": "research-briefs.json",
+      "records": 1
+    },
+    {
+      "name": "Journal Orders",
+      "id": "tblZG2Yj1PGiYqzoY",
+      "file": "journal-orders.json",
+      "records": 3
+    },
+    {
+      "name": "Payments",
+      "id": "tblMVncbESIuLAxee",
+      "file": "payments.json",
+      "records": 15
+    },
+    {
+      "name": "Schedule Legs",
+      "id": "tblyNpy61TkKRYjgG",
+      "file": "schedule-legs.json",
+      "records": 24
+    },
+    {
+      "name": "Notifications",
+      "id": "tblPOmRr8njqmGrSX",
+      "file": "notifications.json",
+      "records": 4
+    },
+    {
+      "name": "Users",
+      "id": "tblxzI4liWH6z2k4q",
+      "file": "users.json",
+      "records": 2
+    },
+    {
+      "name": "Mirror State",
+      "id": "tblMHTIXIMzJmGiKc",
+      "file": "mirror-state.json",
+      "records": 0
+    },
+    {
+      "name": "Usage Log",
+      "id": "tblRm2hdoKtcRWQ3U",
+      "file": "usage-log.json",
+      "records": 7
+    },
+    {
+      "name": "Settings",
+      "id": "tblFcglTz8fKPNUmt",
+      "file": "settings.json",
+      "records": 0
+    },
+    {
+      "name": "Templates",
+      "id": "tbl9xuNlqtPJQvC6M",
+      "file": "templates.json",
+      "records": 0
+    }
+  ]
+}

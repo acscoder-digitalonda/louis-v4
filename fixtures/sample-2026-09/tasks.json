@@ -1,0 +1,229 @@
+{
+  "table": "Tasks",
+  "tableId": "tblz5uATg1uO8cyj2",
+  "fields": [
+    {
+      "id": "fldh9chGCam6C2npG",
+      "name": "Title",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldFmGvl3iBZBDkrp",
+      "name": "Assignee",
+      "type": "email"
+    },
+    {
+      "id": "fld7vOdb7Nu5EoCjp",
+      "name": "Due",
+      "type": "date"
+    },
+    {
+      "id": "fldUzyx54D2D7FkFN",
+      "name": "Source",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldMTJzid6XCTqbFB",
+      "name": "Stage",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldxKdi6qz0XKRblp",
+      "name": "Done",
+      "type": "checkbox"
+    },
+    {
+      "id": "fldPFZS2iXQ5omMIB",
+      "name": "Deal",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec23mud39FEyUazg",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-16",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Pre-Event",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Confirm AV check window with the venue",
+        "Done": true
+      }
+    },
+    {
+      "id": "rec3DwbHmsSd8WZwd",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-05",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Sales",
+        "Deal": [
+          "rec5ZcclTADcn3Egc"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Send proposal",
+        "Done": true
+      }
+    },
+    {
+      "id": "recDco1z0u5CSiYue",
+      "createdTime": "2026-08-17T10:58:15.000Z",
+      "fields": {
+        "Due": "2026-08-21",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Pre-Event",
+        "Deal": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Source": "Timer",
+        "Title": "Confirm journal quantities with the warehouse"
+      }
+    },
+    {
+      "id": "recJASnxBEmaVrWRp",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-19",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Closed-Won",
+        "Deal": [
+          "rec69b6siA662sfhm"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Chase countersigned contract"
+      }
+    },
+    {
+      "id": "recOufWEp8lgEDa6U",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-17",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Sales",
+        "Deal": [
+          "rec5ZcclTADcn3Egc"
+        ],
+        "Source": "Timer",
+        "Title": "Follow up — decision date passed"
+      }
+    },
+    {
+      "id": "recVkX8eMBa7XT12a",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-18",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Pre-Event",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Chase run-of-show from Priya"
+      }
+    },
+    {
+      "id": "recbhtuZdcTETeOpR",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-18",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Sales",
+        "Deal": [
+          "recTcKBVBU9PWAgzD"
+        ],
+        "Source": "Timer",
+        "Title": "Decide whether to release the hold"
+      }
+    },
+    {
+      "id": "recdHbRgwSaruyMRf",
+      "createdTime": "2026-08-17T10:58:15.000Z",
+      "fields": {
+        "Due": "2026-08-10",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Delivered",
+        "Deal": [
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Write post-keynote notes",
+        "Done": true
+      }
+    },
+    {
+      "id": "recdJYyC9F1wmcHDx",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-20",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Pre-Event",
+        "Deal": [
+          "recQ6aXpgUkF7eBFf"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Book ground transport ORD → hotel"
+      }
+    },
+    {
+      "id": "recfWAYYLsYthacyj",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-23",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Pre-Event",
+        "Deal": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Book travel and hotel"
+      }
+    },
+    {
+      "id": "recke4djPjOWLFxk5",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-18",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Inquiry",
+        "Deal": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Review research brief and qualify"
+      }
+    },
+    {
+      "id": "recpYdn9upXyVfkZU",
+      "createdTime": "2026-08-17T10:58:14.000Z",
+      "fields": {
+        "Due": "2026-08-14",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Closed-Won",
+        "Deal": [
+          "rec69b6siA662sfhm"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Invoice the deposit",
+        "Done": true
+      }
+    },
+    {
+      "id": "recuhq1CWqwSnS3Ju",
+      "createdTime": "2026-08-17T10:58:15.000Z",
+      "fields": {
+        "Due": "2026-08-15",
+        "Assignee": "liezel@bennemtin.example",
+        "Stage": "Delivered",
+        "Deal": [
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Source": "Stage Packet",
+        "Title": "Send debrief + testimonial ask"
+      }
+    }
+  ]
+}

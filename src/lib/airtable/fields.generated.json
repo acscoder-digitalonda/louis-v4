@@ -1,0 +1,308 @@
+{
+  "baseId": "app5In2fKegyPm4sU",
+  "generatedAt": "2026-09-04T15:46:36.353Z",
+  "tables": {
+    "clients": {
+      "tableId": "tblrMl2530lYOQlRX",
+      "fields": {
+        "name": "flddqtilJkFsP1q8I",
+        "domain": "fld0hxkLzbDZcQopV",
+        "industry": "fldNyBDMmihUDyBdT",
+        "website": "fldKzI3Z2jpcXe7Db",
+        "hq": "fldSHRSLNTpPxcWBW",
+        "notes": "fldiM3o8aR72i6rUn",
+        "dealIds": "fldNfE3HWAZKdGsam",
+        "contactIds": "fldanT7s8zbN8rZsy"
+      }
+    },
+    "contacts": {
+      "tableId": "tbldJAabQl9uGeEgc",
+      "fields": {
+        "name": "fldklwgUnzkFVeTPj",
+        "email": "fldfos3tY0Kt5msyc",
+        "phone": "fldU7wMG29GXsV7oe",
+        "type": "fldvasOoNmD6D1xIR",
+        "title": "fldSJQQTq7fJ94i4J",
+        "agency": "fldgJvYljC7Y7dBqH",
+        "keyAgent": "fldaLDvwyKkkROxvT",
+        "clientId": "fld3KK5CKiyjKgpCx",
+        "dealIds": "fldu25eHXZGXw6lpb",
+        "notes": "fld6zzWW5CGbTlYal"
+      }
+    },
+    "deals": {
+      "tableId": "tbllF8wDLdwj0RuGB",
+      "fields": {
+        "name": "fldrCSUeo6O2W5N3x",
+        "stage": "fldJwaAmhPayzwGTR",
+        "source": "fld9rkwTENJfo1sod",
+        "dealType": "fldBWdg5FyjYXincQ",
+        "client": "fldwEt6nI4m4mC7Uh",
+        "bureauAgent": "fldhb95zffgeMB0PI",
+        "owner": "fldv4T0MpLLfsnzPt",
+        "listFee": "fldZkNrP4nxTwitec",
+        "negotiatedFee": "fld3NfEQMQIXzRkCp",
+        "decisionDate": "fldfwSLTN16G4FoLX",
+        "proposalSent": "fldNMMi3vSvbWP68G",
+        "holdDate": "fldr3B7b4TqWH13Hl",
+        "holdOrder": "fldagIg6JSMeHMHgY",
+        "eventDate": "fld9xTXLsAbvQC2b0",
+        "location": "fldjT4DtXKkpjROAB",
+        "avCheckTime": "fld9aESgMxYcthwFa",
+        "stageTime": "fldpyfY51SwoPBDAt",
+        "eventUrl": "fldh8pyJ9OQSw63Qx",
+        "questionnaireReceived": "fld9cHVbjdHq8V3Qs",
+        "audienceProfile": "fld3hyRq4pVpz85nj",
+        "desiredOutcomes": "fldWV4N4zmuBWdSmu",
+        "kickoffNotes": "fldurepeHdidDF7Td",
+        "postKeynoteNotes": "fldTMJ28pUCH15PPR",
+        "hotel": "fldV6S9EoMwQbanKA",
+        "travelNotes": "fldgqmlmrlMneYmtc",
+        "logisticsComplete": "fldAcOjZdTVvTEeg2",
+        "paymentStatus": "fldw9hDxKMU4YBVOH",
+        "contractStatus": "fldrzSkPEOeKSoIjd",
+        "driveFolderUrl": "fldV6K9tAdKtsn5uD",
+        "historical": "fldAX7PzLo2kSVEnk",
+        "importBatch": "fldeO56FuEceVg1Si",
+        "sourceRef": "fldgn4rz1dXvrImPq"
+      }
+    },
+    "tasks": {
+      "tableId": "tblz5uATg1uO8cyj2",
+      "fields": {
+        "title": "fldh9chGCam6C2npG",
+        "dealId": "fldPFZS2iXQ5omMIB",
+        "assignee": "fldFmGvl3iBZBDkrp",
+        "dueDate": "fld7vOdb7Nu5EoCjp",
+        "source": "fldUzyx54D2D7FkFN",
+        "stage": "fldMTJzid6XCTqbFB",
+        "done": "fldxKdi6qz0XKRblp"
+      }
+    },
+    "drafts": {
+      "tableId": "tbl5wrbwNxZkPZ0q2",
+      "fields": {
+        "dealId": "fldhPd44g3Gz3ouPY",
+        "type": "fldzZdUzGnCEn35aW",
+        "subject": "fld2PrU4UYKP4JU8y",
+        "body": "fldtwpi0fKwf4rUTt",
+        "status": "fldQYnNPNoe7o1gZR",
+        "toEmail": "fldIamo61CbqHyHhY",
+        "approver": "fldKLfCUPUKdtdKYN",
+        "sentAt": "fldUIjodHpwoVZdhK",
+        "threadId": "fldOscAv7NWpEj3tM",
+        "checkerVerdict": "fld4gUV5AZIf64xn9",
+        "revisions": "fldJ5fmT8IkdSsKUc"
+      }
+    },
+    "emails": {
+      "tableId": "tbl9YEESZKJT5fUA9",
+      "fields": {
+        "subject": "fldwVhhbTlVx2q0sf",
+        "from": "fld34JWqcLFqYqtNr",
+        "to": "fldI2OF67WitAR3nr",
+        "threadId": "fldgSskpVvbtgXF6x",
+        "receivedAt": "fld6qc3FFKQZo20dI",
+        "bodyRef": "fldqGtGaq2dyL7YHR",
+        "dealId": "fldDxVaEjnprqlQwg",
+        "classification": "fld5lqPnPnowLi9RA",
+        "extractionStatus": "fldQaKKoafd3X2dzO"
+      }
+    },
+    "proposals": {
+      "tableId": "tbl1pnbXNOQcBQzKR",
+      "fields": {
+        "dealId": "fldvrcqUTrgmWhkSq",
+        "field": "fldLIiQ4qhT8SbUmg",
+        "fieldLabel": "fldLtKfmL7geqbhb3",
+        "oldValue": "fld6xEHheqTYBsKRd",
+        "newValue": "fld2Pxg258HTUGcHk",
+        "sourceEmailId": "fld8aldZWj62CTjOS",
+        "status": "fldhKZASxmfYUM87j",
+        "confidence": "fldPzIl5eiRmWjc8h",
+        "resolvedBy": "fldjLMQXGx6kW6xAP"
+      }
+    },
+    "auditLog": {
+      "tableId": "tblCm9vZudqZIXRlL",
+      "fields": {
+        "entity": "fldtEG6a5k6iBAAiW",
+        "entityId": "fldvdiUFqh90Spar3",
+        "field": "fldkF0mpYGlAywL3M",
+        "oldValue": "fldaHLLW5LblFzEEw",
+        "newValue": "fld5uHyhjfm2WeajU",
+        "actor": "fldtCagpy9LWzUsSS",
+        "actorKind": "fldRyytLuHnOQk4Xa",
+        "source": "fldoD9ockpqd47Ytp",
+        "batchId": "fldhr2dHF8HCXrdls",
+        "reversible": "fldNLQdqkj2KysO5x",
+        "at": "fldCQiltSbt5mhhZR"
+      }
+    },
+    "researchBriefs": {
+      "tableId": "tblW9kiO8SRJl61ll",
+      "fields": {
+        "dealId": "fldAFRDg3IC687HTN",
+        "companyFacts": "fldbcKPNHcUEuCuKD",
+        "mvv": "fldFRQPPKn76wndmo",
+        "budgetSignals": "fldQMkiKmeuYvSsxe",
+        "notes": "fldn852OzFnKNHbrK",
+        "sources": "fldg49gmwT0cdF7BR",
+        "model": "fldJd5MJzAzhKY4sq",
+        "checkedBy": "fld8iz1QWFuA6eeGg",
+        "checkerVerdict": "fldJeAN6HMl9Poo6e"
+      }
+    },
+    "dealProposals": {
+      "tableId": "tblkIuijrruAZmRhC",
+      "fields": {
+        "title": "fldvQKfHa8UBzLvUQ",
+        "seedSource": "fld7dGb1zRMzuKIgn",
+        "batchId": "fldMrCNBhGE1tpNNJ",
+        "status": "fldx6dEY06bbLOK7J",
+        "confidence": "fld8SN8L94YGpU8xu",
+        "clientName": "fldudOY1ip9Oe1tzz",
+        "clientId": "fldncClirqhEfkcJl",
+        "contactName": "fld7AZi6iozHVeuyW",
+        "contactId": "fld8WD62NtLyW1b03",
+        "stage": "fldFZfmZ9gjbakQyx",
+        "lane": "fldTzTBefCmMSqFAo",
+        "eventDate": "fldPBYQllVskCxufF",
+        "holdDate": "fldx1G1739Fl8SkFu",
+        "holdOrder": "fld0YTI4ym5qOOzKK",
+        "location": "fld9i0fPmbOJhTrTm",
+        "negotiatedFee": "fldUbQOVV2pdidU2v",
+        "decisionDate": "fldTCGNWrk2TdTzMX",
+        "historical": "fldN1jniJ6MG2AHAt",
+        "sourceRef": "fldC2DAFo29N9q75O",
+        "sources": "flds1F43fvJ6f36Sl",
+        "notes": "fldmGlviLAICRxAMB",
+        "conflictId": "fld5RyFocoUry2v0n",
+        "dealId": "fldsydKvVva8lxfrV",
+        "resolvedBy": "fldym30vc8ob7kyyc"
+      }
+    },
+    "dateConflicts": {
+      "tableId": "tblnLBzCsq18jElxN",
+      "fields": {
+        "label": "fld4JQwYHXOMvDb2f",
+        "date": "fldzxdtGaeLIeUlft",
+        "status": "fld2H85ExJhnYDmCi",
+        "proposalIds": "fldMw6ZQ2QfwqTOa4",
+        "dealIds": "fldRhHKjnbUodZcm9",
+        "resolution": "fldXn8qiYZIK5yVwT",
+        "resolvedBy": "fldKBGQqQfzso1Q1o"
+      }
+    },
+    "journalOrders": {
+      "tableId": "tblZG2Yj1PGiYqzoY",
+      "fields": {
+        "reference": "fldeuPgl8HOMObBoJ",
+        "status": "fldAzRIOqLwoLp8lr",
+        "quantity": "fldfO6uVPmk7Hp6bP",
+        "shipTo": "fldluxwo0vrRYWUBP",
+        "shipByDate": "fldDHl3QhxX5WC6Tb",
+        "warehouseNotes": "fldvVW3tbKJVyTxCJ",
+        "inserts": "fldsgK3lntPfauhDm",
+        "dealId": "fldRBHxqQM1FfAWzo",
+        "clientId": "fldUGv8cl6xGsBWQe"
+      }
+    },
+    "payments": {
+      "tableId": "tblMVncbESIuLAxee",
+      "fields": {
+        "dealId": "fld22Oz2CqqOjtTvC",
+        "invoiceNumber": "fld0YnvFophlluwv1",
+        "amount": "fldmO0iefI28iXYLv",
+        "status": "fldhG8r3GNGHZkJuy",
+        "method": "fldqa4rFuj4Fkq13A",
+        "receivedDate": "fldX3hoxU7qHLZL6c",
+        "confirmedBy": "fldmjXP0ECkgGecIN",
+        "note": "fld68pNXFzQHdxDoR"
+      }
+    },
+    "scheduleLegs": {
+      "tableId": "tblyNpy61TkKRYjgG",
+      "fields": {
+        "dealId": "fld08SqAS11jIIjo7",
+        "label": "fld7RqKYOvaTR4oy2",
+        "amount": "fldSzFiAGK2M3b3Gj",
+        "dueDate": "fldZCfSdlEQzwbUKn",
+        "paid": "fldMElvI8C6d309NJ"
+      }
+    },
+    "notifications": {
+      "tableId": "tblPOmRr8njqmGrSX",
+      "fields": {
+        "user": "fld5kkbiniNS9XuP5",
+        "type": "fldlbb18RcPoweype",
+        "title": "flddmqTK9HPkF9JCc",
+        "body": "fldUlwK8NtHkrMrXE",
+        "link": "fldHoSJWpu4zR6C1b",
+        "read": "fldbt4fWJ1acq1IYi",
+        "emailed": "fldVWInEr0BceHcwv"
+      }
+    },
+    "users": {
+      "tableId": "tblxzI4liWH6z2k4q",
+      "fields": {
+        "email": "fldfZ98RdUj5OJn9n",
+        "name": "fldAP6A6intbleCmM",
+        "role": "fld5LgLNoP1XsUFG2",
+        "active": "fldBXiH5QdrfLDeNj",
+        "landingPage": "fldSbUSnEv3VP3tYq",
+        "notificationPrefs": "fldlrfhJSCWG2dBHx",
+        "showMoneyAmounts": "fldPUtkgq13bpxYaN",
+        "theme": "fldSJemoMuktC3XUt"
+      }
+    },
+    "mirrorState": {
+      "tableId": "tblMHTIXIMzJmGiKc",
+      "fields": {
+        "surface": "fldxGd48lP1bRYAyZ",
+        "entity": "fldz0zgqZskywXSr4",
+        "entityId": "fld2PZrGQ44doalzL",
+        "lastPushed": "fldeXFFgqmy3BgimB",
+        "ok": "fldcnEK2ad48Dmpie",
+        "error": "fldQzI1OLrxCbKWoT"
+      }
+    },
+    "usageLog": {
+      "tableId": "tblRm2hdoKtcRWQ3U",
+      "fields": {
+        "at": "fldBtRecmzG1oo2mN",
+        "worker": "fldeDVrUg6EOoCIfy",
+        "task": "fldFbJ9NUAcSFv0q1",
+        "model": "fldBjNNY5SMNJI6Az",
+        "tier": "fldlfZJA6CuTOQ7ZO",
+        "tokensIn": "fldrXZY7sGmqh0Q3r",
+        "tokensOut": "fldjWzaWzD2OO72iy",
+        "estCost": "fldzmXATc3OUgVeSN",
+        "backend": "fld0u59QmUwFuMs5Z",
+        "dealId": "fldVdUR72bke2GI9O",
+        "durationMs": "fldWMIQlwBRqfvGYh",
+        "ok": "fld028gz8kAf9NqKR",
+        "error": "fldDuTXrBNaTiKlg3",
+        "estimated": "fld9ts0E5BmUHfMet"
+      }
+    },
+    "settings": {
+      "tableId": "tblFcglTz8fKPNUmt",
+      "fields": {
+        "key": "fldgOYqNNT2ekdS8B",
+        "value": "fldQZWW8wKmoLpT3g",
+        "updatedAt": "fld611KjeiRuCO4mj"
+      }
+    },
+    "templates": {
+      "tableId": "tbl9xuNlqtPJQvC6M",
+      "fields": {
+        "key": "fldXpMiblPVELDh41",
+        "label": "fldvy3HAPPDo7v7CU",
+        "subject": "fldWClb0eENa8LsAI",
+        "body": "fldPuf4dCs9lWE2PK",
+        "notes": "fldbbpgIJ6vBHgRET"
+      }
+    }
+  }
+}

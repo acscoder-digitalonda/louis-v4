@@ -1,0 +1,503 @@
+{
+  "table": "Contacts",
+  "tableId": "tbldJAabQl9uGeEgc",
+  "fields": [
+    {
+      "id": "fldklwgUnzkFVeTPj",
+      "name": "Name",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldfos3tY0Kt5msyc",
+      "name": "Email",
+      "type": "email"
+    },
+    {
+      "id": "fldU7wMG29GXsV7oe",
+      "name": "Phone",
+      "type": "phoneNumber"
+    },
+    {
+      "id": "fldvasOoNmD6D1xIR",
+      "name": "Type",
+      "type": "singleSelect"
+    },
+    {
+      "id": "fldSJQQTq7fJ94i4J",
+      "name": "Job Title",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldgJvYljC7Y7dBqH",
+      "name": "Agency",
+      "type": "singleLineText"
+    },
+    {
+      "id": "fldaLDvwyKkkROxvT",
+      "name": "Key Agent",
+      "type": "checkbox"
+    },
+    {
+      "id": "fld6zzWW5CGbTlYal",
+      "name": "History Notes",
+      "type": "multilineText"
+    },
+    {
+      "id": "fldhWzihHwRxBtIBE",
+      "name": "Clients",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fld3KK5CKiyjKgpCx",
+      "name": "Client",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fldu25eHXZGXw6lpb",
+      "name": "Deals",
+      "type": "multipleRecordLinks"
+    },
+    {
+      "id": "fld0UnZH33ataAQAZ",
+      "name": "Deals 2",
+      "type": "multipleRecordLinks"
+    }
+  ],
+  "records": [
+    {
+      "id": "rec0cv2jgMbJjYvLk",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "recPNwSxKCyGRSVKZ"
+        ],
+        "History Notes": "Holds the budget. The decision date on the deal is hers, and it has passed.",
+        "Job Title": "VP People & Culture",
+        "Phone": "+1 503 555 0164",
+        "Email": "rlindqvist@cascadegrove.example",
+        "Name": "Rachel Lindqvist",
+        "Deals": [
+          "rec5ZcclTADcn3Egc"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "rec1C9uAMsZIGL3Ca",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Association Coordinator",
+        "Phone": "(312) 555-0192",
+        "Email": "lvaughn@glbenefits.org",
+        "Name": "Lindsey Vaughn",
+        "Deals": [
+          "recK19Bmx80ErePa9"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "rec2VGZczhCDDokqw",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Executive Director",
+        "Phone": "(602) 555-0158",
+        "Email": "ymatsuda@summitridgeit.org",
+        "Name": "Yuki Matsuda",
+        "Deals": [
+          "recJ3DEIuIScvR4a7"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "rec9HMHyeyubbUhLr",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "recG7vLwTLGizFqU4"
+        ],
+        "History Notes": "Asked about a Q2 repeat in the room. The debrief draft is addressed to her.",
+        "Job Title": "Managing Partner",
+        "Phone": "+1 704 555 0158",
+        "Email": "esokolova@aldergate.example",
+        "Name": "Elena Sokolova",
+        "Deals": [
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "rec9HV75sLpOiTrLb",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "reczfQx0Osf8IAV4w"
+        ],
+        "History Notes": "Went quiet after the hold. The forcing email is addressed to her.",
+        "Job Title": "Chief Nursing Officer",
+        "Phone": "+1 612 555 0179",
+        "Email": "sbrandt@bluepeakhealth.example",
+        "Name": "Sofia Brandt-Aguilar",
+        "Deals": [
+          "recTcKBVBU9PWAgzD"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "rec9vLfbMr8P9nOkH",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Production Manager",
+        "Phone": "(602) 555-0175",
+        "Email": "gholloway@summitridgeit.org",
+        "Name": "Grant Holloway",
+        "Deals": [
+          "recJ3DEIuIScvR4a7"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recBgkLbqWxouE6Qk",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "recG7vLwTLGizFqU4"
+        ],
+        "History Notes": "Received the welcome kit and the questionnaire link.",
+        "Job Title": "Head of Internal Events",
+        "Phone": "+1 704 555 0155",
+        "Email": "jwhitlock@aldergate.example",
+        "Name": "Jonah Whitlock",
+        "Deals": [
+          "rec69b6siA662sfhm"
+        ],
+        "Type": "Meeting Planner"
+      }
+    },
+    {
+      "id": "recCDJS60iSTASv4V",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: AV Producer",
+        "Phone": "(704) 555-0171",
+        "Email": "cmears@harborvale.com",
+        "Name": "Collin Mears",
+        "Deals": [
+          "recWVzKbxkSBjvWha"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recFKfacXHI64teQX",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Head of Revenue Enablement",
+        "Phone": "(512) 555-0154",
+        "Email": "jnavarro@brightstack.io",
+        "Name": "Jules Navarro",
+        "Deals": [
+          "recDYj9LijgVs2Fpr"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recG8CTvAWkRoicm8",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "History Notes": "Books two to three a year. Flagged Key Agent — her mail forwards to Ben on arrival.",
+        "Job Title": "Senior Agent",
+        "Phone": "+1 704 555 0148",
+        "Key Agent": true,
+        "Email": "marguerite@summitstage.example",
+        "Agency": "Summit Stage Speakers",
+        "Name": "Marguerite Vaillancourt",
+        "Deals": [
+          "rec69b6siA662sfhm",
+          "recq8Mxk7TBdOiLQQ"
+        ],
+        "Type": "Bureau Agent"
+      }
+    },
+    {
+      "id": "recHv7OOJhnUZoDgv",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Sr. Manager, Meetings & Events",
+        "Phone": "(615) 555-0138",
+        "Email": "aduffy@silverlinehg.com",
+        "Name": "Angela Duffy",
+        "Deals": [
+          "rec1E0SQIBM8F3NGz"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recIfmf0NPQUBt3rH",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "recv2po4DarIamMTQ"
+        ],
+        "History Notes": "Day-of contact in Reno only. Priya is not travelling to that one.",
+        "Job Title": "Regional Safety Manager",
+        "Phone": "+1 775 555 0131",
+        "Email": "tokafor@northwindlogistics.example",
+        "Name": "Tomas Okafor",
+        "Deals": [
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Type": "Onsite"
+      }
+    },
+    {
+      "id": "recKZqZKEdZy8E9Oj",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: HR Business Partner",
+        "Phone": "(801) 555-0122",
+        "Email": "sgrandy@trailheadlogistics.com",
+        "Name": "Sofia Grandy",
+        "Deals": [
+          "recQuiDQX6HZE5P2o"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recKvFtpA14GJAcUA",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "recv2po4DarIamMTQ"
+        ],
+        "History Notes": "Runs both summits. One person, two deals — the CRM links her to each.",
+        "Job Title": "Director of Events",
+        "Phone": "+1 312 555 0117",
+        "Email": "pkelleher@northwindlogistics.example",
+        "Name": "Priya Kelleher",
+        "Deals": [
+          "recQ6aXpgUkF7eBFf",
+          "rec5cKdMK5HczO1lB"
+        ],
+        "Type": "Meeting Planner"
+      }
+    },
+    {
+      "id": "recNh7gbPfWcPAZgY",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "reczDiJxi91VyqfiQ"
+        ],
+        "History Notes": "Submitted the website form. Received the automatic acknowledgement.",
+        "Job Title": "SVP Operations",
+        "Phone": "+1 816 555 0143",
+        "Email": "nelamin@vantagerail.example",
+        "Name": "Nadia El-Amin",
+        "Deals": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recQRnHz0Cmjukg3d",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "Client": [
+          "recPNwSxKCyGRSVKZ"
+        ],
+        "History Notes": "Handles logistics once Rachel signs off. Copied on the follow-up.",
+        "Job Title": "Events Coordinator",
+        "Phone": "+1 503 555 0166",
+        "Email": "mfeldt@cascadegrove.example",
+        "Name": "Marcus Feldt",
+        "Deals": [
+          "rec5ZcclTADcn3Egc"
+        ],
+        "Type": "Meeting Planner"
+      }
+    },
+    {
+      "id": "recYJrknHN8gsb2cW",
+      "createdTime": "2026-08-17T10:58:13.000Z",
+      "fields": {
+        "Client": [
+          "reczDiJxi91VyqfiQ"
+        ],
+        "History Notes": "Named on the form as the on-the-ground contact if it goes ahead.",
+        "Job Title": "Terminal Operations Lead",
+        "Phone": "+1 816 555 0147",
+        "Email": "gmulholland@vantagerail.example",
+        "Name": "Grady Mulholland",
+        "Deals": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Type": "Onsite"
+      }
+    },
+    {
+      "id": "recYmKvF7yT3RxwLJ",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Director of EHS",
+        "Phone": "(614) 555-0119",
+        "Email": "rkowalczyk@copperlinemfg.com",
+        "Name": "Rita Kowalczyk",
+        "Deals": [
+          "recZttSBWoifJTXuq"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recZAsccYlYvm9rSb",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Onsite Contact",
+        "Phone": "(423) 593-2185",
+        "Email": "kara.wallace@mckee.com",
+        "Name": "Kara Wallace",
+        "Deals": [
+          "recBE8JR15cZJGaf5"
+        ],
+        "Type": "Onsite"
+      }
+    },
+    {
+      "id": "reccPTlnbX74mJBof",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Conference Chair",
+        "Phone": "(312) 555-0146",
+        "Email": "tokafor@glbenefits.org",
+        "Name": "Tom Okafor",
+        "Deals": [
+          "recK19Bmx80ErePa9"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recgLqZtQIU9htTrC",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: AV Lead",
+        "Phone": "(414) 555-0169",
+        "Email": "dprice@lakeshorecul.org",
+        "Name": "Devon Price",
+        "Deals": [
+          "recY24yh2PvU8G3C0"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recguXURsrymsYnSo",
+      "createdTime": "2026-08-17T10:58:12.000Z",
+      "fields": {
+        "History Notes": "Brought the Vantage inquiry in. First time working with us.",
+        "Job Title": "Talent Agent",
+        "Phone": "+1 816 555 0192",
+        "Email": "dev@northlighttalent.example",
+        "Agency": "Northlight Talent",
+        "Name": "Dev Ramanathan",
+        "Deals": [
+          "recgmm7OwQricDtj8"
+        ],
+        "Type": "Bureau Agent"
+      }
+    },
+    {
+      "id": "reciiPLiFjseNet8R",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: VP, People & Culture",
+        "Phone": "(720) 555-0142",
+        "Email": "dana.whitfield@meridianhealthpartners.com",
+        "Name": "Dana Whitfield",
+        "Deals": [
+          "recuMZrsueqDG2jFU"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "reclT8S1TVSn6YU7g",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: COO",
+        "Phone": "(559) 555-0131",
+        "Email": "hdelgado@orchardpeakfoods.com",
+        "Name": "Hank Delgado",
+        "Deals": [
+          "recwhZ4I5uwByL7D4"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "reclqUCDUYvgN3iX0",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Events Manager",
+        "Phone": "(720) 555-0187",
+        "Email": "m.oyelaran@meridianhealthpartners.com",
+        "Name": "Marcus Oyelaran",
+        "Deals": [
+          "recuMZrsueqDG2jFU"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recoBpT0LU5KVo83P",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Program Director",
+        "Phone": "(414) 555-0117",
+        "Email": "emalouf@lakeshorecul.org",
+        "Name": "Erin Malouf",
+        "Deals": [
+          "recY24yh2PvU8G3C0"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recpOePdH87rruPyq",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Chief of Staff",
+        "Phone": "(704) 555-0128",
+        "Email": "p.raghunathan@harborvale.com",
+        "Name": "Priya Raghunathan",
+        "Deals": [
+          "recWVzKbxkSBjvWha"
+        ],
+        "Type": "Decision Maker"
+      }
+    },
+    {
+      "id": "recs3sKTD5ZEHo7tX",
+      "createdTime": "2026-08-15T13:52:56.000Z",
+      "fields": {
+        "History Notes": "v2 role: Executive Assistant",
+        "Phone": "(614) 555-0163",
+        "Email": "btran@copperlinemfg.com",
+        "Name": "Ben Tran",
+        "Deals": [
+          "recZttSBWoifJTXuq"
+        ],
+        "Type": "Decision Maker"
+      }
+    }
+  ]
+}
