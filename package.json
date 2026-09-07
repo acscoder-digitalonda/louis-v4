@@ -33,7 +33,15 @@
     "revert:batch": "tsx scripts/revert-batch.ts",
     "test": "tsx --test \"src/**/*.test.ts\" \"workers/**/*.test.ts\"",
     "import:bookings": "tsx --env-file=.env.local scripts/import-bookings.ts",
-    "repair:bureaus": "tsx --env-file=.env.local scripts/repair-bureau-names.ts"
+    "repair:bureaus": "tsx --env-file=.env.local scripts/repair-bureau-names.ts",
+    "migrate:stages": "tsx --env-file=.env.local scripts/migrate-stages-v2.ts",
+    "backfill:dealtype": "tsx --env-file=.env.local scripts/backfill-deal-type.ts",
+    "seed:pricing": "tsx --env-file=.env.local scripts/seed-pricing.ts",
+    "backup": "tsx --env-file=.env.local scripts/backup-export.ts",
+    "seed:proof": "tsx --env-file=.env.local scripts/seed-social-proof.ts",
+    "mcp:token": "tsx --env-file=.env.local scripts/mcp-token.ts",
+    "schedule": "tsx scripts/generate-schedule.ts",
+    "restore": "tsx --env-file=.env.local scripts/backup-restore.ts"
   },
   "dependencies": {
     "fuse.js": "^7.1.0",

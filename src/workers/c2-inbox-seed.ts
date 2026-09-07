@@ -443,7 +443,9 @@ export function stageForIntent(intent: ThreadIntent): StageKey {
     case 'bureau':
       return 'inquiry'
     case 'proposal':
-      return 'sales'
+      // A thread with a fee quoted in it *is* a firm offer. This is the one seed that
+      // can honestly claim the stage, because it read the number in the email.
+      return 'firm-offer'
     case 'contract':
     case 'invoice':
       return 'closed-won'
@@ -705,6 +707,7 @@ export async function commitSweep(
       clientId: null,
       contactName: e.contactName,
       contactId: null,
+      closedLostReason: null,
       stage: stageForIntent(o.intent),
       lane: e.lane ?? 'direct',
       eventDate: e.eventDate,

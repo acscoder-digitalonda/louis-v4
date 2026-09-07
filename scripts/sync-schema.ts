@@ -16,16 +16,60 @@
  * and a script that makes them quietly is a script that loses data. Anything already
  * present is left exactly as it is, even if its type disagrees with the schema — the
  * disagreement is reported instead.
+ *
+ * It also **reports** select options the schema declares and the base lacks, which WP0.2
+ * needs: Stage gained Qualified, Firm Offer and Closed Lost. It reports rather than adds,
+ * because Airtable's Update Field API accepts only `name` and `description` — any
+ * `options` payload comes back
+ *
+ *     422 "Changing a field's type or number precision is not currently supported."
+ *
+ * even when the type is unchanged and every existing choice is sent back by its own id.
+ * There is no API route to it.
+ *
+ * The options do appear on their own the first time a record is written holding one,
+ * because record writes use `typecast: true`. That is safe *only* because the value comes
+ * from a codec: `stageCodec.toAirtable('pre-event')` is always `Pre-Event`. It is the same
+ * mechanism that created the mess `repair-stage-choices.ts` cleans up, where an import
+ * wrote the raw domain key instead — typecast does not validate, it invents.
  */
 
 import { TABLES, TABLE_KEYS, type FieldSpec, type TableKey } from '../src/lib/airtable/schema'
 import { DEFERRED_TYPES, MANUAL_TYPES, toMetaField } from '../src/lib/airtable/meta-fields'
-import { createField, listBaseTables, readConfig, type MetaTable } from '../src/lib/airtable/rest'
+import {
+  createField,
+  listBaseTables,
+  readConfig,
+  type MetaField,
+  type MetaTable,
+} from '../src/lib/airtable/rest'
 
 interface Missing {
   table: TableKey
   tableId: string
   field: FieldSpec
+}
+
+interface OptionDelta {
+  table: TableKey
+  tableId: string
+  field: FieldSpec
+  live: MetaField
+  /** Declared by the schema, absent from the base. */
+  add: string[]
+  /** Present in the base, no longer declared. Reported, never removed. */
+  retired: string[]
+}
+
+interface LiveChoice {
+  id: string
+  name: string
+  color?: string
+}
+
+function liveChoices(field: MetaField): LiveChoice[] {
+  const raw = (field.options?.choices ?? []) as LiveChoice[]
+  return raw.filter((c) => c?.name)
 }
 
 async function main() {
@@ -41,6 +85,7 @@ async function main() {
   const byName = new Map<string, MetaTable>(existing.map((t) => [t.name.toLowerCase(), t]))
 
   const missing: Missing[] = []
+  const optionDeltas: OptionDelta[] = []
   const missingTables: string[] = []
   const typeMismatches: string[] = []
   const manual: string[] = []
@@ -63,6 +108,14 @@ async function main() {
           typeMismatches.push(
             `${spec.name}.${field.name}: schema says ${field.type}, base has ${live.type}`,
           )
+        }
+        if (field.choices && (live.type === 'singleSelect' || live.type === 'multipleSelects')) {
+          const have = liveChoices(live).map((c) => c.name)
+          const add = field.choices.filter((c) => !have.includes(c))
+          const retired = have.filter((c) => !field.choices!.includes(c))
+          if (add.length > 0 || retired.length > 0) {
+            optionDeltas.push({ table: key, tableId: table.id, field, live, add, retired })
+          }
         }
         continue
       }
@@ -90,6 +143,22 @@ async function main() {
     for (const m of missing) {
       console.info(`  + ${TABLES[m.table].name}.${m.field.name} (${m.field.type})`)
     }
+  }
+
+  const toAdd = optionDeltas.filter((d) => d.add.length > 0)
+  if (toAdd.length > 0) {
+    console.info(`\n${toAdd.length} select field(s) gaining options:`)
+    for (const d of toAdd) {
+      console.info(`  + ${TABLES[d.table].name}.${d.field.name}: ${d.add.join(', ')}`)
+    }
+  }
+  const retiring = optionDeltas.filter((d) => d.retired.length > 0)
+  if (retiring.length > 0) {
+    console.info('\nOptions the schema no longer declares (kept — records may still hold them):')
+    for (const d of retiring) {
+      console.info(`  · ${TABLES[d.table].name}.${d.field.name}: ${d.retired.join(', ')}`)
+    }
+    console.info('  Prune by hand, or with `npm run repair:stages`, once nothing uses them.')
   }
 
   if (typeMismatches.length > 0) {
@@ -133,6 +202,15 @@ async function main() {
       console.warn(
         `  ! ${spec.name}.${m.field.name} failed: ${err instanceof Error ? err.message : err}`,
       )
+    }
+  }
+
+  if (toAdd.length > 0) {
+    console.info('\nSelect options are NOT created by this script — Airtable has no API for it.')
+    console.info('They appear when the first record is written with that value (typecast),')
+    console.info('which for these fields means running the WP0.2 migration. Or add by hand:')
+    for (const d of toAdd) {
+      console.info(`  · ${TABLES[d.table].name}.${d.field.name}: ${d.add.join(', ')}`)
     }
   }
 

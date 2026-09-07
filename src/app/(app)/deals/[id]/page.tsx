@@ -21,7 +21,10 @@ import {
   Well,
 } from '@/components/ui'
 import { speaker, stageByKey } from '~/speaker.config'
-import type { Deal, JournalOrder, Task } from '@/lib/types'
+import { priceDeal, type PricedDeal } from '@/lib/pricing'
+import { isMuted, shouldChase } from '@/lib/followup'
+import { nudgesFor } from '@/lib/fulfillment'
+import type { Deal, Fulfillment, JournalOrder, Task } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +67,28 @@ export default async function DealPage({
     provider.listContacts(),
     provider.listResearchBriefs(id),
   ])
+
+  // The rate card's view of this deal. A missing card is a state, not an error: it means
+  // the deal has no region or format yet, and the Sales tab says which.
+  const priced: PricedDeal = priceDeal(deal, await provider.listRateCards().catch(() => []))
+
+  // WP1.4 + Decisions Log §1: what is in flight for this deal, and what this company has
+  // bought before. The second is the chip Ben should never walk into a call without.
+  const fulfillment = (await provider.listFulfillment().catch(() => [])).filter(
+    (f) => f.dealId === deal.id,
+  )
+  const companyDeals = deal.client
+    ? (await provider.listDeals()).filter((d) => d.client?.id === deal.client!.id)
+    : []
+  const companyDealIds = new Set(companyDeals.map((d) => d.id))
+  const purchaseHistory = journal
+    .filter((o) => o.dealId && companyDealIds.has(o.dealId) && o.dealId !== deal.id)
+    .filter((o) => ['bulk-ordered', 'shipped', 'dropship'].includes(o.status))
+    .map((o) => ({
+      dealName: companyDeals.find((d) => d.id === o.dealId)?.name ?? 'Earlier booking',
+      quantity: o.quantity ?? 0,
+      year: o.shipByDate?.slice(0, 4) ?? null,
+    }))
 
   const endpoint = `/api/deals/${deal.id}`
   const editable = (field: keyof Deal) => canWrite(user.role, 'deals', field).allowed
@@ -133,6 +158,7 @@ export default async function DealPage({
       {tab === 'sales' ? (
         <SalesTab
           deal={deal}
+          priced={priced}
           endpoint={endpoint}
           editable={editable}
           lockReason={lockReason}
@@ -151,7 +177,13 @@ export default async function DealPage({
 
       {tab === 'assets' ? <AssetsTab deal={deal} endpoint={endpoint} editable={editable} /> : null}
 
-      {tab === 'journal' ? <JournalTab orders={dealJournal} /> : null}
+      {tab === 'journal' ? (
+        <JournalTab
+          orders={dealJournal}
+          fulfillment={fulfillment}
+          purchaseHistory={purchaseHistory}
+        />
+      ) : null}
 
       {tab === 'money' ? (
         <MoneyTab
@@ -331,6 +363,7 @@ function SalesTab({
   lockReason,
   showAmounts,
   drafts,
+  priced,
 }: {
   deal: Deal
   endpoint: string
@@ -338,9 +371,11 @@ function SalesTab({
   lockReason: (f: keyof Deal) => string | undefined
   showAmounts: boolean
   drafts: { id: string; subject: string; type: string; status: string; createdAt: string }[]
+  priced: PricedDeal
 }) {
   const weight = forecastWeight(deal)
   const belowFloor = (deal.negotiatedFee ?? Infinity) < speaker.fees.floor
+  const chase = shouldChase(deal)
 
   return (
     <div className="space-y-4">
@@ -389,6 +424,84 @@ function SalesTab({
             Negotiated fee is below the {money(speaker.fees.floor)} floor in speaker.config.
           </p>
         ) : null}
+      </Card>
+
+      {/* WP1.1 — what the rate card says, next to what was actually agreed. */}
+      {showAmounts ? (
+        <Card>
+          <SectionTitle right={<span className="sub">{priced.card?.label ?? 'no card'}</span>}>
+            Rate card
+          </SectionTitle>
+          {priced.listAmount === null ? (
+            <p className="body-copy text-ink-secondary">
+              {priced.reason}{' '}
+              <span className="text-ink-muted">
+                A deal with no list price is not priced at zero; it is one nobody can price yet.
+              </span>
+            </p>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div>
+                  <Micro>List</Micro>
+                  <div className="num mt-1 text-[14px]">{money(priced.listAmount)}</div>
+                </div>
+                <div>
+                  <Micro>Weekend</Micro>
+                  <div className="num mt-1 text-[14px]">
+                    {priced.weekendSurcharge > 0 ? money(priced.weekendSurcharge) : '—'}
+                  </div>
+                </div>
+                <div>
+                  <Micro>Travel</Micro>
+                  <div className="num mt-1 text-[14px]">
+                    {priced.travelStipend !== null ? money(priced.travelStipend) : '—'}
+                  </div>
+                </div>
+                <div>
+                  <Micro>Amount</Micro>
+                  <div className="num mt-1 text-[14px] text-accent">
+                    {priced.amount !== null ? money(priced.amount) : '—'}
+                  </div>
+                </div>
+              </div>
+              {priced.travelTerms ? (
+                <p className="body-copy mt-3 text-ink-secondary">{priced.travelTerms}</p>
+              ) : null}
+            </>
+          )}
+        </Card>
+      ) : null}
+
+      {/* WP1.2 — whose turn it is, and when. Read-only: the engine owns these. */}
+      <Card>
+        <SectionTitle
+          right={
+            deal.followUpCount > 0 ? (
+              <span className="sub">
+                {deal.followUpCount} touch{deal.followUpCount === 1 ? '' : 'es'}
+              </span>
+            ) : null
+          }
+        >
+          Next action
+        </SectionTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`pill ${chase.due ? 'pill-accent' : 'pill-ghost'}`}>
+            {deal.nextActionDate ? dayMonth(deal.nextActionDate) : 'not armed'}
+          </span>
+          {deal.nextActionOwner ? (
+            <span className="pill pill-ghost">
+              {deal.nextActionOwner === 'owner' ? speaker.speakerName.split(' ')[0] : 'ops'}
+            </span>
+          ) : null}
+          {isMuted(deal) ? (
+            <span className="pill pill-ghost">
+              muted{deal.muteUntil ? ` until ${dayMonth(deal.muteUntil)}` : ''}
+            </span>
+          ) : null}
+        </div>
+        <p className="body-copy mt-2 text-ink-secondary">{chase.reason}</p>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -700,8 +813,67 @@ function AssetsTab({
 
 // ── Journal ─────────────────────────────────────────────────────────────────
 
-function JournalTab({ orders }: { orders: JournalOrder[] }) {
-  if (orders.length === 0) {
+function JournalTab({
+  orders,
+  fulfillment,
+  purchaseHistory,
+}: {
+  orders: JournalOrder[]
+  fulfillment: Fulfillment[]
+  /** Every past order by this company, so nobody walks into a call not knowing. */
+  purchaseHistory: { dealName: string; quantity: number; year: string | null }[]
+}) {
+  const lifetime = purchaseHistory.reduce((n, p) => n + p.quantity, 0)
+
+  const history =
+    purchaseHistory.length > 0 ? (
+      <Card>
+        <SectionTitle right={<span className="sub num">{lifetime.toLocaleString()} lifetime</span>}>
+          Past purchases
+        </SectionTitle>
+        <div className="flex flex-wrap gap-2">
+          {purchaseHistory.slice(0, 8).map((p, i) => (
+            <span key={i} className="pill pill-ghost">
+              {p.year ? `${p.year} · ` : ''}
+              {p.quantity.toLocaleString()} · {p.dealName}
+            </span>
+          ))}
+        </div>
+      </Card>
+    ) : null
+
+  // WP1.4 — where each physical line item has got to, and what is going wrong with it.
+  const strip =
+    fulfillment.length > 0 ? (
+      <Card>
+        <SectionTitle>Fulfillment</SectionTitle>
+        <ul className="space-y-3">
+          {fulfillment.map((f) => {
+            const nudges = nudgesFor(f, new Date().toISOString().slice(0, 10))
+            const red = nudges.filter((n) => n.severity === 'red')
+            return (
+              <li key={f.id} className="border-b pb-3 last:border-b-0">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="rowname">{f.status}</span>
+                  <span className="sub num">
+                    {f.quantity ? `${f.quantity.toLocaleString()} units` : 'no quantity'}
+                    {f.shipBy ? ` · ship by ${dayMonth(f.shipBy)}` : ''}
+                  </span>
+                </div>
+                {nudges.length > 0 ? (
+                  <p className={`body-copy mt-1 ${red.length ? 'text-danger' : 'text-warning'}`}>
+                    {nudges.map((n) => n.message).join(' · ')}
+                  </p>
+                ) : null}
+                {f.tracking ? <div className="sub mt-1">{f.carrier} {f.tracking}</div> : null}
+              </li>
+            )
+          })}
+        </ul>
+      </Card>
+    ) : null
+
+  if (orders.length === 0 && !strip && !history) {
     return (
       <EmptyState
         title="No journal orders on this deal"
@@ -715,6 +887,9 @@ function JournalTab({ orders }: { orders: JournalOrder[] }) {
     )
   }
   return (
+    <div className="space-y-4">
+    {history}
+    {strip}
     <Card>
       <SectionTitle>Journal sidecar</SectionTitle>
       <ul className="space-y-3">
@@ -732,6 +907,7 @@ function JournalTab({ orders }: { orders: JournalOrder[] }) {
         ))}
       </ul>
     </Card>
+    </div>
   )
 }
 

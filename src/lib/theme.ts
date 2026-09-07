@@ -82,12 +82,13 @@ export const EDITABLE_TOKENS: TokenDef[] = [
 
   // STAGE CHIPS
   { name: 'stage-inquiry', label: 'Inquiry', group: 'Stage chips', light: '#8F8A7A', dark: '#8F8A7A' },
-  { name: 'stage-sales', label: 'Sales', group: 'Stage chips', light: '#B4791A', dark: '#E0A63A' },
+  { name: 'stage-qualified', label: 'Qualified', group: 'Stage chips', light: '#B4791A', dark: '#E0A63A' },
+  { name: 'stage-firmoffer', label: 'Firm Offer', group: 'Stage chips', light: '#9A5B12', dark: '#F0BC55' },
   { name: 'stage-closedwon', label: 'Closed-Won', group: 'Stage chips', light: '#E24B0F', dark: '#FF6A2B' },
   { name: 'stage-preevent', label: 'Pre-Event', group: 'Stage chips', light: '#2A5F80', dark: '#79B8DC' },
   { name: 'stage-delivered', label: 'Delivered', group: 'Stage chips', light: '#2F6F4A', dark: '#5FBF8A' },
   { name: 'stage-debriefed', label: 'Debriefed', group: 'Stage chips', light: '#4A4636', dark: '#B9B3A2' },
-  { name: 'stage-dormant', label: 'Dormant', group: 'Stage chips', light: '#A9A395', dark: '#5E5A50' },
+  { name: 'stage-closedlost', label: 'Closed Lost', group: 'Stage chips', light: '#A9A395', dark: '#5E5A50' },
 
   // STATUS CHIPS
   { name: 'chip-paid', label: 'Paid', group: 'Status chips', light: '#2F6F4A', dark: '#5FBF8A' },

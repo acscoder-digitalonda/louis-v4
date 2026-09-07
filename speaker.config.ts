@@ -6,14 +6,37 @@
  * If you ever find a speaker's name, fee, colour or phrase hardcoded in `src/`, that is a bug.
  */
 
+/**
+ * The eight-stage spine (Add-On Run Plan, WP0.2).
+ *
+ * v3 had one `sales` stage and a `dormant` graveyard. SpeakerOS splits selling into
+ * **Qualified** (a hold is out) and **Firm Offer** (a priced offer is out), because the
+ * 24-hour first-right-of-refusal challenge fires on the second one and cannot be
+ * expressed without it. `dormant` becomes **Closed Lost**, which carries a reason, which
+ * is what the 12-month re-engagement campaign segments on.
+ */
 export type StageKey =
   | 'inquiry'
-  | 'sales'
+  | 'qualified'
+  | 'firm-offer'
   | 'closed-won'
   | 'pre-event'
   | 'delivered'
   | 'debriefed'
-  | 'dormant'
+  | 'closed-lost'
+
+/**
+ * Deal types (WP0.1). Coaching skips Firm Offer: there is no date being held, so there
+ * is nothing for a competing hold to challenge.
+ */
+export type DealTypeKey = 'keynote' | 'speaker-coaching' | 'executive-coaching'
+
+export interface DealTypeDefinition {
+  key: DealTypeKey
+  label: string
+  /** Stages this type may enter, in order. */
+  stages: StageKey[]
+}
 
 export interface StageDefinition {
   key: StageKey
@@ -21,9 +44,11 @@ export interface StageDefinition {
   label: string
   /** Weighted-forecast percentage floor for this stage (Rebuild Spec §2.3). */
   weight: number
-  /** Board column order. Dormant is collapsed and sits last. */
+  /** Board column order. Closed Lost is collapsed and sits last. */
   order: number
   collapsed?: boolean
+  /** True for the two stages that end a deal. Timers and digests skip them. */
+  terminal?: boolean
 }
 
 export interface SpeakerConfig {
@@ -45,6 +70,7 @@ export interface SpeakerConfig {
     floor: number
   }
   stages: StageDefinition[]
+  dealTypes: DealTypeDefinition[]
   /** Accent overrides applied on top of the shipped token defaults (Handoff §2.3). */
   accents: {
     light: Record<string, string>
@@ -71,14 +97,37 @@ export const speaker: SpeakerConfig = {
     defaultList: 35000,
     floor: 20000,
   },
+  // Weights are SpeakerOS's, adopted wholesale: stage-driven, no proposal-sent checkbox.
   stages: [
-    { key: 'inquiry', label: 'Inquiry', weight: 0, order: 0 },
-    { key: 'sales', label: 'Sales', weight: 25, order: 1 },
-    { key: 'closed-won', label: 'Closed-Won', weight: 100, order: 2 },
-    { key: 'pre-event', label: 'Pre-Event', weight: 100, order: 3 },
-    { key: 'delivered', label: 'Delivered', weight: 100, order: 4 },
-    { key: 'debriefed', label: 'Debriefed', weight: 100, order: 5 },
-    { key: 'dormant', label: 'Dormant', weight: 0, order: 6, collapsed: true },
+    { key: 'inquiry', label: 'Inquiry', weight: 25, order: 0 },
+    { key: 'qualified', label: 'Qualified', weight: 50, order: 1 },
+    { key: 'firm-offer', label: 'Firm Offer', weight: 95, order: 2 },
+    { key: 'closed-won', label: 'Closed-Won', weight: 100, order: 3 },
+    { key: 'pre-event', label: 'Pre-Event', weight: 100, order: 4 },
+    { key: 'delivered', label: 'Delivered', weight: 100, order: 5 },
+    { key: 'debriefed', label: 'Debriefed', weight: 100, order: 6, terminal: true },
+    { key: 'closed-lost', label: 'Closed Lost', weight: 0, order: 7, collapsed: true, terminal: true },
+  ],
+
+  dealTypes: [
+    {
+      key: 'keynote',
+      label: 'Keynote',
+      stages: ['inquiry', 'qualified', 'firm-offer', 'closed-won', 'pre-event', 'delivered', 'debriefed', 'closed-lost'],
+    },
+    // Coaching has no held date, so no Firm Offer and no Pre-Event logistics packet.
+    // The run plan says only "coaching skips Firm Offer"; dropping Pre-Event as well is
+    // an inference, and it is listed for Jordan rather than buried here.
+    {
+      key: 'speaker-coaching',
+      label: 'Speaker Coaching',
+      stages: ['inquiry', 'qualified', 'closed-won', 'delivered', 'debriefed', 'closed-lost'],
+    },
+    {
+      key: 'executive-coaching',
+      label: 'Executive Coaching',
+      stages: ['inquiry', 'qualified', 'closed-won', 'delivered', 'debriefed', 'closed-lost'],
+    },
   ],
   accents: {
     light: {},
@@ -95,5 +144,14 @@ export const stageByKey = new Map(speaker.stages.map((s) => [s.key, s]))
 export const stageOrder: StageKey[] = [...speaker.stages]
   .sort((a, b) => a.order - b.order)
   .map((s) => s.key)
+
+export const dealTypeByKey = new Map(speaker.dealTypes.map((t) => [t.key, t]))
+
+/** The stages a deal of this type may enter. Unknown or unset type falls back to keynote. */
+export function stagesForType(type: string | null | undefined): StageKey[] {
+  const fallback = speaker.dealTypes[0]!.stages
+  if (!type) return fallback
+  return dealTypeByKey.get(type as DealTypeKey)?.stages ?? fallback
+}
 
 export default speaker

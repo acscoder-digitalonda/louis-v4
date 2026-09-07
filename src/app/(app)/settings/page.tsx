@@ -2,12 +2,17 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { db } from '@/lib/data'
-import { canViewScreen } from '@/lib/rbac'
+import { canViewScreen, canWrite } from '@/lib/rbac'
 import { Card, EmptyState, Led, Micro, SectionTitle } from '@/components/ui'
 import { AccentEditor } from '@/components/settings/AccentEditor'
 import { AiSettingsForm } from '@/components/settings/AiSettingsForm'
 import { UsageMeter } from '@/components/settings/UsageMeter'
 import { UserRow } from '@/components/settings/UserRow'
+import { TokenList } from '@/components/settings/TokenList'
+import { TemplateEditor } from '@/components/settings/TemplateEditor'
+import { RateCardTable } from '@/components/settings/RateCardTable'
+import { loadTemplates } from '@/lib/templates'
+import { templateValues } from '@/workers/f7-drafts'
 import { relativeTime } from '@/lib/format'
 import { generatedMeta } from '@/lib/airtable/fields'
 import { speaker } from '~/speaker.config'
@@ -15,7 +20,7 @@ import { transport } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
 
-const TABS = ['appearance', 'users', 'ai', 'mirror', 'data'] as const
+const TABS = ['appearance', 'templates', 'pricing', 'users', 'ai', 'mcp', 'mirror', 'data'] as const
 type Tab = (typeof TABS)[number]
 
 export default async function SettingsPage({
@@ -30,12 +35,28 @@ export default async function SettingsPage({
   if (!canViewScreen(user.role, 'settings')) redirect('/pipeline')
 
   const provider = db()
-  const [settings, users, usage, mirror] = await Promise.all([
+  const [settings, users, usage, mirror, tokens] = await Promise.all([
     provider.getSettings(),
     provider.listUsers(),
     provider.listUsage(new Date(Date.now() - 31 * 86_400_000).toISOString()),
     provider.listMirrorState(),
+    provider.listApiTokens().catch(() => []),
   ])
+
+  // Loaded only for the tabs that need them, because each is an Airtable read and this
+  // page is opened often.
+  const templates = tab === 'templates' ? await loadTemplates() : []
+  const rateCards = tab === 'pricing' ? await provider.listRateCards().catch(() => []) : []
+
+  // The preview renders against a real deal. A template that reads fine with
+  // `{{eventName}}` and falls apart with a real one is a template nobody has read.
+  const sampleDeal =
+    tab === 'templates'
+      ? (await provider.listDeals()).find((d) => !d.historical) ??
+        (await provider.listDeals())[0] ??
+        null
+      : null
+  const sample = sampleDeal ? await templateValues(sampleDeal) : {}
 
   return (
     <div>
@@ -98,6 +119,40 @@ export default async function SettingsPage({
             <SectionTitle>Usage meter</SectionTitle>
             <UsageMeter rows={usage} ai={settings.ai} />
           </Card>
+        </div>
+      ) : null}
+
+      {tab === 'templates' ? (
+        <TemplateEditor
+          templates={templates}
+          sample={sample}
+          sampleDealName={sampleDeal?.name ?? null}
+          canEdit={canWrite(user.role, 'templates').allowed}
+        />
+      ) : null}
+
+      {tab === 'pricing' ? (
+        <RateCardTable cards={rateCards} />
+      ) : null}
+
+      {tab === 'mcp' ? (
+        <div className="flex flex-col gap-4">
+          <Card className="p-4">
+            <Micro>The endpoint</Micro>
+            <p className="body-copy mt-1">
+              <code>{`${process.env.NEXTAUTH_URL ?? ''}/api/mcp`}</code>
+            </p>
+            <p className="body-copy mt-2">
+              Add it in Claude as a custom connector with the token as a bearer header. Reads are
+              safe; writes are audited as you, tagged <code>via MCP</code>, and reversible as a
+              batch. No tool can write money.
+            </p>
+          </Card>
+          <TokenList
+            tokens={tokens}
+            admins={users.filter((u) => u.role === 'admin')}
+            currentUserEmail={user.email}
+          />
         </div>
       ) : null}
 

@@ -28,6 +28,12 @@ import type {
   Settings,
   Task,
   UsageLogRow,
+  ApiToken,
+  Fulfillment,
+  PastClient,
+  RateCard,
+  Testimonial,
+  Template,
   User,
 } from '../types'
 
@@ -111,10 +117,39 @@ export interface DataProvider {
 
   listAudit(entityId?: string, limit?: number): Promise<AuditEntry[]>
   appendAudit(entry: NewRecord<AuditEntry>): Promise<AuditEntry>
+  /**
+   * Writes many audit rows in as few requests as the backend allows.
+   *
+   * Airtable bills per request, so a bulk script that calls `appendAudit` in a loop
+   * spends one request per row. On the Airtable backend this batches ten to a request.
+   */
+  appendAuditMany(entries: NewRecord<AuditEntry>[]): Promise<AuditEntry[]>
 
   listNotifications(user: string, limit?: number): Promise<Notification[]>
   createNotification(input: NewRecord<Notification>): Promise<Notification>
   markNotificationsRead(user: string, ids: string[]): Promise<void>
+
+  /**
+   * Deals touched since a timestamp.
+   *
+   * Exists so a sweep can cost one request in a quiet hour instead of reading the whole
+   * table to discover nothing happened.
+   */
+  listDealsModifiedSince(since: string): Promise<Deal[]>
+
+  listRateCards(): Promise<RateCard[]>
+  listTestimonials(): Promise<Testimonial[]>
+  listPastClients(): Promise<PastClient[]>
+  listFulfillment(): Promise<Fulfillment[]>
+
+  listApiTokens(): Promise<ApiToken[]>
+  createApiToken(input: NewRecord<ApiToken>): Promise<ApiToken>
+  /** Records that a token was used. Never throws into the caller's path. */
+  touchApiToken(id: string, at: string): Promise<void>
+  revokeApiToken(id: string): Promise<void>
+
+  listTemplates(): Promise<Template[]>
+  upsertTemplate(key: string, patch: Partial<Template>): Promise<Template>
 
   listUsers(): Promise<User[]>
   getUserByEmail(email: string): Promise<User | null>

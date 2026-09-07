@@ -29,3 +29,6 @@ coverage/
 # Phase C seed inputs — real client names, addresses, fees and mail content.
 # fixtures/sample-*/ is fabricated demo data and is meant to be committed; this is not.
 fixtures/seed-*/
+
+# WP3.5 nightly backup output — the repo it belongs in is louis-data-backup, not this one.
+backup/

@@ -9,9 +9,10 @@
  */
 
 import { db } from '@/lib/data'
-import { STAGE_PACKETS, guardStage } from '@/lib/stages'
-import { agentActor, recordEvent } from '@/lib/audit'
+import { isHold, packetFor, STAGE_PACKETS, guardStage } from '@/lib/stages'
+import { detectConflicts, existingFor } from '@/lib/conflicts'
 import { notify } from '@/lib/notify'
+import { agentActor, recordEvent } from '@/lib/audit'
 import { composeDraft } from './f7-drafts'
 import { pushMirror } from './f9-mirror'
 import type { Deal, StageKey, Task } from '@/lib/types'
@@ -39,7 +40,10 @@ export class StageBlocked extends Error {
  */
 export async function firePacket(deal: Deal, opts: { source?: string } = {}): Promise<PacketResult> {
   const provider = db()
-  const packet = STAGE_PACKETS[deal.stage]
+  // Lane matters: on a bureau deal the agent owns the client relationship, so nothing
+  // addressed past them is drafted at all (Gap Analysis §1, "automation stops at agent").
+  const packet = packetFor(deal.stage, deal.source)
+  const mirror = STAGE_PACKETS[deal.stage].mirror
   const existing = await provider.listTasks({ dealId: deal.id })
   const openTitles = new Set(existing.filter((t) => !t.done).map((t) => t.title.toLowerCase()))
 
@@ -80,8 +84,20 @@ export async function firePacket(deal: Deal, opts: { source?: string } = {}): Pr
     }
   }
 
-  for (const surface of packet.mirror) {
+  for (const surface of mirror) {
     await pushMirror(surface, deal)
+  }
+
+  // WP1.3 — a hold that has just become a firm offer is exactly the moment a competing
+  // hold has to be told. Waiting for the nightly sweep would give the first client a day
+  // less than the twenty-four hours they are owed.
+  if (isHold(deal.stage)) {
+    try {
+      await raiseConflicts(deal, opts.source ?? null)
+    } catch (err) {
+      // A conflict that cannot be raised must not undo a stage change that has happened.
+      console.error(`[${WORKER}] conflict check failed for ${deal.name}`, err)
+    }
   }
 
   await recordEvent({
@@ -151,16 +167,84 @@ function assigneeEmail(role: 'ops' | 'owner' | 'admin' | undefined): string | nu
   return map[role] ?? null
 }
 
-function dueDate(
+/**
+ * When a packet task is due.
+ *
+ * Run Plan rule 4, verbatim: *"Every T-minus timer is 'at T-x, or immediately if T-x has
+ * passed.' Last-minute deals never break; they compress."*
+ *
+ * So a T-21 task on a deal whose event is six days away is due **today**, not fifteen
+ * days ago. The distinction matters to a person: a date in the past renders as "overdue
+ * by 15 days" on a deal created this morning, which is both false and alarming. Nobody
+ * was late; the deal simply arrived late.
+ */
+export /**
+ * Raises a Date Conflict record for any live clash this deal is part of.
+ *
+ * Detects and flags. Nothing is released, nothing is reordered, and the 24-hour clock is
+ * a display: Decisions Log §3 is explicit that two gigs in one day is sometimes doable,
+ * so the system must never decide that a clash is a problem.
+ */
+async function raiseConflicts(deal: Deal, source: string | null): Promise<void> {
+  const provider = db()
+  const today = new Date().toISOString().slice(0, 10)
+  const [deals, existing] = await Promise.all([
+    provider.listDeals(),
+    provider.listDateConflicts(),
+  ])
+
+  for (const clash of detectConflicts(deals, today)) {
+    if (!clash.deals.some((d) => d.id === deal.id)) continue
+    if (existingFor(clash, existing)) continue
+
+    const created = await provider.createDateConflict({
+      label: clash.label,
+      date: clash.date,
+      status: 'open',
+      proposalIds: [],
+      dealIds: clash.deals.map((d) => d.id),
+      resolution: null,
+      resolvedBy: null,
+      createdAt: new Date().toISOString(),
+    })
+
+    await recordEvent({
+      table: 'dateConflicts',
+      recordId: created.id,
+      what: 'Raised',
+      detail: `${clash.label}; first hold is ${clash.firstHold.client?.name ?? clash.firstHold.name}`,
+      actor: agentActor(WORKER),
+      source,
+    })
+
+    await notify({
+      type: 'red-alert',
+      title: `Two deals on ${clash.date}`,
+      body:
+        `${clash.label}. First hold: ${clash.firstHold.client?.name ?? clash.firstHold.name}.` +
+        (clash.challenged
+          ? ' One side has a firm offer out, so the first hold has 24 hours to contract or release.'
+          : ''),
+      link: `/queue?conflict=${created.id}`,
+      roles: ['ops', 'admin', 'owner'],
+    })
+  }
+}
+
+export function dueDate(
   spec: { dueInDays?: number; dueRelativeToEvent?: number },
-  deal: Deal,
+  deal: Pick<Deal, 'eventDate'>,
+  now: Date = new Date(),
 ): string | null {
+  const today = now.toISOString().slice(0, 10)
+
   if (spec.dueRelativeToEvent !== undefined && deal.eventDate) {
-    const base = new Date(deal.eventDate).getTime()
-    return new Date(base + spec.dueRelativeToEvent * 86_400_000).toISOString().slice(0, 10)
+    const base = new Date(`${deal.eventDate.slice(0, 10)}T00:00:00Z`).getTime()
+    const due = new Date(base + spec.dueRelativeToEvent * 86_400_000).toISOString().slice(0, 10)
+    return due < today ? today : due
   }
   if (spec.dueInDays !== undefined) {
-    return new Date(Date.now() + spec.dueInDays * 86_400_000).toISOString().slice(0, 10)
+    return new Date(now.getTime() + spec.dueInDays * 86_400_000).toISOString().slice(0, 10)
   }
   return null
 }

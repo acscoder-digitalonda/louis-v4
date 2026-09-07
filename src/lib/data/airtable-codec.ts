@@ -10,13 +10,33 @@
 export interface Codec<T extends string> {
   toAirtable(value: T): string
   fromAirtable(value: unknown, fallback: T): T
+  /** For optional selects, where "unset" is a real state and not a default. */
+  fromAirtableOrNull(value: unknown): T | null
 }
 
-export function codec<T extends string>(pairs: Record<T, string>): Codec<T> {
+/**
+ * @param aliases Labels a record may still hold from a previous vocabulary, mapped onto
+ *   the value they mean now. Read-only: writes always use the current label, so the
+ *   stored value converges as records are touched.
+ *
+ *   This is not a nicety. `fromAirtable` falls back to a default when it does not
+ *   recognise a label, so renaming a stage without an alias does not fail loudly — it
+ *   silently reports every `Sales` deal as an `Inquiry`, and the pipeline looks like it
+ *   lost its middle.
+ */
+export function codec<T extends string>(
+  pairs: Record<T, string>,
+  // NoInfer, or TypeScript widens T from the alias map too and the union collapses to
+  // whatever the aliases happen to mention.
+  aliases: Record<string, NoInfer<T>> = {},
+): Codec<T> {
   const reverse = new Map<string, T>()
   for (const [domain, label] of Object.entries(pairs) as [T, string][]) {
     reverse.set(label.toLowerCase(), domain)
     reverse.set(domain.toLowerCase(), domain)
+  }
+  for (const [legacy, domain] of Object.entries(aliases) as [string, T][]) {
+    if (!reverse.has(legacy.toLowerCase())) reverse.set(legacy.toLowerCase(), domain)
   }
   return {
     toAirtable: (value) => pairs[value] ?? String(value),
@@ -24,17 +44,73 @@ export function codec<T extends string>(pairs: Record<T, string>): Codec<T> {
       if (typeof value !== 'string') return fallback
       return reverse.get(value.trim().toLowerCase()) ?? fallback
     },
+    // An empty optional select is null, not a default. A deal with no Rate Region set
+    // must not silently read as Domestic — that would price it.
+    fromAirtableOrNull: (value) => {
+      if (typeof value !== 'string' || !value.trim()) return null
+      return reverse.get(value.trim().toLowerCase()) ?? null
+    },
   }
 }
 
 export const stageCodec = codec({
   inquiry: 'Inquiry',
-  sales: 'Sales',
+  qualified: 'Qualified',
+  'firm-offer': 'Firm Offer',
   'closed-won': 'Closed-Won',
   'pre-event': 'Pre-Event',
   delivered: 'Delivered',
   debriefed: 'Debriefed',
-  dormant: 'Dormant',
+  'closed-lost': 'Closed Lost',
+} as const, {
+  // v3 vocabulary, still stored on records the migration has not rewritten yet.
+  // `Sales` becomes Qualified rather than Firm Offer: a hold was out, but nothing in a
+  // v3 record proves a priced offer was. Promoting on a guess would inflate the forecast
+  // from 50 to 95 on deals nobody has quoted.
+  Sales: 'qualified',
+  sales: 'qualified',
+  Dormant: 'closed-lost',
+  dormant: 'closed-lost',
+})
+
+export const dealTypeCodec = codec({
+  keynote: 'Keynote',
+  'speaker-coaching': 'Speaker Coaching',
+  'executive-coaching': 'Executive Coaching',
+} as const)
+
+export const secondaryTypeCodec = codec({
+  'in-person': 'In-person',
+  virtual: 'Virtual',
+} as const)
+
+export const dealStatusCodec = codec({ cold: 'Cold', warm: 'Warm', hot: 'Hot' } as const)
+
+export const rateRegionCodec = codec({
+  'us-canada': 'US / non-remote Canada',
+  'near-international': 'Mexico / Caribbean / Central America / remote Canada',
+  'europe-samerica-japan': 'Europe / South America / Japan',
+  'far-international': 'Middle East / India / Africa / Asia / Australia',
+} as const)
+
+export const weekendRuleCodec = codec({
+  none: 'None',
+  'event-date': 'Sat/Sun event date',
+  'travel-days': 'Sat/Sun travel days',
+} as const)
+
+/**
+ * Why a deal was lost. This is not a note — it is the key the 12-month re-engagement
+ * campaign segments on (WP1.7), so it is an enum with a fixed set, not free text.
+ */
+export const closedLostReasonCodec = codec({
+  budget: 'Out of budget',
+  'date-unavailable': 'Date no longer available',
+  'chose-another-speaker': 'Chose another speaker',
+  'no-speaker': 'Decided on no speaker',
+  postponed: 'Event postponed or cancelled',
+  'went-quiet': 'Went quiet',
+  other: 'Other',
 } as const)
 
 export const sourceCodec = codec({ direct: 'Direct', bureau: 'Bureau' } as const)

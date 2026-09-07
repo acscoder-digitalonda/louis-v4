@@ -9,6 +9,7 @@
 
 import { fieldsAreGenerated, tableRef } from './fields'
 import type { TableKey } from './schema'
+import { countRequest, invalidate, readThrough, type RequestKind } from './cache'
 
 const API = 'https://api.airtable.com/v0'
 const META = 'https://api.airtable.com/v0/meta'
@@ -62,6 +63,11 @@ async function request<T>(
   init: RequestInit = {},
   attempt = 0,
 ): Promise<T> {
+  // Counted here because this is the only function that talks to Airtable, and a retry
+  // is a second billed request — counting at the call site would undercount exactly when
+  // things are going wrong.
+  countRequest(tableFromUrl(url), kindOf(url, init.method))
+
   const res = await throttle(() =>
     fetch(url, {
       ...init,
@@ -97,7 +103,35 @@ export interface ListOptions {
   view?: string
 }
 
+/**
+ * Every read of a table, and the only place requests are counted.
+ *
+ * Goes through the cache (`airtable/cache.ts`). Use `listRecordsFresh` where a stale
+ * answer would be acted on rather than looked at.
+ */
 export async function listRecords(
+  cfg: AirtableConfig,
+  table: TableKey,
+  opts: ListOptions = {},
+): Promise<AirtableRecord[]> {
+  return readThrough(
+    table,
+    opts,
+    // What this would have cost: one request per hundred records, at least one.
+    estimatedRequests(table),
+    () => listRecordsFresh(cfg, table, opts),
+  )
+}
+
+/** How many requests a whole-table read costs, from the last time we counted it. */
+const lastSize = new Map<TableKey, number>()
+
+function estimatedRequests(table: TableKey): number {
+  return Math.max(1, Math.ceil((lastSize.get(table) ?? 100) / 100))
+}
+
+/** Straight to Airtable, no cache. For a read whose answer is about to be acted on. */
+export async function listRecordsFresh(
   cfg: AirtableConfig,
   table: TableKey,
   opts: ListOptions = {},
@@ -125,6 +159,7 @@ export async function listRecords(
     if (opts.maxRecords && out.length >= opts.maxRecords) break
   } while (offset)
 
+  lastSize.set(table, out.length)
   return out
 }
 
@@ -148,6 +183,7 @@ export async function createRecords(
   table: TableKey,
   records: Record<string, unknown>[],
 ): Promise<AirtableRecord[]> {
+  invalidate(table)
   const out: AirtableRecord[] = []
   for (let i = 0; i < records.length; i += 10) {
     const batch = records.slice(i, i + 10)
@@ -171,6 +207,7 @@ export async function updateRecord(
   id: string,
   fields: Record<string, unknown>,
 ): Promise<AirtableRecord> {
+  invalidate(table)
   const url = `${API}/${cfg.baseId}/${encodeURIComponent(tableRef(table))}/${id}`
   return request<AirtableRecord>(cfg, url, {
     method: 'PATCH',
@@ -182,11 +219,46 @@ export async function updateRecord(
   })
 }
 
+/**
+ * Updates many records, ten per request.
+ *
+ * This exists because its absence cost a month of API quota. Airtable bills per request,
+ * not per record, and a bulk script written against `updateRecord` sends one request per
+ * row: three backfills in one day — 698 contacts, 150 proposals, 802 deals, each with an
+ * audit row — came to roughly 3,300 requests where batching would have sent 330, and the
+ * workspace hit `PUBLIC_API_BILLING_LIMIT_EXCEEDED`, which blocks *reads* too and takes
+ * the whole app down with it.
+ *
+ * So: any script touching more than a handful of records uses this, not a loop.
+ */
+export async function updateRecords(
+  cfg: AirtableConfig,
+  table: TableKey,
+  records: { id: string; fields: Record<string, unknown> }[],
+): Promise<AirtableRecord[]> {
+  invalidate(table)
+  const out: AirtableRecord[] = []
+  for (let i = 0; i < records.length; i += 10) {
+    const url = `${API}/${cfg.baseId}/${encodeURIComponent(tableRef(table))}`
+    const res = await request<{ records: AirtableRecord[] }>(cfg, url, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        records: records.slice(i, i + 10),
+        typecast: true,
+        ...(fieldsAreGenerated ? { returnFieldsByFieldId: true } : {}),
+      }),
+    })
+    out.push(...res.records)
+  }
+  return out
+}
+
 export async function deleteRecord(
   cfg: AirtableConfig,
   table: TableKey,
   id: string,
 ): Promise<void> {
+  invalidate(table)
   const url = `${API}/${cfg.baseId}/${encodeURIComponent(tableRef(table))}/${id}`
   await request<unknown>(cfg, url, { method: 'DELETE' })
 }
@@ -234,6 +306,26 @@ export async function createField(
   })
 }
 
+/**
+ * Updates a field's name, description or options.
+ *
+ * The only caller is the additive schema sync, and it only ever *adds* select choices.
+ * Airtable replaces the whole option list on write, so a caller that sends a short list
+ * deletes every option it left out — and every record holding one. Read the live options
+ * first, append, and send the union. Never the schema's list on its own.
+ */
+export async function updateField(
+  cfg: AirtableConfig,
+  tableId: string,
+  fieldId: string,
+  patch: { name?: string; description?: string; options?: Record<string, unknown> },
+): Promise<MetaField> {
+  return request<MetaField>(cfg, `${META}/bases/${cfg.baseId}/tables/${tableId}/fields/${fieldId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  })
+}
+
 /** Escapes a value for use inside a filterByFormula string literal. */
 export function formulaValue(value: string): string {
   return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
@@ -250,6 +342,7 @@ export async function deleteRecords(
   table: TableKey,
   ids: string[],
 ): Promise<number> {
+  invalidate(table)
   let deleted = 0
   for (let i = 0; i < ids.length; i += 10) {
     const batch = ids.slice(i, i + 10)
@@ -262,4 +355,17 @@ export async function deleteRecords(
     deleted += res.records.filter((r) => r.deleted).length
   }
   return deleted
+}
+
+/** Best effort: the table segment of an Airtable URL, for the per-table breakdown. */
+function tableFromUrl(url: string): string {
+  const meta = url.match(/\/meta\/bases\/[^/]+\/tables(?:\/([^/?]+))?/)
+  if (meta) return `meta:${meta[1] ?? 'tables'}`
+  const rec = url.match(/\/v0\/[^/]+\/([^/?]+)/)
+  return rec ? decodeURIComponent(rec[1]!) : 'unknown'
+}
+
+function kindOf(url: string, method: string | undefined): RequestKind {
+  if (url.includes('/meta/')) return 'meta'
+  return !method || method === 'GET' ? 'read' : 'write'
 }

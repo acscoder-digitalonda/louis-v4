@@ -36,7 +36,7 @@
 import { db } from '@/lib/data'
 import { agentActor, recordChanges, recordEvent } from '@/lib/audit'
 import { normaliseBureau } from './f11-bookings'
-import type { DealProposal, SeedSource } from '@/lib/types'
+import type { ClosedLostReason, DealProposal, SeedSource } from '@/lib/types'
 
 const WORKER = 'C3'
 
@@ -149,6 +149,26 @@ export interface ReleasedInquiry {
 }
 
 /** `Company | Client Name | Email | City | Date | Reason | Other Dates` — a real table. */
+/**
+ * Maps what Liezel typed in the Reason column onto the Closed Lost Reason enum.
+ *
+ * The free text is kept in the notes either way — this is the machine-readable key the
+ * twelve-month re-engagement segments on, and it is deliberately conservative: anything
+ * that does not clearly match becomes `other`, because a wrongly segmented campaign
+ * emails the wrong pitch to a real person.
+ */
+export function classifyReleaseReason(reason: string | null | undefined): ClosedLostReason | null {
+  const t = (reason ?? '').toLowerCase().trim()
+  if (!t) return null
+  if (/budget|too expensive|cost|afford|price/.test(t)) return 'budget'
+  if (/no speaker|without a speaker|not having a speaker|internal speaker/.test(t)) return 'no-speaker'
+  if (/another speaker|different speaker|went with|chose\s+\w+|booked someone/.test(t)) return 'chose-another-speaker'
+  if (/postpon|cancel|not happening|no longer|shelved/.test(t)) return 'postponed'
+  if (/date|schedul|conflict|unavailab|not available|double/.test(t)) return 'date-unavailable'
+  if (/no response|never heard|went quiet|ghost|stopped/.test(t)) return 'went-quiet'
+  return 'other'
+}
+
 export function parseReleasedInquiries(rows: string[][]): ReleasedInquiry[] {
   const header = rows.findIndex((r) => (r[0] ?? '').trim().toLowerCase() === 'company')
   if (header < 0) return []
@@ -341,10 +361,11 @@ export async function commitSheets(
       clientId: null,
       contactName: r.contactName,
       contactId: null,
-      // The stage list has no Closed Lost yet (WP0.2 adds it). Dormant is the closest
-      // thing that exists and does not pretend the deal is live; the reason is in notes
-      // either way, so nothing is lost when the stage arrives.
-      stage: 'dormant',
+      // WP0.2 added Closed Lost, so a released inquiry lands where it belongs. The
+      // reason still travels in the notes; parsing it into Closed Lost Reason is what
+      // the migration does, because only there is the whole set visible at once.
+      stage: 'closed-lost',
+      closedLostReason: classifyReleaseReason(r.reason),
       lane: 'direct',
       eventDate: null,
       holdDate: null,

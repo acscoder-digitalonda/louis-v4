@@ -33,6 +33,7 @@ function mirrorSubject(): string | undefined {
   return process.env.GOOGLE_MIRROR_SUBJECT ?? process.env.GMAIL_SERVICE_ADDRESS
 }
 import type { Deal, MirrorSurface } from '@/lib/types'
+import { isHold, isTerminal } from '@/lib/stages'
 
 const WORKER = 'F9'
 
@@ -133,7 +134,7 @@ async function pushCalendar(deal: Deal): Promise<void> {
   const calendarId = process.env.GOOGLE_CALENDAR_ID
   if (!calendarId) throw new Error('GOOGLE_CALENDAR_ID is not set — refusing to write to a default calendar')
   const body = {
-    summary: `${deal.name}${deal.stage === 'sales' ? ' (HOLD)' : ''}`,
+    summary: `${deal.name}${isHold(deal.stage) ? ' (HOLD)' : ''}`,
     description: [deal.location, deal.stageTime, `Stage: ${deal.stage}`].filter(Boolean).join('\n'),
     location: deal.location ?? undefined,
     start: { date: deal.eventDate },
@@ -191,15 +192,43 @@ async function createFolder(token: string, name: string, parent: string): Promis
   return json.id
 }
 
-/** The scheduled sweep + weekly integrity check. */
-export async function run(): Promise<{ pushed: number; errors: number }> {
+/**
+ * The scheduled sweep + weekly integrity check.
+ *
+ * ── Why it does not read every deal every hour ─────────────────────────────
+ *
+ * It used to, and that is the shape of the bug Jordan found in the usage figures: this
+ * worker logged 8,478 runs, each reading the whole deals table and re-pushing every
+ * active deal to Google whether or not anything had changed. Ten Airtable requests an
+ * hour to discover that nothing happened, plus a calendar write per deal per hour.
+ *
+ * Now it asks Airtable for the deals modified since the last run — one request when the
+ * hour was quiet, which is most hours. `upsertMirrorState` still writes a row per deal
+ * per surface, so the integrity check has the same picture it always did.
+ *
+ * The full read still happens, once a week, because a filtered read cannot notice a deal
+ * that fell out of the mirror without being touched.
+ */
+export async function run(opts: { full?: boolean } = {}): Promise<{ pushed: number; errors: number }> {
   const provider = db()
-  const deals = await provider.listDeals()
-  const active = deals.filter((d) => d.stage !== 'dormant' && d.stage !== 'debriefed')
+  const since = opts.full ? null : await lastRunAt()
+  const full = !since || isWeeklySweep()
+
+  const deals = full ? await provider.listDeals() : await provider.listDealsModifiedSince(since)
+  const active = deals.filter((d: Deal) => !isTerminal(d.stage))
 
   for (const deal of active) {
     await pushMirror('calendar', deal)
     await pushMirror('drive', deal)
+  }
+  await recordRun()
+
+  // A partial sweep has nothing to say about the whole mirror, so the integrity check
+  // only runs on the full one. Asserting completeness from a filtered read would raise a
+  // failure every hour that nothing changed.
+  if (!full) {
+    console.info(`[F9] ${active.length} deal(s) changed since ${since}`)
+    return { pushed: active.length, errors: 0 }
   }
 
   const state = await provider.listMirrorState()
@@ -219,4 +248,35 @@ export async function run(): Promise<{ pushed: number; errors: number }> {
 
   console.info(`[${WORKER}] mirrored ${active.length} deals, ${errors} errors`)
   return { pushed: active.length, errors }
+}
+
+// ── When this last ran ──────────────────────────────────────────────────────
+//
+// Kept in Settings rather than a new table: it is one timestamp, and a table for it
+// would be a table somebody has to remember to purge.
+
+const LAST_RUN_KEY = 'mirrorLastRunAt'
+
+async function lastRunAt(): Promise<string | null> {
+  try {
+    const settings = await db().getSettings()
+    return (settings as unknown as Record<string, string | null>)[LAST_RUN_KEY] ?? null
+  } catch {
+    // Unknown means "read everything", which is the safe direction to fail in.
+    return null
+  }
+}
+
+async function recordRun(): Promise<void> {
+  try {
+    await db().saveSettings({ [LAST_RUN_KEY]: new Date().toISOString() } as never)
+  } catch (err) {
+    // A missed timestamp costs one full read next hour. Not worth failing the sweep for.
+    console.warn('[F9] could not record the run time:', err)
+  }
+}
+
+/** Sunday, in the hour the sweep runs. One full read a week. */
+function isWeeklySweep(now = new Date()): boolean {
+  return now.getUTCDay() === 0 && now.getUTCHours() === 3
 }

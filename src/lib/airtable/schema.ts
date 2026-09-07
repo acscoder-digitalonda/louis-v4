@@ -64,6 +64,17 @@ export type TableKey =
   | 'usageLog'
   | 'settings'
   | 'templates'
+  | 'rateCards'
+  | 'products'
+  | 'dealLineItems'
+  | 'testimonials'
+  | 'pastClients'
+  | 'mailAccounts'
+  | 'coachingSessions'
+  | 'fulfillment'
+  | 'bureauCompanies'
+  | 'standaloneOrders'
+  | 'apiTokens'
 
 export interface TableSpec {
   key: TableKey
@@ -73,7 +84,33 @@ export interface TableSpec {
   fields: FieldSpec[]
 }
 
-const STAGES = ['Inquiry', 'Sales', 'Closed-Won', 'Pre-Event', 'Delivered', 'Debriefed', 'Dormant']
+// Must match `stageCodec` in `data/airtable-codec.ts`. A test asserts they agree: a
+// select option that exists on one side only is the trap `repair-stage-choices` cleans up.
+const STAGES = [
+  'Inquiry', 'Qualified', 'Firm Offer', 'Closed-Won',
+  'Pre-Event', 'Delivered', 'Debriefed', 'Closed Lost',
+]
+
+// Decisions Log §4: bands are geographic groupings, and the amounts live in Rate Cards.
+const RATE_REGIONS = [
+  'US / non-remote Canada',
+  'Mexico / Caribbean / Central America / remote Canada',
+  'Europe / South America / Japan',
+  'Middle East / India / Africa / Asia / Australia',
+]
+
+// Decisions Log §2. Longer than a status list needs to be, on purpose: a fulfillment
+// record stays *open* until Delivered, and each step is a thing someone actually does.
+const FULFILLMENT_STATUSES = [
+  'Mentioned', 'Promo Sent', 'Promo Received', 'Interested', 'Quote Sent',
+  'Ordered', 'Warehouse Notified', 'Shipped', 'Delivered',
+  'Dropship Pending', 'Dropship Complete',
+]
+
+const CLOSED_LOST_REASONS = [
+  'Out of budget', 'Date no longer available', 'Chose another speaker',
+  'Decided on no speaker', 'Event postponed or cancelled', 'Went quiet', 'Other',
+]
 
 export const TABLES: Record<TableKey, TableSpec> = {
   // ── Domain 1 — CRM / Identity ────────────────────────────────────────────
@@ -132,12 +169,32 @@ export const TABLES: Record<TableKey, TableSpec> = {
     key: 'deals',
     name: 'Deals',
     domain: 'Deals',
-    description: 'The six-stage record. One row from first inquiry to debrief.',
+    description: 'The eight-stage record. One row from first inquiry to debrief.',
     fields: [
       { key: 'name', name: 'Deal Name', type: 'singleLineText' },
       { key: 'stage', name: 'Stage', type: 'singleSelect', choices: STAGES },
       { key: 'source', name: 'Source', type: 'singleSelect', choices: ['Direct', 'Bureau'] },
-      { key: 'dealType', name: 'Deal Type', type: 'singleLineText' },
+      {
+        key: 'dealType',
+        name: 'Deal Type',
+        type: 'singleSelect',
+        choices: ['Keynote', 'Speaker Coaching', 'Executive Coaching'],
+        description: 'Drives the stage set: coaching has no Firm Offer and no Pre-Event.',
+      },
+      {
+        key: 'secondaryType',
+        name: 'Secondary Deal Type',
+        type: 'singleSelect',
+        choices: ['In-person', 'Virtual'],
+        description: 'Half of the List Amount formula. The other half is Rate Region.',
+      },
+      {
+        key: 'dealStatus',
+        name: 'Deal Status',
+        type: 'singleSelect',
+        choices: ['Cold', 'Warm', 'Hot'],
+        description: 'A human read on temperature. Drives nothing automatic.',
+      },
       { key: 'client', name: 'Client', type: 'multipleRecordLinks', link: 'clients' },
       { key: 'bureauAgent', name: 'Bureau Agent', type: 'multipleRecordLinks', link: 'contacts' },
       { key: 'owner', name: 'Owner', type: 'singleLineText' },
@@ -152,6 +209,66 @@ export const TABLES: Record<TableKey, TableSpec> = {
         name: 'Hold Order',
         type: 'number',
         description: 'First hold on a date is 1. Read from the "(2)"/"(3)" convention, or hold creation time.',
+      },
+
+      {
+        key: 'rateRegion',
+        name: 'Rate Region',
+        type: 'singleSelect',
+        choices: RATE_REGIONS,
+        description: 'Band only. Every amount lives in Rate Cards — never a number in a formula here.',
+      },
+      { key: 'travelStipend', name: 'Travel Stipend', type: 'currency' },
+      {
+        key: 'weekendEvent',
+        name: 'Weekend Event',
+        type: 'formula',
+        computed: true,
+        description: 'Saturday or Sunday event date. Whether that costs extra is the rate card\'s call.',
+      },
+      {
+        key: 'pricingNote',
+        name: 'Pricing Note',
+        type: 'multilineText',
+        description: 'Ben only. Why this deal was priced the way it was.',
+      },
+      {
+        key: 'addOnAmount',
+        name: 'Add-On Amount',
+        type: 'rollup',
+        computed: true,
+        description: 'Sum of Deal Line Items. The line items own it.',
+      },
+      {
+        key: 'amount',
+        name: 'Amount',
+        type: 'formula',
+        computed: true,
+        description: 'Negotiated or List, plus Travel Stipend, plus Add-On Amount.',
+      },
+
+      { key: 'nextActionDate', name: 'Next Action Date', type: 'date' },
+      { key: 'followUpCount', name: 'Follow-Up Count', type: 'number' },
+      {
+        key: 'nextActionOwner',
+        name: 'Next Action Owner',
+        type: 'formula',
+        computed: true,
+        description: 'Zero or one touch is Liezel; the third is Ben. A formula so nobody can forget to escalate.',
+      },
+      {
+        key: 'muted',
+        name: 'Muted',
+        type: 'checkbox',
+        description: 'Suppresses chasing without closing the deal. Clears on close.',
+      },
+      { key: 'muteUntil', name: 'Mute Until', type: 'date' },
+      {
+        key: 'closedLostReason',
+        name: 'Closed Lost Reason',
+        type: 'singleSelect',
+        choices: CLOSED_LOST_REASONS,
+        description: 'Required to enter Closed Lost. The key the twelve-month re-engagement segments on.',
       },
 
       { key: 'eventDate', name: 'Event Date', type: 'date' },
@@ -174,6 +291,33 @@ export const TABLES: Record<TableKey, TableSpec> = {
       { key: 'hotel', name: 'Hotel', type: 'singleLineText' },
       { key: 'travelNotes', name: 'Travel Notes', type: 'multilineText' },
       { key: 'logisticsComplete', name: 'Logistics Complete', type: 'checkbox' },
+      {
+        key: 'eventTimezone',
+        name: 'Event Timezone',
+        type: 'singleLineText',
+        description: 'IANA name. Every other time on this record is text with the zone written in.',
+      },
+      { key: 'kickoffDate', name: 'Kick-Off Date', type: 'date' },
+      {
+        key: 'travelDepartureDate',
+        name: 'Travel Departure Date',
+        type: 'date',
+        description: 'Road Warrior fires T-1 from this, falling back to the event date minus one.',
+      },
+      { key: 'outboundFlight', name: 'Outbound Flight', type: 'singleLineText' },
+      { key: 'returnFlight', name: 'Return Flight', type: 'singleLineText' },
+      {
+        key: 'postKeynoteAlert',
+        name: 'Send Post-Keynote Alert',
+        type: 'checkbox',
+        description: 'Ben ticks this once, onsite. One tick is the whole handoff.',
+      },
+      {
+        key: 'kitToken',
+        name: 'Kit Token',
+        type: 'singleLineText',
+        description: 'Opaque segment of the hosted welcome-kit URL. Not a secret, but not guessable.',
+      },
 
       {
         key: 'paymentStatus',
@@ -401,6 +545,18 @@ export const TABLES: Record<TableKey, TableSpec> = {
       { key: 'contactId', name: 'Contact', type: 'multipleRecordLinks', link: 'contacts' },
       { key: 'stage', name: 'Stage', type: 'singleSelect', choices: STAGES },
       { key: 'lane', name: 'Lane', type: 'singleSelect', choices: ['Direct', 'Bureau'] },
+      // A proposal is a suggestion, not a deal. Pricing, follow-up state and mute belong
+      // to a deal that exists; a row nobody has accepted has nothing to chase and nothing
+      // to price. The one exception is below: a released inquiry arrives already lost, and
+      // the reason has to survive the accept or the re-engagement campaign loses its key.
+      {
+        key: 'closedLostReason',
+        name: 'Closed Lost Reason',
+        type: 'singleSelect',
+        choices: CLOSED_LOST_REASONS,
+        description: 'Required to enter Closed Lost. The key the twelve-month re-engagement segments on.',
+      },
+
       { key: 'eventDate', name: 'Event Date', type: 'date' },
       { key: 'holdDate', name: 'Hold Date', type: 'date' },
       { key: 'holdOrder', name: 'Hold Order', type: 'number' },
@@ -632,7 +788,258 @@ export const TABLES: Record<TableKey, TableSpec> = {
       { key: 'notes', name: 'Notes', type: 'multilineText' },
     ],
   },
+  // ── WP0.1 — the SpeakerOS data model ─────────────────────────────────────
+
+  rateCards: {
+    key: 'rateCards',
+    name: 'Rate Cards',
+    domain: 'Deals',
+    description: 'List Amount is looked up here, never computed from a number in code.',
+    fields: [
+      { key: 'label', name: 'Label', type: 'singleLineText' },
+      { key: 'year', name: 'Year', type: 'number' },
+      { key: 'dealType', name: 'Deal Type', type: 'singleSelect', choices: ['Keynote', 'Speaker Coaching', 'Executive Coaching'] },
+      { key: 'secondaryType', name: 'Secondary Deal Type', type: 'singleSelect', choices: ['In-person', 'Virtual'] },
+      { key: 'rateRegion', name: 'Region', type: 'singleSelect', choices: RATE_REGIONS },
+      { key: 'baseFee', name: 'Base Fee', type: 'currency' },
+      {
+        key: 'weekendSurcharge',
+        name: 'Weekend Surcharge',
+        type: 'currency',
+        description: 'Blank or 0 = no surcharge. Overseas rows are seeded 0 pending Ben.',
+      },
+      {
+        key: 'weekendRule',
+        name: 'Weekend Rule',
+        type: 'singleSelect',
+        choices: ['None', 'Sat/Sun event date', 'Sat/Sun travel days'],
+        description: 'What counts as a weekend. Overseas trips consume the weekend in travel anyway.',
+      },
+      { key: 'travelBuyout', name: 'Travel Buyout', type: 'currency' },
+      {
+        key: 'travelTerms',
+        name: 'Travel Terms',
+        type: 'multilineText',
+        description: 'Rendered verbatim into the proposal and the contract. Text, not a code branch.',
+      },
+      { key: 'effectiveFrom', name: 'Effective From', type: 'date' },
+      { key: 'effectiveTo', name: 'Effective To', type: 'date' },
+      { key: 'active', name: 'Active', type: 'checkbox' },
+    ],
+  },
+
+  products: {
+    key: 'products',
+    name: 'Products',
+    domain: 'Journal',
+    description: 'Journal tiers, the book, workshops, Dream Wall. What a line item points at.',
+    fields: [
+      { key: 'name', name: 'Name', type: 'singleLineText' },
+      { key: 'kind', name: 'Kind', type: 'singleSelect', choices: ['Journal', 'Book', 'Workshop', 'Dream Wall', 'Other'] },
+      { key: 'unitPrice', name: 'Unit Price', type: 'currency' },
+      {
+        key: 'physical',
+        name: 'Physical',
+        type: 'checkbox',
+        description: 'Physical products get a Fulfillment record; workshops do not.',
+      },
+      { key: 'active', name: 'Active', type: 'checkbox' },
+    ],
+  },
+
+  dealLineItems: {
+    key: 'dealLineItems',
+    name: 'Deal Line Items',
+    domain: 'Journal',
+    description: 'Where add-on money lives. Amount on the deal is a rollup of these.',
+    fields: [
+      { key: 'deal', name: 'Deal', type: 'multipleRecordLinks', link: 'deals' },
+      { key: 'product', name: 'Product', type: 'multipleRecordLinks', link: 'products' },
+      { key: 'quantity', name: 'Quantity', type: 'number' },
+      {
+        key: 'priceOverride',
+        name: 'Price Override',
+        type: 'currency',
+        description: 'Dream fulfilment is booked at 0 by override, not by a special case in code.',
+      },
+      { key: 'lineTotal', name: 'Line Total', type: 'formula', computed: true },
+      { key: 'notes', name: 'Notes', type: 'multilineText' },
+    ],
+  },
+
+  fulfillment: {
+    key: 'fulfillment',
+    name: 'Fulfillment',
+    domain: 'Journal',
+    description: 'One record per physical line item. Status only — the money stays on the line item.',
+    fields: [
+      { key: 'lineItem', name: 'Line Item', type: 'multipleRecordLinks', link: 'dealLineItems' },
+      { key: 'deal', name: 'Deal', type: 'multipleRecordLinks', link: 'deals' },
+      {
+        key: 'status',
+        name: 'Status',
+        type: 'singleSelect',
+        choices: FULFILLMENT_STATUSES,
+      },
+      { key: 'quantity', name: 'Qty', type: 'number' },
+      {
+        key: 'shipBy',
+        name: 'Ship-By Date',
+        type: 'date',
+        description: 'Event date minus the configured lead days. Bulk orders want to land a month out.',
+      },
+      { key: 'carrier', name: 'Carrier', type: 'singleLineText' },
+      { key: 'tracking', name: 'Tracking', type: 'singleLineText' },
+      { key: 'warehouseNotes', name: 'Warehouse Notes', type: 'multilineText' },
+      { key: 'slackThread', name: 'Slack Thread', type: 'url' },
+      { key: 'notes', name: 'Notes', type: 'multilineText' },
+    ],
+  },
+
+  coachingSessions: {
+    key: 'coachingSessions',
+    name: 'Coaching Sessions',
+    domain: 'Deals',
+    description: 'Three per coaching deal. The delivery ledger a keynote does not need.',
+    fields: [
+      { key: 'deal', name: 'Deal', type: 'multipleRecordLinks', link: 'deals' },
+      { key: 'sessionNumber', name: 'Session Number', type: 'number' },
+      { key: 'scheduledFor', name: 'Scheduled For', type: 'dateTime' },
+      { key: 'held', name: 'Held', type: 'checkbox' },
+      { key: 'notes', name: 'Notes', type: 'multilineText' },
+    ],
+  },
+
+  bureauCompanies: {
+    key: 'bureauCompanies',
+    name: 'Bureau Companies',
+    domain: 'CRM',
+    description: 'A bureau is a company, not a text field on a contact. 54 seeded from history.',
+    fields: [
+      { key: 'name', name: 'Name', type: 'singleLineText' },
+      {
+        key: 'matchKey',
+        name: 'Match Key',
+        type: 'singleLineText',
+        description: 'Normalised key the import dedupes on. Never shown to a person.',
+      },
+      { key: 'domain', name: 'Domain', type: 'singleLineText' },
+      { key: 'notes', name: 'Notes', type: 'multilineText' },
+      { key: 'active', name: 'Active', type: 'checkbox' },
+    ],
+  },
+
+  testimonials: {
+    key: 'testimonials',
+    name: 'Testimonials',
+    domain: 'CRM',
+    description: '74 quotes, tagged by industry and format. One is picked per first reply.',
+    fields: [
+      { key: 'quote', name: 'Quote', type: 'multilineText' },
+      { key: 'shortQuote', name: 'Short Quote', type: 'multilineText' },
+      { key: 'personName', name: 'Name', type: 'singleLineText' },
+      { key: 'title', name: 'Title', type: 'singleLineText' },
+      { key: 'company', name: 'Company', type: 'singleLineText' },
+      { key: 'industry', name: 'Industry', type: 'singleLineText' },
+      { key: 'format', name: 'Format', type: 'singleSelect', choices: ['In-person', 'Virtual', 'Either'] },
+      { key: 'category', name: 'Category', type: 'singleLineText' },
+      { key: 'sourceUrl', name: 'Source URL', type: 'url' },
+      { key: 'active', name: 'Active', type: 'checkbox' },
+    ],
+  },
+
+  pastClients: {
+    key: 'pastClients',
+    name: 'Past Clients by Industry',
+    domain: 'CRM',
+    description: 'Seed and fallback for the social-proof resolver: who else in your industry.',
+    fields: [
+      { key: 'industry', name: 'Industry', type: 'singleLineText' },
+      { key: 'clientName', name: 'Client', type: 'singleLineText' },
+      { key: 'bookings', name: 'Bookings', type: 'number' },
+      { key: 'lastYear', name: 'Last Year', type: 'number' },
+      { key: 'anyVirtual', name: 'Any Virtual', type: 'checkbox' },
+    ],
+  },
+
+  standaloneOrders: {
+    key: 'standaloneOrders',
+    name: 'Standalone Orders',
+    domain: 'Journal',
+    description: 'Amazon and direct journal sales. The fact of the purchase, never the money.',
+    fields: [
+      { key: 'client', name: 'Company', type: 'multipleRecordLinks', link: 'clients' },
+      { key: 'orderDate', name: 'Date', type: 'date' },
+      {
+        key: 'channel',
+        name: 'Channel',
+        type: 'singleSelect',
+        choices: ['Amazon', 'Direct', 'Dropship'],
+      },
+      { key: 'product', name: 'Product', type: 'multipleRecordLinks', link: 'products' },
+      { key: 'quantity', name: 'Qty', type: 'number' },
+      // Deliberately no money fields. Revenue for these stays outside the CRM, as
+      // SpeakerOS asks; what the CRM needs is that the relationship exists, so Ben never
+      // walks into a call not knowing they bought 2,000 journals last year.
+      { key: 'notes', name: 'Notes', type: 'multilineText' },
+    ],
+  },
+
+  apiTokens: {
+    key: 'apiTokens',
+    name: 'API Tokens',
+    domain: 'System',
+    description: 'Revocable per-user tokens for the MCP endpoint (WP3.4). Hashes only.',
+    fields: [
+      { key: 'label', name: 'Label', type: 'singleLineText' },
+      {
+        key: 'tokenHash',
+        name: 'Token Hash',
+        type: 'singleLineText',
+        description: 'SHA-256 of the token. The token itself is shown once, at creation, and never stored.',
+      },
+      {
+        key: 'prefix',
+        name: 'Prefix',
+        type: 'singleLineText',
+        description: 'First few characters, so a person can tell which token they are revoking.',
+      },
+      { key: 'userEmail', name: 'User', type: 'email' },
+      { key: 'createdAt', name: 'Created', type: 'dateTime' },
+      { key: 'lastUsedAt', name: 'Last Used', type: 'dateTime' },
+      { key: 'expiresAt', name: 'Expires', type: 'date' },
+      {
+        key: 'revoked',
+        name: 'Revoked',
+        type: 'checkbox',
+        description: 'Revoking is a tick. The row stays so the audit trail still resolves.',
+      },
+    ],
+  },
+
+  mailAccounts: {
+    key: 'mailAccounts',
+    name: 'Mail Accounts',
+    domain: 'System',
+    description: 'Which mailboxes the intake sweeps, and how much of each.',
+    fields: [
+      { key: 'address', name: 'Address', type: 'email' },
+      { key: 'label', name: 'Label', type: 'singleLineText' },
+      {
+        key: 'scope',
+        name: 'Scope',
+        type: 'singleSelect',
+        choices: ['Full mailbox', 'Watched label'],
+        description: 'Full mailbox reads everything; watched label reads only what a human filed.',
+      },
+      { key: 'watchedLabel', name: 'Watched Label', type: 'singleLineText' },
+      { key: 'lookbackDays', name: 'Lookback Days', type: 'number' },
+      { key: 'active', name: 'Active', type: 'checkbox' },
+    ],
+  },
+
 }
+
 
 export const TABLE_KEYS = Object.keys(TABLES) as TableKey[]
 
@@ -644,7 +1051,21 @@ export const MONEY_TABLES: TableKey[] = ['payments', 'scheduleLegs']
  * alone: they are the speaker's setup, not Ben's bookings, and re-creating them by hand
  * after a cutover is exactly the kind of silent data loss the runbook is guarding against.
  */
-export const PRESERVED_TABLES: TableKey[] = ['users', 'settings', 'templates']
+export const PRESERVED_TABLES: TableKey[] = [
+  'users',
+  'settings',
+  'templates',
+  // WP0.1 config tables. These are what a speaker configures, not what a deal produces,
+  // so a purge that emptied them would throw away the rate card and the bureau list.
+  'rateCards',
+  'products',
+  'testimonials',
+  'pastClients',
+  'mailAccounts',
+  'bureauCompanies',
+  // Revoking a token must survive a purge, or a purge silently re-grants access.
+  'apiTokens',
+]
 
 /** Everything the purge empties — derived, so a new table is purgeable by default. */
 export const PURGEABLE_TABLES: TableKey[] = TABLE_KEYS.filter(

@@ -1,5 +1,7 @@
 import { WORKERS } from '@/workers'
 import { notifyWorkerFailure } from '@/lib/notify'
+import { classifyFailure, explain, shouldReport, statusFor } from '@/lib/backend-health'
+import { requestSummary, requestsSoFar } from '@/lib/airtable/cache'
 import { assertCronAuth, fail, ok } from '@/lib/http'
 
 export const dynamic = 'force-dynamic'
@@ -18,12 +20,43 @@ export async function GET(request: Request, { params }: { params: Promise<{ work
     if (!worker) return ok({ error: `Unknown worker "${name}".` }, { status: 404 })
 
     const startedAt = Date.now()
+    const requestsBefore = requestsSoFar()
     const result = await worker.run()
-    return ok({ worker: name, ok: true, durationMs: Date.now() - startedAt, result })
+
+    // The cost of the run, in the logs, every run. A worker that suddenly costs ten
+    // times what it did last week is then visible the same day rather than at the end
+    // of the month on a billing page.
+    const summary = requestSummary(name, requestsBefore)
+    console.info(`[cron] ${summary}`)
+
+    return ok({
+      worker: name,
+      ok: true,
+      durationMs: Date.now() - startedAt,
+      airtableRequests: requestsSoFar() - requestsBefore,
+      result,
+    })
   } catch (err) {
-    // Never silent: a scheduled failure emails an admin with the worker name and the tail.
-    await notifyWorkerFailure({ worker: name, error: err }).catch(() => undefined)
-    return fail(err)
+    // Never silent, but not ninety-six times for one cause. A backend that is briefly
+    // unavailable is logged; one that needs a person is emailed once every six hours;
+    // a worker that actually threw is emailed every time, as before.
+    const kind = classifyFailure(err)
+    console.error(`[cron] ${explain(kind, name)}`, err)
+
+    if (shouldReport(name, kind)) {
+      await notifyWorkerFailure({
+        worker: name,
+        error: err,
+        logTail: explain(kind, name),
+      }).catch(() => undefined)
+    }
+
+    if (kind === 'bug') return fail(err)
+    // 503 rather than a thrown error, so Vercel's cron view shows it and retries later.
+    return ok(
+      { worker: name, ok: false, kind, message: explain(kind, name) },
+      { status: statusFor(kind) },
+    )
   }
 }
 

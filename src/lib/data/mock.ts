@@ -29,10 +29,16 @@ import type {
   Settings,
   Task,
   UsageLogRow,
+  ApiToken,
+  Fulfillment,
+  PastClient,
+  RateCard,
+  Testimonial,
+  Template,
   User,
 } from '../types'
 import { defaultNotificationPrefs } from '../rbac'
-import { buildSeed, type SeedData } from './mock-seed'
+import { buildSeed, NEW_DEAL_FIELDS, type SeedData } from './mock-seed'
 import type {
   DataProvider,
   DealFilter,
@@ -137,10 +143,11 @@ export class MockProvider implements DataProvider {
   async createDeal(input: Partial<Deal> & { name: string }): Promise<Deal> {
     const now = new Date().toISOString()
     const record: Deal = {
+      ...NEW_DEAL_FIELDS,
       id: id('recDEAL'),
       stage: 'inquiry',
       source: 'direct',
-      dealType: 'Keynote',
+      dealType: 'keynote',
       client: null,
       bureauAgent: null,
       owner: null,
@@ -377,6 +384,12 @@ export class MockProvider implements DataProvider {
     return clone(record)
   }
 
+  async appendAuditMany(entries: NewRecord<AuditEntry>[]): Promise<AuditEntry[]> {
+    const out: AuditEntry[] = []
+    for (const e of entries) out.push(await this.appendAudit(e))
+    return out
+  }
+
   async listNotifications(user: string, limit = 50): Promise<Notification[]> {
     return clone(store().notifications)
       .filter((n) => n.user === user)
@@ -392,6 +405,58 @@ export class MockProvider implements DataProvider {
     for (const n of store().notifications) {
       if (n.user === user && (ids.length === 0 || ids.includes(n.id))) n.read = true
     }
+  }
+
+  async listDealsModifiedSince(since: string): Promise<Deal[]> {
+    return clone(store().deals.filter((d: Deal) => d.lastModified > since))
+  }
+
+  async listRateCards(): Promise<RateCard[]> {
+    return clone(store().rateCards)
+  }
+
+  async listTestimonials(): Promise<Testimonial[]> {
+    return clone(store().testimonials)
+  }
+
+  async listPastClients(): Promise<PastClient[]> {
+    return clone(store().pastClients)
+  }
+
+  async listFulfillment(): Promise<Fulfillment[]> {
+    return clone(store().fulfillment)
+  }
+
+  async listApiTokens(): Promise<ApiToken[]> {
+    return clone(store().apiTokens)
+  }
+
+  async createApiToken(input: NewRecord<ApiToken>): Promise<ApiToken> {
+    const record: ApiToken = { id: id('recTOK'), ...input } as ApiToken
+    store().apiTokens.push(record)
+    return clone(record)
+  }
+
+  async touchApiToken(tokenId: string, at: string): Promise<void> {
+    const found = store().apiTokens.find((t: ApiToken) => t.id === tokenId)
+    if (found) found.lastUsedAt = at
+  }
+
+  async revokeApiToken(tokenId: string): Promise<void> {
+    const found = store().apiTokens.find((t: ApiToken) => t.id === tokenId)
+    if (found) found.revoked = true
+  }
+
+  async listTemplates(): Promise<Template[]> {
+    return clone(store().templates)
+  }
+
+  async upsertTemplate(key: string, patch: Partial<Template>): Promise<Template> {
+    const list = store().templates
+    const found = list.find((t: Template) => t.key === key)
+    if (found) Object.assign(found, patch)
+    else list.push({ key, label: key, subject: '', body: '', ...patch })
+    return clone(list.find((t: Template) => t.key === key)!)
   }
 
   async listUsers(): Promise<User[]> {

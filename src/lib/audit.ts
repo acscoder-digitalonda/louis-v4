@@ -131,3 +131,38 @@ export async function recordEvent(params: {
     reversible: params.reversible ?? false,
   })
 }
+
+/**
+ * Records the same field change across many records in as few requests as possible.
+ *
+ * A bulk script that calls `recordChanges` per row spends two Airtable requests per row —
+ * one update, one audit — and Airtable bills per request, not per record. Three backfills
+ * written that way exhausted a month of quota in a day and took the app's reads down with
+ * it. Pair this with `updateRecords` and the same work costs a tenth as much.
+ */
+export async function recordChangesMany(writes: AuditWrite[]): Promise<number> {
+  const provider = db()
+  const at = new Date().toISOString()
+  const rows = []
+
+  for (const write of writes) {
+    for (const { key, oldValue, newValue } of diffFields(write.before, write.after)) {
+      rows.push({
+        entity: write.table,
+        entityId: write.recordId,
+        field: fieldLabel(write.table, key),
+        oldValue,
+        newValue,
+        actor: actorString(write.actor),
+        actorKind: write.actor.kind,
+        source: write.source ?? null,
+        batchId: write.batchId ?? null,
+        at,
+        reversible: true,
+      })
+    }
+  }
+
+  await provider.appendAuditMany(rows)
+  return rows.length
+}

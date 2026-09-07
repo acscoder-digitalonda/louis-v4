@@ -1,6 +1,6 @@
 {
   "baseId": "app5In2fKegyPm4sU",
-  "generatedAt": "2026-09-04T15:46:36.353Z",
+  "generatedAt": "2026-09-05T13:59:49.371Z",
   "tables": {
     "clients": {
       "tableId": "tblrMl2530lYOQlRX",
@@ -36,7 +36,9 @@
         "name": "fldrCSUeo6O2W5N3x",
         "stage": "fldJwaAmhPayzwGTR",
         "source": "fld9rkwTENJfo1sod",
-        "dealType": "fldBWdg5FyjYXincQ",
+        "dealType": "fldDjQsOfHigKJeJE",
+        "secondaryType": "fldIM1o9H8PnS8yCA",
+        "dealStatus": "fldXx6xsbVXvxLSrZ",
         "client": "fldwEt6nI4m4mC7Uh",
         "bureauAgent": "fldhb95zffgeMB0PI",
         "owner": "fldv4T0MpLLfsnzPt",
@@ -46,6 +48,13 @@
         "proposalSent": "fldNMMi3vSvbWP68G",
         "holdDate": "fldr3B7b4TqWH13Hl",
         "holdOrder": "fldagIg6JSMeHMHgY",
+        "rateRegion": "fldNvRHigK640nLeP",
+        "travelStipend": "fldSoBvo9R1Zzyr7R",
+        "nextActionDate": "fldKsxofOTFoIbhSf",
+        "followUpCount": "fldQ8S8k97wbzM9s7",
+        "muted": "fldaNpJ2Xxwvd45o0",
+        "muteUntil": "fldGfpX1WrodMX1b6",
+        "closedLostReason": "fldkCnhQvtuZNzi95",
         "eventDate": "fld9xTXLsAbvQC2b0",
         "location": "fldjT4DtXKkpjROAB",
         "avCheckTime": "fld9aESgMxYcthwFa",
@@ -59,6 +68,13 @@
         "hotel": "fldV6S9EoMwQbanKA",
         "travelNotes": "fldgqmlmrlMneYmtc",
         "logisticsComplete": "fldAcOjZdTVvTEeg2",
+        "eventTimezone": "fldUTntI5qKNGihjo",
+        "kickoffDate": "fldyvkpFE2HsE1YoC",
+        "travelDepartureDate": "fldkP6YIsVoT54jaU",
+        "outboundFlight": "fldMryJLVJLgGGmHS",
+        "returnFlight": "fld3G54jfakjRDEWi",
+        "postKeynoteAlert": "fldSFjWgkxwbJjqEZ",
+        "kitToken": "fldTenme0XqdzzBZg",
         "paymentStatus": "fldw9hDxKMU4YBVOH",
         "contractStatus": "fldrzSkPEOeKSoIjd",
         "driveFolderUrl": "fldV6K9tAdKtsn5uD",
@@ -167,6 +183,7 @@
         "contactId": "fld8WD62NtLyW1b03",
         "stage": "fldFZfmZ9gjbakQyx",
         "lane": "fldTzTBefCmMSqFAo",
+        "closedLostReason": "fldbsmgmunwgap25E",
         "eventDate": "fldPBYQllVskCxufF",
         "holdDate": "fldx1G1739Fl8SkFu",
         "holdOrder": "fld0YTI4ym5qOOzKK",
@@ -302,6 +319,108 @@
         "subject": "fldWClb0eENa8LsAI",
         "body": "fldPuf4dCs9lWE2PK",
         "notes": "fldbbpgIJ6vBHgRET"
+      }
+    },
+    "rateCards": {
+      "tableId": "tbltQEzjXVZp1uqJS",
+      "fields": {
+        "label": "fldXXUISw5qSKkXlF",
+        "year": "fldwkVuAg9jPxRfOL",
+        "dealType": "fldRaciJ7SsUhLSqZ",
+        "secondaryType": "fldQWMxt6XageQQtD",
+        "rateRegion": "fldT0j6oM6MFRYyNT",
+        "amount": "flduZtHl8r8i4fhVk",
+        "weekendSurcharge": "fldHYpBtk7E8BQtii",
+        "travelStipend": "fldEsLlkEiSYPHAUy",
+        "active": "flduQ2vayktKHR4g2"
+      }
+    },
+    "products": {
+      "tableId": "tbl5kg7OwbrCPywln",
+      "fields": {
+        "name": "fld6qvDzJkQhIeYTA",
+        "kind": "fldCcsN0GOQxBOiIV",
+        "unitPrice": "fldxzZisbkxCOIcVp",
+        "physical": "fldl5gx0SgpkqQcyd",
+        "active": "fldYgbkLutNiGSvDh"
+      }
+    },
+    "dealLineItems": {
+      "tableId": "tblxAex5Rh97UW1lS",
+      "fields": {
+        "deal": "fld8NkthVgEuvcZWa",
+        "product": "fldaZ0P0aF8upFarm",
+        "quantity": "fldbRLAUaJI5ZxMfO",
+        "priceOverride": "fldGPrBYV92NZ6SCU",
+        "notes": "fldnWkBkezmDD6J6l"
+      }
+    },
+    "fulfillment": {
+      "tableId": "tblJOEIxiCHa0eyvc",
+      "fields": {
+        "lineItem": "fld8Z0rXGc79OSk9Y",
+        "deal": "fld0ixsr0IVBlgal3",
+        "status": "fldDRrD94MJdgF4LO",
+        "shipBy": "fldjCUyvD45jKV8YX",
+        "carrier": "fldY0KiOPXGBVVh7b",
+        "tracking": "fldISx6j02W8dhU2Z",
+        "notes": "fldgq24WtmUMUrUJO"
+      }
+    },
+    "coachingSessions": {
+      "tableId": "tblzCz4XjOd7Xf4uC",
+      "fields": {
+        "deal": "fldplMKtIHWMc6Cow",
+        "sessionNumber": "flddcjHlUMvtYHVMW",
+        "scheduledFor": "fldLxqRguP7BTfnxV",
+        "held": "fldHYVKquU1VEoGhP",
+        "notes": "fld6eSKwH0CM6S1sf"
+      }
+    },
+    "bureauCompanies": {
+      "tableId": "tblJxZLRINXSmNRAJ",
+      "fields": {
+        "name": "fld3Y7NqXYSrfuhV0",
+        "matchKey": "fldfg5aQsCdFSDsQX",
+        "domain": "fldzdzqVw4Sx3YIGX",
+        "notes": "fldBXYom4r9V2CdKy",
+        "active": "fldKcfbI2faOwwibj"
+      }
+    },
+    "testimonials": {
+      "tableId": "tbllBBctleHh5doSb",
+      "fields": {
+        "quote": "fld49mevrAMDpdTdR",
+        "shortQuote": "fld7V1Uhrn5jWqIq0",
+        "personName": "fldpnBNVSLlAt0xLj",
+        "title": "flddzrcWp68sFE9pm",
+        "company": "fldV8fbzesqpQ0XY2",
+        "industry": "fldKxIgExBXAbkESN",
+        "format": "fldIUkXhcGmlPHHD2",
+        "category": "fldRC6vFauDhKpqrr",
+        "sourceUrl": "fldMMn4yP9KWMIAzl",
+        "active": "fldGZvD6zWuDp1w8u"
+      }
+    },
+    "pastClients": {
+      "tableId": "tblvDV1FgZFZS7tVT",
+      "fields": {
+        "industry": "fld6GWDLQ43ZxXGFP",
+        "clientName": "fldtqt9POErfuOnJN",
+        "bookings": "fldO9YGHfOqMV9bvG",
+        "lastYear": "fldwlSzmNRNBmfhoo",
+        "anyVirtual": "fldhQZPneT28ZiD92"
+      }
+    },
+    "mailAccounts": {
+      "tableId": "tblmh3EpOKsSb9mDg",
+      "fields": {
+        "address": "fldIUq8k80eE1VKL0",
+        "label": "fldV7ZJHCjuOW289v",
+        "scope": "fldHTd511D805VubI",
+        "watchedLabel": "fldxgXbgcvv6MR1HX",
+        "lookbackDays": "fldXoyaLBKVnVJxzn",
+        "active": "fldITBTqYo5ZihTqm"
       }
     }
   }

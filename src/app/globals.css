@@ -179,6 +179,14 @@
     border-color: var(--border-strong);
   }
 
+  /* For a state a person has to act on, not merely notice. Used sparingly: a date clash
+     and nothing else, because a board where three things are red has no red. */
+  .pill-danger {
+    background: transparent;
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
   .pill-outline {
     background: transparent;
     border-color: var(--border-strong);

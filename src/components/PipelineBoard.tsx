@@ -3,18 +3,23 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import type { Deal, StageKey, Task } from '@/lib/types'
+import type { DateConflict, Deal, DealTypeKey, StageKey, Task } from '@/lib/types'
 import { BOARD_STAGES, isSkip } from '@/lib/stages'
 import { dayMonth, money, tMinus } from '@/lib/format'
-import { stageByKey } from '~/speaker.config'
+import { speaker, stageByKey } from '~/speaker.config'
 import { forecastWeight, dealValue } from '@/lib/forecast'
+import { isMuted } from '@/lib/followup'
 
 interface Props {
   deals: Deal[]
   nextTaskByDeal: Record<string, Task | undefined>
+  /** Open date clashes, so the board can say so before anyone drags anything. */
+  conflicts: DateConflict[]
   showAmounts: boolean
   canMove: boolean
 }
+
+type TypeFilter = DealTypeKey | 'all'
 
 /**
  * The macro pipeline — "where is everything", Ben's glance view.
@@ -23,15 +28,32 @@ interface Props {
  * when the move skips a stage or a guard would block it. On mobile the board becomes
  * a stage-filtered list with a segmented control; same data, same actions.
  */
-export function PipelineBoard({ deals, nextTaskByDeal, showAmounts, canMove }: Props) {
+export function PipelineBoard({ deals, nextTaskByDeal, conflicts, showAmounts, canMove }: Props) {
   const router = useRouter()
-  const [mobileStage, setMobileStage] = useState<StageKey>('sales')
+  const [mobileStage, setMobileStage] = useState<StageKey>('qualified')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [dragging, setDragging] = useState<string | null>(null)
   const [pending, setPending] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const dormant = deals.filter((d) => d.stage === 'dormant')
-  const byStage = (stage: StageKey) => deals.filter((d) => d.stage === stage)
+  // A deal with no type set is a keynote in practice — the whole seven-year history is —
+  // so filtering to Keynote must not hide the deals nobody has typed yet.
+  const shown =
+    typeFilter === 'all'
+      ? deals
+      : deals.filter((d) => (d.dealType ?? 'keynote') === typeFilter)
+
+  const closedLost = shown.filter((d) => d.stage === 'closed-lost')
+  const byStage = (stage: StageKey) => shown.filter((d) => d.stage === stage)
+
+  // Which deals are in an unresolved clash, so a card can say so.
+  const inConflict = new Set(
+    conflicts.filter((c) => c.status === 'open').flatMap((c) => c.dealIds),
+  )
+  const typeCounts = new Map<TypeFilter, number>([['all', deals.length]])
+  for (const t of speaker.dealTypes) {
+    typeCounts.set(t.key, deals.filter((d) => (d.dealType ?? 'keynote') === t.key).length)
+  }
 
   async function move(deal: Deal, to: StageKey) {
     if (deal.stage === to) return
@@ -66,6 +88,8 @@ export function PipelineBoard({ deals, nextTaskByDeal, showAmounts, canMove }: P
   const Card = ({ deal }: { deal: Deal }) => {
     const task = nextTaskByDeal[deal.id]
     const weight = forecastWeight(deal)
+    const clashes = inConflict.has(deal.id)
+    const muted = isMuted(deal)
     return (
       <div
         draggable={canMove}
@@ -85,6 +109,12 @@ export function PipelineBoard({ deals, nextTaskByDeal, showAmounts, canMove }: P
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="pill pill-ghost">{dayMonth(deal.eventDate)}</span>
           {deal.eventDate ? <span className="pill pill-ghost">{tMinus(deal.eventDate)}</span> : null}
+          {clashes ? <span className="pill pill-danger">date clash</span> : null}
+          {muted ? (
+            <span className="pill pill-ghost" title={`Muted until ${deal.muteUntil ?? 'further notice'}`}>
+              muted
+            </span>
+          ) : null}
           {showAmounts ? (
             <span className="pill pill-ghost num">{money(dealValue(deal), { compact: true })}</span>
           ) : null}
@@ -94,8 +124,13 @@ export function PipelineBoard({ deals, nextTaskByDeal, showAmounts, canMove }: P
         </div>
 
         {task ? (
+          <div className="sub mt-3 truncate border-t pt-2">NEXT · {task.title}</div>
+        ) : deal.nextActionDate && !muted ? (
+          // No task, but the follow-up engine has this deal armed. Saying "nothing
+          // queued" would be wrong in the direction that loses deals.
           <div className="sub mt-3 truncate border-t pt-2">
-            NEXT · {task.title}
+            NEXT · chase {dayMonth(deal.nextActionDate)}
+            {deal.nextActionOwner === 'owner' ? ` · ${speaker.speakerName.split(' ')[0]}` : ''}
           </div>
         ) : (
           <div className="sub mt-3 border-t pt-2 text-ink-muted">NEXT · nothing queued</div>
@@ -113,10 +148,55 @@ export function PipelineBoard({ deals, nextTaskByDeal, showAmounts, canMove }: P
         </div>
       ) : null}
 
+      {/* WP1.3 — clashes are the one thing that must be seen before anything is moved. */}
+      {conflicts.some((c) => c.status === 'open') ? (
+        <div className="card mb-4 border-danger">
+          <div className="micro mb-2 text-danger">
+            {conflicts.filter((c) => c.status === 'open').length} date clash
+            {conflicts.filter((c) => c.status === 'open').length === 1 ? '' : 'es'} open
+          </div>
+          <div className="flex flex-col gap-1">
+            {conflicts
+              .filter((c) => c.status === 'open')
+              .slice(0, 4)
+              .map((c) => (
+                <Link key={c.id} href={`/queue?conflict=${c.id}`} className="body-copy truncate">
+                  {c.label}
+                </Link>
+              ))}
+          </div>
+          <p className="sub mt-2">
+            Nothing is released automatically. Ben decides; the system only flags.
+          </p>
+        </div>
+      ) : null}
+
+      {/* WP2.1 — Deal Type filter. Hidden when only one type is in play, which is most
+          of the time: showing a filter with one option teaches nothing. */}
+      {[...typeCounts.entries()].filter(([k, n]) => k !== 'all' && n > 0).length > 1 ? (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {(['all', ...speaker.dealTypes.map((t) => t.key)] as TypeFilter[]).map((key) => {
+            const count = typeCounts.get(key) ?? 0
+            if (key !== 'all' && count === 0) return null
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTypeFilter(key)}
+                className={`pill ${typeFilter === key ? 'pill-accent' : 'pill-ghost'}`}
+              >
+                {key === 'all' ? 'All' : speaker.dealTypes.find((t) => t.key === key)?.label}
+                <span className={typeFilter === key ? '' : 'pill-count'}>{count}</span>
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
+
       {/* Mobile: segmented control + one column. */}
       <div className="md:hidden">
         <div className="scroll-x no-scrollbar -mx-[var(--shell-pad)] mb-4 flex gap-2 px-[var(--shell-pad)]">
-          {[...BOARD_STAGES, 'dormant' as StageKey].map((stage) => (
+          {[...BOARD_STAGES, 'closed-lost' as StageKey].map((stage) => (
             <button
               key={stage}
               type="button"
@@ -176,13 +256,13 @@ export function PipelineBoard({ deals, nextTaskByDeal, showAmounts, canMove }: P
           </div>
         </div>
 
-        {dormant.length > 0 ? (
+        {closedLost.length > 0 ? (
           <details className="mt-5">
             <summary className="micro cursor-pointer">
-              Dormant · {dormant.length}
+              {stageByKey.get('closed-lost')?.label} · {closedLost.length}
             </summary>
             <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
-              {dormant.map((deal) => (
+              {closedLost.map((deal) => (
                 <Card key={deal.id} deal={deal} />
               ))}
             </div>

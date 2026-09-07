@@ -9,10 +9,53 @@
 import type { StageKey } from '~/speaker.config'
 
 export type { StageKey }
+export type { Template } from './templates'
 
 export type Role = 'owner' | 'admin' | 'ops' | 'accountant'
 
 export type DealSource = 'direct' | 'bureau'
+
+export type DealTypeKey = 'keynote' | 'speaker-coaching' | 'executive-coaching'
+
+/** In-person or virtual. Half of the List Amount formula (WP1.1). */
+export type SecondaryDealType = 'in-person' | 'virtual'
+
+/**
+ * The four rate bands, as Decisions Log §4 defines them — geographic groupings, not
+ * countries. The amounts live in Rate Cards; this is only the key that looks them up.
+ *
+ * Virtual is deliberately *not* a band. It is a Secondary Deal Type, and its rate card
+ * row matches any region — a virtual talk costs the same whether the client is in Ohio
+ * or Oman, because nobody travels.
+ */
+export type RateRegion =
+  /** US and non-remote Canada. */
+  | 'us-canada'
+  /** Mexico, Caribbean, Central America, remote Canada. */
+  | 'near-international'
+  /** Europe, South America, Japan. */
+  | 'europe-samerica-japan'
+  /** Middle East, India, Africa, Asia, Australia. */
+  | 'far-international'
+
+/** How a rate card decides whether the weekend surcharge applies. */
+export type WeekendRule = 'none' | 'event-date' | 'travel-days'
+
+/** Ben's read on temperature. Drives nothing automatic; it is for the humans. */
+export type DealStatus = 'cold' | 'warm' | 'hot'
+
+/** Why a deal was lost. The key the twelve-month re-engagement segments on (WP1.7). */
+export type ClosedLostReason =
+  | 'budget'
+  | 'date-unavailable'
+  | 'chose-another-speaker'
+  | 'no-speaker'
+  | 'postponed'
+  | 'went-quiet'
+  | 'other'
+
+/** Who owns the next chase. A formula, not a choice: 0-1 touches Liezel, 2+ Ben. */
+export type NextActionOwner = 'ops' | 'owner'
 
 export type ContactType = 'bureau-agent' | 'meeting-planner' | 'decision-maker' | 'onsite'
 
@@ -68,7 +111,9 @@ export interface Deal {
   name: string
   stage: StageKey
   source: DealSource
-  dealType: string | null
+  dealType: DealTypeKey | null
+  secondaryType: SecondaryDealType | null
+  dealStatus: DealStatus | null
   client: Ref | null
   bureauAgent: Ref | null
   owner: string | null
@@ -80,6 +125,28 @@ export interface Deal {
   proposalSent: boolean
   holdDate: string | null
   holdOrder: number | null
+
+  // pricing (WP0.1; the engine that fills these is WP1.1)
+  rateRegion: RateRegion | null
+  travelStipend: number | null
+  /** Saturday or Sunday event date. Whether it costs extra is the rate card's call. */
+  weekendEvent: boolean
+  pricingNote: string | null
+  /** Rollup of Deal Line Items. Read-only — the line items own it. */
+  addOnAmount: number | null
+  /** negotiated ?? list, plus travel, plus add-ons. Read-only. */
+  amount: number | null
+
+  // follow-up mechanics (WP0.1; the engine that drives them is WP1.2)
+  nextActionDate: string | null
+  followUpCount: number
+  /** Formula: 0-1 touches Liezel, 2+ escalates to Ben. Read-only. */
+  nextActionOwner: NextActionOwner | null
+  muted: boolean
+  muteUntil: string | null
+
+  // outcome
+  closedLostReason: ClosedLostReason | null
 
   // event
   eventDate: string | null
@@ -99,6 +166,16 @@ export interface Deal {
   hotel: string | null
   travelNotes: string | null
   logisticsComplete: boolean
+  eventTimezone: string | null
+  kickoffDate: string | null
+  /** Travel departs the day before by default; Road Warrior (WP3.3) fires off this. */
+  travelDepartureDate: string | null
+  outboundFlight: string | null
+  returnFlight: string | null
+  /** Ben ticks this once, onsite, and the handoff alert goes out. */
+  postKeynoteAlert: boolean
+  /** Opaque token in the hosted welcome-kit URL. */
+  kitToken: string | null
 
   // money chips — lookups from the Money tables, read-only everywhere (Data Map, Domain 4)
   paymentStatus: PaymentStatus
@@ -278,6 +355,8 @@ export interface DealProposal {
   contactId: string | null
 
   stage: StageKey
+  /** Set only on a proposal that arrives already lost — a released inquiry from C3. */
+  closedLostReason: ClosedLostReason | null
   lane: DealSource
   eventDate: string | null
   holdDate: string | null
@@ -409,6 +488,11 @@ export interface ThemeSettings {
 
 export interface AiSettings {
   backend: AiBackend
+  /**
+   * Which tier map is in force (WP3.1). Absent means Steady, so an install that predates
+   * the dial keeps behaving exactly as it did.
+   */
+  mode?: 'launch' | 'steady' | 'economy'
   tierModels: Record<ModelTier, string>
   fallbackModels: Record<ModelTier, string>
   monthlyCapUsd: number
@@ -435,4 +519,106 @@ export interface SearchDoc {
   subtitle: string | null
   href: string
   haystack: string
+}
+
+/**
+ * A row of the rate card (WP1.1, Decisions Log §4).
+ *
+ * `rateRegion: null` is the any-region row — virtual, where nobody travels so location
+ * does not price. `weekendSurcharge: 0` and `weekendRule: 'none'` are different things:
+ * the first says the weekend is free, the second says the question does not arise.
+ */
+export interface RateCard {
+  id: string
+  label: string
+  year: number | null
+  dealType: DealTypeKey | null
+  secondaryType: SecondaryDealType
+  rateRegion: RateRegion | null
+  baseFee: number | null
+  weekendSurcharge: number | null
+  weekendRule: WeekendRule | null
+  travelBuyout: number | null
+  travelTerms: string | null
+  effectiveFrom: string | null
+  effectiveTo: string | null
+  active: boolean
+}
+
+/** A thing that can be added to a deal as a line item (WP1.1). */
+export interface Product {
+  id: string
+  name: string
+  kind: 'Journal' | 'Book' | 'Workshop' | 'Dream Wall' | 'Other'
+  unitPrice: number | null
+  /** Physical products get a Fulfillment record; a workshop does not. */
+  physical: boolean
+  active: boolean
+}
+
+/** One of the 74 archived quotes (WP4.1), tagged so the resolver can match it. */
+export interface Testimonial {
+  id: string
+  quote: string
+  shortQuote: string | null
+  personName: string
+  title: string | null
+  company: string | null
+  industry: string | null
+  format: 'In-person' | 'Virtual' | 'Either'
+  category: string | null
+  sourceUrl: string | null
+  /** Ben retires a quote by unticking this. The resolver honours it. */
+  active: boolean
+}
+
+/** A (industry, client) row derived from seven years of bookings (WP4.1). */
+export interface PastClient {
+  id: string
+  industry: string
+  clientName: string
+  bookings: number
+  lastYear: number | null
+  anyVirtual: boolean
+}
+
+export type FulfillmentStatus =
+  | 'Mentioned'
+  | 'Promo Sent'
+  | 'Promo Received'
+  | 'Interested'
+  | 'Quote Sent'
+  | 'Ordered'
+  | 'Warehouse Notified'
+  | 'Shipped'
+  | 'Delivered'
+  | 'Dropship Pending'
+  | 'Dropship Complete'
+
+/** One per physical line item (WP1.4). Holds status, never money. */
+export interface Fulfillment {
+  id: string
+  lineItemId: string | null
+  dealId: string | null
+  status: FulfillmentStatus
+  quantity: number | null
+  shipBy: string | null
+  carrier: string | null
+  tracking: string | null
+  warehouseNotes: string | null
+  slackThread: string | null
+  notes: string | null
+}
+
+/** A revocable per-user token for the MCP endpoint (WP3.4). The token itself is never stored. */
+export interface ApiToken {
+  id: string
+  label: string
+  tokenHash: string
+  prefix: string
+  userEmail: string
+  createdAt: string
+  lastUsedAt: string | null
+  expiresAt: string | null
+  revoked: boolean
 }

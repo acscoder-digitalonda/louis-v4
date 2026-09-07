@@ -1,31 +1,26 @@
 /**
- * Weighted forecast (Rebuild Spec §2.3).
+ * Weighted forecast (WP0.2 — SpeakerOS weights, adopted wholesale).
  *
- * Inquiry, no hold → 0% · Sales + hold → 25% · Sales + proposal sent → 65% ·
- * Closed-Won and beyond → 100%. Derived, never stored: there is no field for a
- * human to get wrong, and changing the curve is a change to this function only.
+ * Inquiry 25 · Qualified 50 · Firm Offer 95 · Closed-Won and beyond 100 · Closed Lost 0.
+ *
+ * Two things changed from v3 and both are deliberate. The curve is now **purely
+ * stage-driven**: v3 read a `proposalSent` checkbox to move 25 → 65, which meant the
+ * forecast depended on someone remembering to tick a box. A priced offer being out is
+ * exactly what Firm Offer means, so the stage already carries it.
+ *
+ * And Inquiry is 25, not 0. That is SpeakerOS's number: an inquiry that reached a human
+ * is worth something, and a pipeline that reports zero until a hold exists understates
+ * what is actually in play.
+ *
+ * Still derived, never stored — there is no field for a human to get wrong, and changing
+ * the curve is a change to `speaker.config` only.
  */
 
 import type { Deal, DealWithDerived } from './types'
 import { stageByKey } from '~/speaker.config'
 
-export function forecastWeight(deal: Pick<Deal, 'stage' | 'holdDate' | 'proposalSent'>): number {
-  switch (deal.stage) {
-    case 'inquiry':
-      return deal.holdDate ? 25 : 0
-    case 'sales':
-      if (deal.proposalSent) return 65
-      return deal.holdDate ? 25 : 0
-    case 'closed-won':
-    case 'pre-event':
-    case 'delivered':
-    case 'debriefed':
-      return 100
-    case 'dormant':
-      return 0
-    default:
-      return stageByKey.get(deal.stage)?.weight ?? 0
-  }
+export function forecastWeight(deal: Pick<Deal, 'stage'>): number {
+  return stageByKey.get(deal.stage)?.weight ?? 0
 }
 
 export function dealValue(deal: Pick<Deal, 'listFee' | 'negotiatedFee'>): number {

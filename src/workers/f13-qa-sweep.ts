@@ -13,6 +13,7 @@
 import { db } from '@/lib/data'
 import { complete } from '@/lib/gateway'
 import { notify } from '@/lib/notify'
+import { isTerminal } from '@/lib/stages'
 
 const WORKER = 'F13'
 const STALE_QUEUE_HOURS = 48
@@ -46,7 +47,7 @@ export async function run(): Promise<QaReport> {
 
   // Deals with nothing queued next — the classic silent stall.
   for (const deal of deals) {
-    if (deal.stage === 'dormant' || deal.stage === 'debriefed') continue
+    if (isTerminal(deal.stage)) continue
     const open = tasks.filter((t) => t.dealId === deal.id && !t.done)
     if (open.length === 0) {
       findings.push({

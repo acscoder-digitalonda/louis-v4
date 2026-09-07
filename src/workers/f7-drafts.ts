@@ -13,13 +13,16 @@
 
 import { db } from '@/lib/data'
 import { complete, GatewayPaused } from '@/lib/gateway'
-import { getTemplate, missingPlaceholders, render } from '@/lib/templates'
+import { loadTemplate, missingPlaceholders, render } from '@/lib/templates'
 import { createGmailDraft } from '@/lib/mailer'
 import { notify } from '@/lib/notify'
 import { recordEvent, agentActor } from '@/lib/audit'
 import { money, shortDate, daysUntil } from '@/lib/format'
 import { dealValue } from '@/lib/forecast'
 import { speaker } from '~/speaker.config'
+import { checkVoice } from '@/lib/voice'
+import { resolveSocialProof } from '@/lib/social-proof'
+import { priceDeal } from '@/lib/pricing'
 import type { CheckerVerdict, Deal, Draft, DraftType } from '@/lib/types'
 
 const WORKER = 'F7'
@@ -37,7 +40,10 @@ export interface DraftRequest {
 
 export async function composeDraft(req: DraftRequest): Promise<Draft> {
   const provider = db()
-  const template = getTemplate(req.templateKey)
+  // The Airtable table when it has rows, the shipped bank when it does not. Until
+  // `loadTemplates` existed this read the bank unconditionally, so the 31 templates
+  // seeded into Airtable were never used and editing copy there did nothing.
+  const template = await loadTemplate(req.templateKey)
   if (!template) throw new Error(`Unknown template ${req.templateKey}`)
 
   const values = await templateValues(req.deal)
@@ -152,6 +158,13 @@ export async function checkDraft(params: {
   const unfilled = missingPlaceholders(`${params.subject}\n${params.body}`)
   if (unfilled.length) issues.push(`Unfilled placeholders: ${unfilled.join(', ')}`)
 
+  // The voice pass (WP1.5). Advisory by design: `must` issues are the ones Jordan's
+  // acceptance list names and they read as problems; the rest are noted and not argued
+  // about, because a checker that blocks drafts teaches people to route around it.
+  for (const issue of checkVoice(params.subject, params.body)) {
+    issues.push(`${issue.severity === 'must' ? 'Voice' : 'Voice (advisory)'}: ${issue.message}`)
+  }
+
   const fee = dealValue(params.deal)
   if (fee > 0) {
     const numbers = [...params.body.matchAll(/\$\s?([\d,]+)/g)].map((m) =>
@@ -208,9 +221,12 @@ export function voiceSystemPrompt(): string {
 }
 
 export async function templateValues(deal: Deal): Promise<Record<string, string>> {
-  const contacts = await db().listContacts()
+  const provider = db()
+  const contacts = await provider.listContacts()
   const contact = contacts.find((c) => c.dealIds.includes(deal.id))
   const days = daysUntil(deal.eventDate)
+  const proof = await socialProofFor(deal)
+  const priced = await priceFor(deal)
 
   return {
     speakerName: speaker.speakerName,
@@ -229,6 +245,64 @@ export async function templateValues(deal: Deal): Promise<Record<string, string>
     questionnaireLink: process.env.QUESTIONNAIRE_URL ?? '',
     assetsLink: process.env.SPEAKER_ASSETS_URL ?? '',
     overviewLink: process.env.OVERVIEW_URL ?? '',
+    reelLink: process.env.REEL_URL ?? '',
+
+    // WP1.5 — the proof block for E01b. Empty when nothing honest could be matched, and
+    // `render` leaves an unfilled placeholder visible rather than blanking it, so a
+    // reviewer sees the gap instead of a sentence that quietly says less than it looks.
+    industryLine: proof.industryLine ?? '',
+    relatedClients: proof.relatedClientsLine ?? '',
+    testimonial: proof.testimonial?.shortQuote ?? proof.testimonial?.quote ?? '',
+    testimonialName: proof.testimonial?.personName ?? '',
+    testimonialTitle: [proof.testimonial?.title, proof.testimonial?.company]
+      .filter(Boolean)
+      .join(', '),
+
+    // WP1.1 — the rate card's number, so a proposal quotes the list price rather than
+    // whatever the drafter remembered.
+    listFee: priced.listAmount !== null ? money(priced.listAmount) : '',
+    travelTerms: priced.travelTerms ?? '',
+  }
+}
+
+/**
+ * The social-proof block for one deal.
+ *
+ * Resolves against the company's industry, never the deal's, because the industry is a
+ * property of who is buying. Failures are swallowed: a first reply that goes out without
+ * the proof block is a smaller problem than a first reply that does not go out.
+ */
+async function socialProofFor(deal: Deal) {
+  const empty = { industryLine: null, relatedClientsLine: null, testimonial: null } as const
+  try {
+    const provider = db()
+    const client = deal.client ? await provider.getClient(deal.client.id) : null
+    const [clients, testimonials] = await Promise.all([
+      provider.listPastClients(),
+      provider.listTestimonials(),
+    ])
+    return resolveSocialProof(
+      {
+        industry: client?.industry ?? null,
+        speakerName: speaker.speakerName,
+        virtual: deal.secondaryType === 'virtual',
+        excludeCompany: deal.client?.name ?? null,
+      },
+      { clients, testimonials },
+    )
+  } catch (err) {
+    console.warn('[F7] social proof unavailable:', err)
+    return empty
+  }
+}
+
+/** The rate card's view of this deal. Silent on failure, for the same reason. */
+async function priceFor(deal: Deal) {
+  try {
+    return priceDeal(deal, await db().listRateCards())
+  } catch (err) {
+    console.warn('[F7] pricing unavailable:', err)
+    return { listAmount: null, travelTerms: null } as ReturnType<typeof priceDeal>
   }
 }
 

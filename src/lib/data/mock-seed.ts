@@ -7,12 +7,19 @@
  * (stale hold, decision date passed, T-12 logistics) are always live.
  */
 
+import { TEMPLATES } from '../templates'
 import type {
   AuditEntry,
   Client,
   Contact,
   DateConflict,
   Deal,
+  ApiToken,
+  Fulfillment,
+  PastClient,
+  RateCard,
+  Testimonial,
+  Template,
   DealProposal,
   Draft,
   EmailRecord,
@@ -37,6 +44,12 @@ export function day(offsetDays: number): string {
 }
 
 export interface SeedData {
+  templates: Template[]
+  fulfillment: Fulfillment[]
+  rateCards: RateCard[]
+  testimonials: Testimonial[]
+  pastClients: PastClient[]
+  apiTokens: ApiToken[]
   deals: Deal[]
   clients: Client[]
   contacts: Contact[]
@@ -55,10 +68,41 @@ export interface SeedData {
   dateConflicts: DateConflict[]
 }
 
+/**
+ * The unset state of every field WP0.1 added.
+ *
+ * One object, shared by the seed and by `createDeal`, so a new field can never be
+ * defaulted two different ways depending on which door the deal came through.
+ */
+export const NEW_DEAL_FIELDS = {
+  secondaryType: null,
+  dealStatus: null,
+  rateRegion: null,
+  travelStipend: null,
+  weekendEvent: false,
+  pricingNote: null,
+  addOnAmount: null,
+  amount: null,
+  nextActionDate: null,
+  followUpCount: 0,
+  nextActionOwner: null,
+  muted: false,
+  muteUntil: null,
+  closedLostReason: null,
+  eventTimezone: null,
+  kickoffDate: null,
+  travelDepartureDate: null,
+  outboundFlight: null,
+  returnFlight: null,
+  postKeynoteAlert: false,
+  kitToken: null,
+} satisfies Partial<Deal>
+
 function deal(partial: Partial<Deal> & Pick<Deal, 'id' | 'name' | 'stage'>): Deal {
   return {
+    ...NEW_DEAL_FIELDS,
     source: 'direct',
-    dealType: 'Keynote',
+    dealType: 'keynote',
     client: null,
     bureauAgent: null,
     owner: 'liezel@bennemtin.com',
@@ -259,7 +303,7 @@ export function buildSeed(): SeedData {
     deal({
       id: 'recDEAL002',
       name: 'Northwind Health — Nursing Leadership',
-      stage: 'sales',
+      stage: 'qualified',
       source: 'bureau',
       client: { id: 'recCLI002', name: 'Northwind Health' },
       bureauAgent: { id: 'recCON001', name: 'Jenna George' },
@@ -276,7 +320,7 @@ export function buildSeed(): SeedData {
     deal({
       id: 'recDEAL003',
       name: 'Ardent Manufacturing — All Hands',
-      stage: 'sales',
+      stage: 'qualified',
       source: 'direct',
       client: null,
       listFee: 35000,
@@ -362,7 +406,7 @@ export function buildSeed(): SeedData {
     deal({
       id: 'recDEAL008',
       name: 'Verity Semiconductor — Kickoff',
-      stage: 'dormant',
+      stage: 'closed-lost',
       source: 'direct',
       client: { id: 'recCLI006', name: 'Verity Semiconductor' },
       listFee: 35000,
@@ -429,7 +473,7 @@ export function buildSeed(): SeedData {
       assignee: 'liezel@bennemtin.com',
       dueDate: day(0),
       source: 'timer',
-      stage: 'sales',
+      stage: 'qualified',
       done: false,
       createdAt: iso(-1),
     },
@@ -807,6 +851,53 @@ export function buildSeed(): SeedData {
     audit,
     dealProposals: [],
     dateConflicts: [],
+    // The shipped bank, so the in-memory provider behaves like a base that has been
+    // seeded — which is what `loadTemplates` falls back to anyway.
+    templates: TEMPLATES.map((t) => ({ ...t })),
+    // No tokens by default: a fixture credential is still a credential.
+    apiTokens: [],
+    fulfillment: [],
+    // Enough to exercise the pricing and social-proof paths without pretending to be
+    // Ben's real rate card: the live numbers are seeded from Decisions Log §4 by
+    // `npm run seed:pricing`, and inventing them here would put two truths in the repo.
+    rateCards: [
+      {
+        id: 'recRC001',
+        label: 'Demo · US / non-remote Canada · in-person',
+        year: 2026,
+        dealType: 'keynote',
+        secondaryType: 'in-person',
+        rateRegion: 'us-canada',
+        baseFee: 37_500,
+        weekendSurcharge: 2_500,
+        weekendRule: 'event-date',
+        travelBuyout: 2_500,
+        travelTerms: 'Client covers ground transport and hotel.',
+        effectiveFrom: '2026-01-01',
+        effectiveTo: null,
+        active: true,
+      },
+    ],
+    testimonials: [
+      {
+        id: 'recTST001',
+        quote: 'The room was still talking about it at breakfast.',
+        shortQuote: 'The room was still talking about it at breakfast.',
+        personName: 'Dana Whitfield',
+        title: 'VP, Events',
+        company: 'Northwind Mutual',
+        industry: 'Financial Services',
+        format: 'In-person',
+        category: null,
+        sourceUrl: null,
+        active: true,
+      },
+    ],
+    pastClients: [
+      { id: 'recPC001', industry: 'Financial Services', clientName: 'Northwind Mutual', bookings: 2, lastYear: 2025, anyVirtual: false },
+      { id: 'recPC002', industry: 'Financial Services', clientName: 'Harbour Trust', bookings: 1, lastYear: 2024, anyVirtual: true },
+      { id: 'recPC003', industry: 'Financial Services', clientName: 'Cedar Point Bank', bookings: 1, lastYear: 2023, anyVirtual: false },
+    ],
   }
 }
 

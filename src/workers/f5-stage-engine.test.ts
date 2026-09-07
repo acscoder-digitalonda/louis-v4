@@ -20,7 +20,7 @@ import { setProvider, type DataProvider } from '@/lib/data'
 import { MockProvider } from '@/lib/data/mock'
 import { setProviderRunner } from '@/lib/gateway'
 import { STAGE_PACKETS } from '@/lib/stages'
-import { changeStage, firePacket, StageBlocked } from './f5-stage-engine'
+import { changeStage, dueDate, firePacket, StageBlocked } from './f5-stage-engine'
 import { run as runTimers } from './f6-timers'
 import type { Deal, StageKey } from '@/lib/types'
 
@@ -69,7 +69,7 @@ describe('a deal walked from Inquiry to Debriefed', () => {
     assert.ok(inquiry.tasksCreated.length > 0, 'inquiry creates work')
     assert.ok(inquiry.draftsRequested.length > 0, 'inquiry drafts the auto-ack')
 
-    for (const to of ['sales', 'closed-won'] as StageKey[]) {
+    for (const to of ['qualified', 'closed-won'] as StageKey[]) {
       const out = await changeStage({ deal, to, actor: ACTOR })
       deal = out.deal
       assert.equal(deal.stage, to)
@@ -97,7 +97,7 @@ describe('a deal walked from Inquiry to Debriefed', () => {
     let deal = await freshDeal({ contractStatus: 'signed' })
     await firePacket(deal, { source: 'test' })
 
-    for (const to of ['sales', 'closed-won', 'pre-event', 'delivered', 'debriefed'] as StageKey[]) {
+    for (const to of ['qualified', 'closed-won', 'pre-event', 'delivered', 'debriefed'] as StageKey[]) {
       const out = await changeStage({ deal, to, actor: ACTOR })
       deal = out.deal
       const expected = STAGE_PACKETS[to].tasks.map((t) => t.title)
@@ -117,14 +117,14 @@ describe('a deal walked from Inquiry to Debriefed', () => {
 
   it('records the stage change in the audit log, attributed to the person', async () => {
     let deal = await freshDeal()
-    const out = await changeStage({ deal, to: 'sales', actor: ACTOR })
+    const out = await changeStage({ deal, to: 'qualified', actor: ACTOR })
     deal = out.deal
     const entries = await provider.listAudit(deal.id)
     const stageEntry = entries.find((e) => e.field === 'Stage')
     assert.ok(stageEntry, 'a Stage entry exists')
     assert.equal(stageEntry.actor, ACTOR.email)
     assert.equal(stageEntry.actorKind, 'human')
-    assert.equal(stageEntry.newValue, 'Sales')
+    assert.equal(stageEntry.newValue, 'Qualified')
   })
 })
 
@@ -154,5 +154,79 @@ describe('the timer sweep', () => {
     const named = after.filter((t) => t.title.includes('Historical walk test'))
     assert.equal(named.length, 0, 'no task was raised against a historical deal')
     assert.ok(after.length >= before.length)
+  })
+})
+
+describe('the no-limits rule', () => {
+  // Run Plan rule 4: "Every T-minus timer is 'at T-x, or immediately if T-x has passed.'
+  // Last-minute deals never break; they compress."
+  const now = new Date('2026-09-05T09:00:00Z')
+
+  it('keeps a future T-minus date where it falls', () => {
+    assert.equal(dueDate({ dueRelativeToEvent: -21 }, { eventDate: '2026-12-01' }, now), '2026-11-10')
+  })
+
+  it('compresses a T-minus date that has already passed to today', () => {
+    // Event in six days, task nominally due at T-21. Fifteen days ago is not an answer:
+    // it renders as "overdue by 15 days" on a deal created this morning.
+    assert.equal(dueDate({ dueRelativeToEvent: -21 }, { eventDate: '2026-09-11' }, now), '2026-09-05')
+  })
+
+  it('never returns a date before today from a T-minus spec', () => {
+    for (const days of [-45, -35, -21, -14, -3]) {
+      const due = dueDate({ dueRelativeToEvent: days }, { eventDate: '2026-09-11' }, now)!
+      assert.ok(due >= '2026-09-05', `T${days} gave ${due}`)
+    }
+  })
+
+  it('falls back to days-from-now when the deal has no event date', () => {
+    assert.equal(dueDate({ dueInDays: 2, dueRelativeToEvent: -21 }, { eventDate: null }, now), '2026-09-07')
+  })
+})
+
+describe("WP0.2 acceptance: a deal that arrives six days out", () => {
+  // Jordan's criterion, verbatim: "a deal created at Closed-Won with an event in 6 days
+  // fires every due packet in order without error."
+  it('fires every packet from Closed-Won to Delivered, none of them dated in the past', async () => {
+    const client = (await provider.listClients())[0]!
+    const today = iso(0)
+    let deal = await provider.createDeal({
+      name: 'Six days out',
+      stage: 'closed-won',
+      source: 'direct',
+      dealType: 'keynote',
+      client: { id: client.id, name: client.name },
+      eventDate: iso(6),
+      negotiatedFee: 30000,
+      contractStatus: 'signed',
+    })
+
+    const fired = [await firePacket(deal, { source: 'acceptance' })]
+    for (const to of ['pre-event', 'delivered'] as StageKey[]) {
+      const out = await changeStage({ deal, to, actor: ACTOR })
+      deal = out.deal
+      fired.push(out.packet)
+    }
+
+    assert.deepEqual(fired.map((f) => f.stage), ['closed-won', 'pre-event', 'delivered'])
+    for (const f of fired) assert.equal(f.blocked, null, `${f.stage} was blocked`)
+
+    const tasks = await provider.listTasks({ dealId: deal.id })
+    assert.ok(tasks.length > 0, 'the compressed run still creates work')
+    for (const t of tasks) {
+      if (t.dueDate) assert.ok(t.dueDate >= today, `${t.title} is due ${t.dueDate}, before today`)
+    }
+  })
+})
+
+describe('lane', () => {
+  it('does not auto-acknowledge a bureau inquiry', async () => {
+    // The agent wrote to a person and expects a person. Automation stops at the agent.
+    const direct = await freshDeal({ source: 'direct' })
+    const bureau = await freshDeal({ source: 'bureau' })
+    const a = await firePacket(direct, { source: 'test' })
+    const b = await firePacket(bureau, { source: 'test' })
+    assert.ok(a.draftsRequested.length > 0, 'direct gets the auto-ack')
+    assert.equal(b.draftsRequested.length, 0, 'bureau does not')
   })
 })

@@ -163,3 +163,31 @@ export function render(text: string, values: Record<string, string | number | nu
 export function missingPlaceholders(text: string): string[] {
   return [...text.matchAll(PLACEHOLDER)].map((m) => m[1]!).filter((v, i, a) => a.indexOf(v) === i)
 }
+
+/**
+ * The templates in force: the Airtable table when it has rows, this file when it does not.
+ *
+ * This function is what the header comment has claimed since v3, and until now it did not
+ * exist — so the 31 templates seeded into Airtable were never read and every draft used
+ * the fallback bank. Editing copy in Airtable did nothing, which is the opposite of the
+ * white-label promise.
+ *
+ * A read failure falls back rather than throwing. A draft written from slightly stale copy
+ * is a small problem; a draft that cannot be written at all, because the templates table
+ * was briefly unreachable, is a bigger one.
+ */
+export async function loadTemplates(): Promise<Template[]> {
+  const { db } = await import('./data')
+  try {
+    const rows = (await db().listTemplates()).filter((t) => t.key && t.body)
+    return rows.length > 0 ? rows : TEMPLATES
+  } catch (err) {
+    console.warn('[templates] falling back to the shipped bank:', err)
+    return TEMPLATES
+  }
+}
+
+/** One template by key, from the table if it is there. */
+export async function loadTemplate(key: string): Promise<Template | null> {
+  return (await loadTemplates()).find((t) => t.key === key) ?? null
+}

@@ -7,13 +7,31 @@
  *
  * Fires once per condition per deal: existing drafts and tasks are the idempotency key,
  * so running the sweep twice in a day does not send the same nudge twice.
+ *
+ * ── What this sweep now drives (WP1.2, 1.3, 1.4, 1.7) ──────────────────────
+ *
+ * The v3 version had five hardcoded date rules. The engines those became live in
+ * `lib/`, are individually tested, and are called from here — which is the whole point:
+ * a rule nobody invokes is a rule that does not exist, however well it is tested.
+ *
+ *   `followup`      whose turn it is to chase, and when
+ *   `conflicts`     two deals holding one date
+ *   `fulfillment`   journals that will miss the ship-by
+ *   `reengagement`  the twelve-month knock on a lost deal
  */
 
 import { db } from '@/lib/data'
 import { notify } from '@/lib/notify'
 import { daysUntil } from '@/lib/format'
 import { composeDraft } from './f7-drafts'
+import { agentActor, recordChanges } from '@/lib/audit'
+import { afterChase, isMuted, nextActionDate, shouldChase } from '@/lib/followup'
+import { detectConflicts, existingFor } from '@/lib/conflicts'
+import { digestFor } from '@/lib/fulfillment'
+import { planCampaign } from '@/lib/reengagement'
+import { buildBrief, isDueToday } from '@/lib/road-warrior'
 import type { Deal, Draft, JournalOrder } from '@/lib/types'
+import { isTerminal } from '@/lib/stages'
 
 const WORKER = 'F6'
 const STALE_HOLD_DAYS = 21
@@ -26,6 +44,18 @@ export interface TimerReport {
   questionnaireChases: number
   redAlerts: number
   journalNudges: number
+  /** WP1.2 — deals whose next action came due today. */
+  chasesDue: number
+  /** WP1.2 — of those, the ones that escalated to Ben. */
+  escalated: number
+  /** WP1.3 — date clashes raised that were not already open. */
+  conflictsRaised: number
+  /** WP1.4 — fulfillment records with something going wrong. */
+  fulfillmentAlerts: number
+  /** WP1.7 — lost deals that reached their twelve-month anniversary. */
+  reEngagementsDue: number
+  /** WP3.3 — road-warrior briefs due the day before travel. */
+  briefsSent: number
 }
 
 export async function run(): Promise<TimerReport> {
@@ -44,10 +74,18 @@ export async function run(): Promise<TimerReport> {
     questionnaireChases: 0,
     redAlerts: 0,
     journalNudges: 0,
+    chasesDue: 0,
+    escalated: 0,
+    conflictsRaised: 0,
+    fulfillmentAlerts: 0,
+    reEngagementsDue: 0,
+    briefsSent: 0,
   }
 
+  const today = new Date().toISOString().slice(0, 10)
+
   for (const deal of deals) {
-    if (deal.stage === 'dormant') continue
+    if (isTerminal(deal.stage)) continue
     // One deal that cannot be processed — an unwritable draft, a model outage — must not
     // cost every other deal its sweep for the day.
     try {
@@ -57,26 +95,150 @@ export async function run(): Promise<TimerReport> {
     }
   }
 
+  // ── Whole-base passes (WP1.3, 1.4, 1.7) ─────────────────────────────────
+  // These look across deals rather than at one, so they run after the per-deal loop.
+  try {
+    await sweepConflicts()
+  } catch (err) {
+    console.error(`[${WORKER}] conflict sweep failed`, err)
+  }
+  try {
+    await sweepFulfillment()
+  } catch (err) {
+    console.error(`[${WORKER}] fulfillment sweep failed`, err)
+  }
+  try {
+    await sweepReEngagement()
+  } catch (err) {
+    console.error(`[${WORKER}] re-engagement sweep failed`, err)
+  }
+
   console.info(`[${WORKER}]`, report)
   return report
 
-  async function sweepDeal(deal: Deal): Promise<void> {
-    // ── decision date passed ────────────────────────────────────────────
-    const sinceDecision = negate(daysUntil(deal.decisionDate))
-    if (deal.stage === 'sales' && sinceDecision !== null) {
-      if (sinceDecision >= 2 && !hasDraft(drafts, deal.id, 'follow-up')) {
-        await composeDraft({ deal, type: 'follow-up', templateKey: 'followup.soft' })
-        report.softCheckIns += 1
+  /**
+   * WP1.3 — two live deals holding one date.
+   *
+   * Detects and raises; never resolves. Decisions Log §3: sometimes two gigs in one day
+   * is doable, so the system must not assume a conflict is a conflict. A clash already
+   * on the board is left alone rather than re-raised every night.
+   */
+  async function sweepConflicts(): Promise<void> {
+    const existing = await provider.listDateConflicts()
+    for (const clash of detectConflicts(deals, today)) {
+      if (existingFor(clash, existing)) continue
+      const created = await provider.createDateConflict({
+        label: clash.label,
+        date: clash.date,
+        status: 'open',
+        proposalIds: [],
+        dealIds: clash.deals.map((d) => d.id),
+        resolution: null,
+        resolvedBy: null,
+        createdAt: new Date().toISOString(),
+      })
+      await notify({
+        type: 'red-alert',
+        title: `Two deals on ${clash.date}`,
+        body:
+          `${clash.label}. First hold: ${clash.firstHold.client?.name ?? clash.firstHold.name}.` +
+          (clash.challenged ? ' One side has a firm offer out.' : ''),
+        link: `/queue?conflict=${created.id}`,
+        roles: ['ops', 'admin', 'owner'],
+      })
+      report.conflictsRaised += 1
+    }
+  }
+
+  /** WP1.4 — journals that will miss the ship-by unless somebody moves. */
+  async function sweepFulfillment(): Promise<void> {
+    const records = await provider.listFulfillment()
+    const digest = digestFor(records, today)
+    for (const { record, nudges } of digest) {
+      const red = nudges.filter((n) => n.severity === 'red')
+      if (red.length === 0) continue
+      await notify({
+        type: 'red-alert',
+        title: `Journal order at risk${record.shipBy ? ` — ship by ${record.shipBy}` : ''}`,
+        body: red.map((n) => n.message).join(' · '),
+        link: record.dealId ? `/deals/${record.dealId}?tab=journal` : '/journal',
+        roles: ['ops', 'admin'],
+      })
+    }
+    report.fulfillmentAlerts = digest.length
+  }
+
+  /**
+   * WP1.7 — the twelve-month knock.
+   *
+   * Counts and reports; sends nothing. The campaign reaches people who already said no
+   * once, and the difference between a good list and a burned one is a human reading it
+   * first. What this does is make sure the anniversary is never missed.
+   */
+  async function sweepReEngagement(): Promise<void> {
+    const plan = planCampaign(deals, today)
+    report.reEngagementsDue = plan.due.length
+    if (plan.due.length === 0) return
+
+    const segments = Object.entries(plan.segments)
+      .map(([reason, n]) => `${n} ${reason}`)
+      .join(', ')
+    await notify({
+      type: 'review-item',
+      title: `${plan.due.length} lost deal(s) reached twelve months`,
+      body:
+        `${segments}. Nothing has been sent. Review and send from the queue.\n\n` +
+        plan.due.slice(0, 10).map((c) => `${c.deal.name} — ${c.angle}`).join('\n'),
+      link: '/queue?tab=reengagement',
+      roles: ['ops', 'admin'],
+    })
+  }
+
+  async function sweepDeal(input: Deal): Promise<void> {
+    let deal = input
+    // ── WP1.2: whose turn it is to chase, and when ──────────────────────
+    //
+    // A deal with no next action date has never been armed, so arm it from its last
+    // activity rather than waiting for someone to notice. Then ask the engine.
+    if (!deal.nextActionDate && !isMuted(deal, today)) {
+      const armed = nextActionDate(deal, deal.lastModified.slice(0, 10), today)
+      if (armed) {
+        await provider.updateDeal(deal.id, { nextActionDate: armed })
+        deal = { ...deal, nextActionDate: armed }
       }
-      if (sinceDecision >= 7 && !hasDraft(drafts, deal.id, 'forcing')) {
-        await composeDraft({ deal, type: 'forcing', templateKey: 'followup.forcing' })
-        report.forcingEmails += 1
+    }
+
+    const chase = shouldChase(deal, today)
+    if (chase.due) {
+      // The escalation is the point: two nudges from the office, then a note from Ben.
+      const fromBen = chase.owner === 'owner'
+      const type = fromBen ? 'forcing' : 'follow-up'
+      if (!hasDraft(drafts, deal.id, type)) {
+        await composeDraft({
+          deal,
+          type,
+          templateKey: fromBen ? 'followup.forcing' : 'followup.soft',
+        })
+        const next = afterChase(deal, today)
+        await provider.updateDeal(deal.id, next)
+        await recordChanges({
+          table: 'deals',
+          recordId: deal.id,
+          before: { followUpCount: deal.followUpCount, nextActionDate: deal.nextActionDate },
+          after: next,
+          actor: agentActor(WORKER),
+          source: chase.reason,
+        })
+        report.chasesDue += 1
+        if (fromBen) report.escalated += 1
+        if (fromBen) report.forcingEmails += 1
+        else report.softCheckIns += 1
       }
     }
 
     // ── stale hold ──────────────────────────────────────────────────────
     const holdAge = negate(daysUntil(deal.holdDate))
-    if (deal.stage === 'sales' && holdAge !== null && holdAge >= STALE_HOLD_DAYS) {
+    if (deal.stage === 'qualified' && holdAge !== null && holdAge >= STALE_HOLD_DAYS) {
       await notify({
         type: 'red-alert',
         title: `Hold going stale — ${deal.name}`,
@@ -118,6 +280,40 @@ export async function run(): Promise<TimerReport> {
         roles: ['ops', 'admin'],
       })
       report.redAlerts += 1
+    }
+
+    // ── WP3.3: the road-warrior brief, T-1 from travel ──────────────────
+    if (isDueToday(deal, today) && !isTerminal(deal.stage)) {
+      const title = `Road warrior brief — ${deal.name}`
+      const already = tasks.some(
+        (t) => t.dealId === deal.id && t.title.toLowerCase() === title.toLowerCase(),
+      )
+      if (!already) {
+        const brief = buildBrief(deal, {
+          contacts: (await provider.listContacts()).filter((c) => c.dealIds.includes(deal.id)),
+          tasks: tasks.filter((t) => t.dealId === deal.id),
+        })
+        await notify({
+          type: 'review-item',
+          title: brief.title,
+          // The whole brief in the body: it is read in an airport, and a link needs
+          // signal, a login and a working screen.
+          body: brief.text,
+          link: `/deals/${deal.id}?tab=logistics`,
+          roles: ['owner', 'ops'],
+        })
+        await provider.createTask({
+          dealId: deal.id,
+          title,
+          assignee: null,
+          dueDate: today,
+          source: 'timer',
+          stage: deal.stage,
+          done: true,
+          createdAt: new Date().toISOString(),
+        })
+        report.briefsSent += 1
+      }
     }
 
     // ── journal: promo sent but no order, T-35 ──────────────────────────

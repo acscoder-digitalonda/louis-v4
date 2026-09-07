@@ -17,32 +17,11 @@ import type { AiBackend, AiSettings, ModelTier } from '../types'
 import { estimateCost } from './pricing'
 import { runClaudeCode } from './claude-code'
 import { runOpenRouter } from './openrouter'
+import { isMode, tierFor } from './modes'
+import type { TaskKind } from './tiers'
 
-export type TaskKind =
-  | 'classify'
-  | 'dedupe'
-  | 'normalize'
-  | 'check'
-  | 'qa'
-  | 'extract'
-  | 'research'
-  | 'draft'
-  | 'escalate'
-  | 'weekly-review'
-
-/** The tier map, encoded (Rebuild Spec §3). */
-export const TASK_TIERS: Record<TaskKind, ModelTier> = {
-  classify: 'haiku',
-  dedupe: 'haiku',
-  normalize: 'haiku',
-  check: 'haiku',
-  qa: 'haiku',
-  extract: 'sonnet',
-  research: 'sonnet',
-  draft: 'sonnet',
-  escalate: 'opus',
-  'weekly-review': 'opus',
-}
+export type { TaskKind } from './tiers'
+export { TASK_TIERS } from './tiers'
 
 /** Workers that keep running once the cap is hit. Everything else pauses. */
 export const CRITICAL_TASKS: TaskKind[] = ['classify', 'extract', 'check']
@@ -117,7 +96,12 @@ function escalateTier(tier: ModelTier): ModelTier {
 export async function complete(opts: CompleteOptions): Promise<CompletionResult> {
   const provider = db()
   const settings = (await provider.getSettings()).ai
-  const tier = opts.escalate ? escalateTier(TASK_TIERS[opts.task]) : TASK_TIERS[opts.task]
+  // The mode dial decides which tier a task runs at; escalation still moves it one up
+  // from whatever the mode chose, so a Sonnet that reports low confidence in Steady
+  // reaches Opus, and one in Economy reaches Sonnet.
+  const mode = isMode(settings.mode) ? settings.mode : 'steady'
+  const base = tierFor(opts.task, mode)
+  const tier = opts.escalate ? escalateTier(base) : base
 
   await assertUnderCap(settings, opts.task)
 

@@ -282,7 +282,10 @@ export function findDateConflicts(deals: CalendarDeal[], today: string): DateCon
  */
 export function stageFor(deal: CalendarDeal): StageKey {
   if (deal.historical) return 'delivered'
-  return 'sales'
+  // Qualified is exactly "a date is held and we are still selling", which is the most a
+  // calendar entry can honestly claim. Firm Offer would assert a priced offer is out,
+  // and no calendar event carries that.
+  return 'qualified'
 }
 
 
@@ -374,6 +377,7 @@ export function toProposal(
     contactName: deal.contact,
     contactId: null,
     stage: stageFor(deal),
+    closedLostReason: null,
     // The calendar never says whether a booking came via a bureau. C2 decides the lane.
     lane: 'direct',
     eventDate: deal.primaryDate,

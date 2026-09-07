@@ -7,6 +7,7 @@
  */
 
 import { fieldRef, refsFor } from '../airtable/fields'
+import { speaker } from '~/speaker.config'
 import type { TableKey } from '../airtable/schema'
 import {
   createRecords,
@@ -26,6 +27,7 @@ import type {
   Contact,
   DateConflict,
   Deal,
+  NextActionOwner,
   DealProposal,
   Draft,
   EmailRecord,
@@ -40,6 +42,12 @@ import type {
   Settings,
   Task,
   UsageLogRow,
+  ApiToken,
+  Fulfillment,
+  PastClient,
+  RateCard,
+  Testimonial,
+  Template,
   User,
 } from '../types'
 import type {
@@ -75,6 +83,12 @@ import {
   reqStr,
   sourceCodec,
   stageCodec,
+  dealTypeCodec,
+  secondaryTypeCodec,
+  dealStatusCodec,
+  rateRegionCodec,
+  weekendRuleCodec,
+  closedLostReasonCodec,
   str,
   taskSourceCodec,
   tierCodec,
@@ -91,6 +105,18 @@ function makeReader(table: TableKey, record: AirtableRecord) {
     if (ref && ref in record.fields) return record.fields[ref]
     return undefined
   }
+}
+
+/**
+ * The Next Action Owner formula writes a person's name, because that is what Liezel and
+ * Ben read in Airtable. The app speaks roles, so it translates here rather than teaching
+ * every component a name.
+ */
+function ownerFromFormula(value: unknown): NextActionOwner | null {
+  if (typeof value !== 'string' || !value.trim()) return null
+  return value.trim().toLowerCase() === speaker.speakerName.split(' ')[0]!.toLowerCase()
+    ? 'owner'
+    : 'ops'
 }
 
 export class AirtableProvider implements DataProvider {
@@ -147,7 +173,9 @@ export class AirtableProvider implements DataProvider {
       name: reqStr(f('name'), 'Untitled deal'),
       stage: stageCodec.fromAirtable(f('stage'), 'inquiry'),
       source: sourceCodec.fromAirtable(f('source'), 'direct'),
-      dealType: str(f('dealType')),
+      dealType: dealTypeCodec.fromAirtableOrNull(f('dealType')),
+      secondaryType: secondaryTypeCodec.fromAirtableOrNull(f('secondaryType')),
+      dealStatus: dealStatusCodec.fromAirtableOrNull(f('dealStatus')),
       client: this.ref(firstLink(f('client')), names),
       bureauAgent: this.ref(firstLink(f('bureauAgent')), names),
       owner: str(f('owner')),
@@ -157,6 +185,19 @@ export class AirtableProvider implements DataProvider {
       proposalSent: bool(f('proposalSent')),
       holdDate: str(f('holdDate')),
       holdOrder: num(f('holdOrder')),
+      rateRegion: rateRegionCodec.fromAirtableOrNull(f('rateRegion')),
+      travelStipend: num(f('travelStipend')),
+      weekendEvent: bool(unwrapRollup(f('weekendEvent'))),
+      pricingNote: str(f('pricingNote')),
+      addOnAmount: num(unwrapRollup(f('addOnAmount'))),
+      amount: num(unwrapRollup(f('amount'))),
+      nextActionDate: str(f('nextActionDate')),
+      followUpCount: num(f('followUpCount')) ?? 0,
+      // The Airtable formula writes a person's name; the app speaks roles.
+      nextActionOwner: ownerFromFormula(unwrapRollup(f('nextActionOwner'))),
+      muted: bool(f('muted')),
+      muteUntil: str(f('muteUntil')),
+      closedLostReason: closedLostReasonCodec.fromAirtableOrNull(f('closedLostReason')),
       eventDate: str(f('eventDate')),
       location: str(f('location')),
       avCheckTime: str(f('avCheckTime')),
@@ -170,6 +211,13 @@ export class AirtableProvider implements DataProvider {
       hotel: str(f('hotel')),
       travelNotes: str(f('travelNotes')),
       logisticsComplete: bool(f('logisticsComplete')),
+      eventTimezone: str(f('eventTimezone')),
+      kickoffDate: str(f('kickoffDate')),
+      travelDepartureDate: str(f('travelDepartureDate')),
+      outboundFlight: str(f('outboundFlight')),
+      returnFlight: str(f('returnFlight')),
+      postKeynoteAlert: bool(f('postKeynoteAlert')),
+      kitToken: str(f('kitToken')),
       paymentStatus: paymentStatusCodec.fromAirtable(unwrapRollup(f('paymentStatus')), 'unbilled'),
       contractStatus: contractStatusCodec.fromAirtable(unwrapRollup(f('contractStatus')), 'none'),
       driveFolderUrl: str(f('driveFolderUrl')),
@@ -189,7 +237,9 @@ export class AirtableProvider implements DataProvider {
     set('name', patch.name)
     set('stage', patch.stage && stageCodec.toAirtable(patch.stage))
     set('source', patch.source && sourceCodec.toAirtable(patch.source))
-    set('dealType', patch.dealType)
+    set('dealType', patch.dealType && dealTypeCodec.toAirtable(patch.dealType))
+    set('secondaryType', patch.secondaryType && secondaryTypeCodec.toAirtable(patch.secondaryType))
+    set('dealStatus', patch.dealStatus && dealStatusCodec.toAirtable(patch.dealStatus))
     set('client', patch.client ? [patch.client.id] : [])
     set('bureauAgent', patch.bureauAgent ? [patch.bureauAgent.id] : [])
     set('owner', patch.owner)
@@ -668,6 +718,7 @@ export class AirtableProvider implements DataProvider {
       contactName: str(f('contactName')),
       contactId: firstLink(f('contactId')),
       stage: stageCodec.fromAirtable(f('stage'), 'inquiry'),
+      closedLostReason: closedLostReasonCodec.fromAirtableOrNull(f('closedLostReason')),
       lane: sourceCodec.fromAirtable(f('lane'), 'direct'),
       eventDate: str(f('eventDate')),
       holdDate: str(f('holdDate')),
@@ -701,6 +752,7 @@ export class AirtableProvider implements DataProvider {
     set('contactName', patch.contactName)
     set('contactId', patch.contactId ? [patch.contactId] : [])
     set('stage', patch.stage && stageCodec.toAirtable(patch.stage))
+    set('closedLostReason', patch.closedLostReason && closedLostReasonCodec.toAirtable(patch.closedLostReason))
     set('lane', patch.lane && sourceCodec.toAirtable(patch.lane))
     set('eventDate', patch.eventDate)
     set('holdDate', patch.holdDate)
@@ -900,6 +952,30 @@ export class AirtableProvider implements DataProvider {
 
   // ── Notifications ────────────────────────────────────────────────────────
 
+  async appendAuditMany(entries: NewRecord<AuditEntry>[]): Promise<AuditEntry[]> {
+    if (entries.length === 0) return []
+    const created = await createRecords(
+      this.cfg,
+      'auditLog',
+      entries.map((entry) =>
+        this.w('auditLog', {
+          entity: entry.entity,
+          entityId: entry.entityId,
+          field: entry.field,
+          oldValue: entry.oldValue,
+          newValue: entry.newValue,
+          actor: entry.actor,
+          actorKind: entry.actorKind,
+          source: entry.source,
+          batchId: entry.batchId,
+          at: entry.at,
+          reversible: entry.reversible,
+        }),
+      ),
+    )
+    return created.map((r, n) => ({ id: r.id, ...entries[n]! }) as AuditEntry)
+  }
+
   async listNotifications(user: string, limit = 50): Promise<Notification[]> {
     const records = await listRecords(this.cfg, 'notifications', {
       filterByFormula: `{${fieldRef('notifications', 'user')}} = ${formulaValue(user)}`,
@@ -967,6 +1043,164 @@ export class AirtableProvider implements DataProvider {
       showMoneyAmounts: bool(f('showMoneyAmounts')),
       theme: (str(f('theme')) as User['theme']) ?? 'system',
     }
+  }
+
+  async listDealsModifiedSince(since: string): Promise<Deal[]> {
+    // Airtable evaluates the formula server-side, so a quiet hour costs one request and
+    // returns nothing rather than nine requests returning everything.
+    const records = await listRecords(this.cfg, 'deals', {
+      filterByFormula: `IS_AFTER(LAST_MODIFIED_TIME(), ${formulaValue(since)})`,
+    })
+    // `names()` is itself a cached read, so resolving the client name on a one-deal
+    // result does not undo the saving.
+    const names = await this.names()
+    return records.map((r) => this.decodeDeal(r, names))
+  }
+
+  // ── Pricing and social proof (WP1.1, WP1.5) ──────────────────────────────
+
+  async listRateCards(): Promise<RateCard[]> {
+    const records = await listRecords(this.cfg, 'rateCards')
+    return records.map((record) => {
+      const f = makeReader('rateCards', record)
+      return {
+        id: record.id,
+        label: reqStr(f('label'), ''),
+        year: num(f('year')),
+        dealType: dealTypeCodec.fromAirtableOrNull(f('dealType')),
+        secondaryType: secondaryTypeCodec.fromAirtable(f('secondaryType'), 'in-person'),
+        rateRegion: rateRegionCodec.fromAirtableOrNull(f('rateRegion')),
+        baseFee: num(f('baseFee')),
+        weekendSurcharge: num(f('weekendSurcharge')),
+        weekendRule: weekendRuleCodec.fromAirtableOrNull(f('weekendRule')),
+        travelBuyout: num(f('travelBuyout')),
+        travelTerms: str(f('travelTerms')),
+        effectiveFrom: str(f('effectiveFrom')),
+        effectiveTo: str(f('effectiveTo')),
+        active: bool(f('active')),
+      }
+    })
+  }
+
+  async listTestimonials(): Promise<Testimonial[]> {
+    const records = await listRecords(this.cfg, 'testimonials')
+    return records.map((record) => {
+      const f = makeReader('testimonials', record)
+      return {
+        id: record.id,
+        quote: reqStr(f('quote'), ''),
+        shortQuote: str(f('shortQuote')),
+        personName: reqStr(f('personName'), ''),
+        title: str(f('title')),
+        company: str(f('company')),
+        industry: str(f('industry')),
+        format: (str(f('format')) ?? 'Either') as Testimonial['format'],
+        category: str(f('category')),
+        sourceUrl: str(f('sourceUrl')),
+        active: bool(f('active')),
+      }
+    })
+  }
+
+  async listPastClients(): Promise<PastClient[]> {
+    const records = await listRecords(this.cfg, 'pastClients')
+    return records.map((record) => {
+      const f = makeReader('pastClients', record)
+      return {
+        id: record.id,
+        industry: reqStr(f('industry'), ''),
+        clientName: reqStr(f('clientName'), ''),
+        bookings: num(f('bookings')) ?? 1,
+        lastYear: num(f('lastYear')),
+        anyVirtual: bool(f('anyVirtual')),
+      }
+    })
+  }
+
+  // ── Fulfillment (WP1.4) ──────────────────────────────────────────────────
+
+  async listFulfillment(): Promise<Fulfillment[]> {
+    const records = await listRecords(this.cfg, 'fulfillment')
+    return records.map((record) => {
+      const f = makeReader('fulfillment', record)
+      return {
+        id: record.id,
+        lineItemId: firstLink(f('lineItem')),
+        dealId: firstLink(f('deal')),
+        status: (str(f('status')) ?? 'Mentioned') as Fulfillment['status'],
+        quantity: num(f('quantity')),
+        shipBy: str(f('shipBy')),
+        carrier: str(f('carrier')),
+        tracking: str(f('tracking')),
+        warehouseNotes: str(f('warehouseNotes')),
+        slackThread: str(f('slackThread')),
+        notes: str(f('notes')),
+      }
+    })
+  }
+
+  // ── API tokens (WP3.4) ───────────────────────────────────────────────────
+
+  async listApiTokens(): Promise<ApiToken[]> {
+    const records = await listRecords(this.cfg, 'apiTokens')
+    return records.map((record) => {
+      const f = makeReader('apiTokens', record)
+      return {
+        id: record.id,
+        label: reqStr(f('label'), 'Token'),
+        tokenHash: reqStr(f('tokenHash'), ''),
+        prefix: reqStr(f('prefix'), ''),
+        userEmail: reqStr(f('userEmail'), ''),
+        createdAt: reqStr(f('createdAt'), record.createdTime),
+        lastUsedAt: str(f('lastUsedAt')),
+        expiresAt: str(f('expiresAt')),
+        revoked: bool(f('revoked')),
+      }
+    })
+  }
+
+  async createApiToken(input: NewRecord<ApiToken>): Promise<ApiToken> {
+    const [created] = await createRecords(this.cfg, 'apiTokens', [this.w('apiTokens', input)])
+    return { id: created!.id, ...input } as ApiToken
+  }
+
+  async touchApiToken(id: string, at: string): Promise<void> {
+    await updateRecord(this.cfg, 'apiTokens', id, this.w('apiTokens', { lastUsedAt: at }))
+  }
+
+  async revokeApiToken(id: string): Promise<void> {
+    // A tick, not a delete: the row has to survive so an audit entry still resolves.
+    await updateRecord(this.cfg, 'apiTokens', id, this.w('apiTokens', { revoked: true }))
+  }
+
+  // ── Templates ────────────────────────────────────────────────────────────
+
+  async listTemplates(): Promise<Template[]> {
+    const records = await listRecords(this.cfg, 'templates')
+    return records.map((record) => {
+      const f = makeReader('templates', record)
+      return {
+        key: reqStr(f('key'), record.id),
+        label: reqStr(f('label'), ''),
+        subject: reqStr(f('subject'), ''),
+        body: reqStr(f('body'), ''),
+        notes: str(f('notes')) ?? undefined,
+      }
+    })
+  }
+
+  async upsertTemplate(key: string, patch: Partial<Template>): Promise<Template> {
+    const records = await listRecords(this.cfg, 'templates')
+    const ref = fieldRef('templates', 'key')
+    const existing = records.find((r) => r.fields[ref] === key)
+    const fields = this.w('templates', { key, ...patch })
+
+    if (existing) await updateRecord(this.cfg, 'templates', existing.id, fields)
+    else await createRecords(this.cfg, 'templates', [fields])
+
+    const after = (await this.listTemplates()).find((t) => t.key === key)
+    if (!after) throw new Error(`Template ${key} did not persist.`)
+    return after
   }
 
   async listUsers(): Promise<User[]> {

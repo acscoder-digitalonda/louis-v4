@@ -97,12 +97,13 @@ export function Led({
 
 const STAGE_TOKENS: Record<StageKey, string> = {
   inquiry: 'stage-inquiry',
-  sales: 'stage-sales',
+  qualified: 'stage-qualified',
+  'firm-offer': 'stage-firmoffer',
   'closed-won': 'stage-closedwon',
   'pre-event': 'stage-preevent',
   delivered: 'stage-delivered',
   debriefed: 'stage-debriefed',
-  dormant: 'stage-dormant',
+  'closed-lost': 'stage-closedlost',
 }
 
 export function StageLed({ stage, className = '' }: { stage: StageKey; className?: string }) {

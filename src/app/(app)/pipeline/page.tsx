@@ -7,16 +7,18 @@ import { Card, EmptyState, Micro, SectionTitle } from '@/components/ui'
 import Link from 'next/link'
 import { money } from '@/lib/format'
 import type { Task } from '@/lib/types'
+import { isTerminal } from '@/lib/stages'
 
 export const dynamic = 'force-dynamic'
 
 export default async function PipelinePage() {
   const user = await requireUser()
   const provider = db()
-  const [deals, tasks, seedProposals] = await Promise.all([
+  const [deals, tasks, seedProposals, conflicts] = await Promise.all([
     provider.listDeals(),
     provider.listTasks({ done: false }),
     provider.listDealProposals('proposed'),
+    provider.listDateConflicts(),
   ])
 
   // "Next task" per deal — the one thing a card must answer beyond where it is.
@@ -37,7 +39,7 @@ export default async function PipelinePage() {
   // and CRM; this is the working surface.
   const boardDeals = deals.filter((d) => !d.historical)
   const historical = deals.filter((d) => d.historical)
-  const live = boardDeals.filter((d) => d.stage !== 'dormant' && d.stage !== 'debriefed')
+  const live = boardDeals.filter((d) => !isTerminal(d.stage))
   const totals = pipelineTotals(live)
 
   return (
@@ -114,6 +116,7 @@ export default async function PipelinePage() {
         <PipelineBoard
           deals={boardDeals}
           nextTaskByDeal={nextTaskByDeal}
+        conflicts={conflicts}
           showAmounts={showAmounts}
           canMove={canWrite(user.role, 'deals', 'stage').allowed}
         />

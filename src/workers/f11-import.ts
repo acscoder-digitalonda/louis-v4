@@ -11,6 +11,7 @@
  */
 
 import { db } from '@/lib/data'
+import { dealTypeCodec } from '@/lib/data/airtable-codec'
 import { agentActor, recordEvent } from '@/lib/audit'
 import { invalidateSearchCache } from '@/lib/search'
 import { speaker } from '~/speaker.config'
@@ -227,7 +228,9 @@ export async function commit(report: MergeReport, approver: string): Promise<{ w
         negotiatedFee: Number.isFinite(amount) && amount > 0 ? amount : null,
         eventDate: row.raw['Event Date'] || null,
         location: row.raw.Location || null,
-        dealType: row.raw['Deal Type'] || null,
+        // A CSV column is free text; Deal Type is an enum that decides which stages the
+        // deal may enter. An unrecognised value becomes null, not a new stage set.
+        dealType: dealTypeCodec.fromAirtableOrNull(row.raw['Deal Type']),
       }
       const record = row.matchId
         ? await provider.updateDeal(row.matchId, patch)
