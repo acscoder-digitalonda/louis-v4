@@ -41,7 +41,8 @@
     "seed:proof": "tsx --env-file=.env.local scripts/seed-social-proof.ts",
     "mcp:token": "tsx --env-file=.env.local scripts/mcp-token.ts",
     "schedule": "tsx scripts/generate-schedule.ts",
-    "restore": "tsx --env-file=.env.local scripts/backup-restore.ts"
+    "restore": "tsx --env-file=.env.local scripts/backup-restore.ts",
+    "ship": "bash scripts/ship.sh"
   },
   "dependencies": {
     "fuse.js": "^7.1.0",
