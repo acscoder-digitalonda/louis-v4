@@ -11,6 +11,7 @@ import { speaker } from '~/speaker.config'
 import type { TableKey } from '../airtable/schema'
 import {
   createRecords,
+  deleteRecord,
   formulaValue,
   getRecord,
   listRecords,
@@ -45,6 +46,8 @@ import type {
   ApiToken,
   Fulfillment,
   PastClient,
+  DealLineItem,
+  Product,
   RateCard,
   Testimonial,
   Template,
@@ -1137,6 +1140,69 @@ export class AirtableProvider implements DataProvider {
         notes: str(f('notes')),
       }
     })
+  }
+
+  async createFulfillment(input: NewRecord<Fulfillment>): Promise<Fulfillment> {
+    const [created] = await createRecords(this.cfg, 'fulfillment', [
+      this.w('fulfillment', {
+        ...input,
+        lineItem: input.lineItemId ? [input.lineItemId] : [],
+        deal: input.dealId ? [input.dealId] : [],
+      }),
+    ])
+    return { id: created!.id, ...input } as Fulfillment
+  }
+
+  async listProducts(): Promise<Product[]> {
+    const records = await listRecords(this.cfg, 'products')
+    return records.map((record) => {
+      const f = makeReader('products', record)
+      return {
+        id: record.id,
+        name: reqStr(f('name'), ''),
+        kind: (str(f('kind')) ?? 'Other') as Product['kind'],
+        unitPrice: num(f('unitPrice')),
+        physical: bool(f('physical')),
+        active: bool(f('active')),
+      }
+    })
+  }
+
+  async listLineItems(dealId?: string): Promise<DealLineItem[]> {
+    const records = await listRecords(this.cfg, 'dealLineItems')
+    const names = await this.names()
+    const all = records.map((record) => {
+      const f = makeReader('dealLineItems', record)
+      const productId = firstLink(f('product'))
+      return {
+        id: record.id,
+        dealId: firstLink(f('deal')),
+        productId,
+        productName: productId ? (names.get(productId) ?? null) : null,
+        quantity: num(f('quantity')) ?? 1,
+        priceOverride: num(f('priceOverride')),
+        lineTotal: num(unwrapRollup(f('lineTotal'))),
+        notes: str(f('notes')),
+      }
+    })
+    return dealId ? all.filter((l) => l.dealId === dealId) : all
+  }
+
+  async createLineItem(input: NewRecord<DealLineItem>): Promise<DealLineItem> {
+    const [created] = await createRecords(this.cfg, 'dealLineItems', [
+      this.w('dealLineItems', {
+        deal: input.dealId ? [input.dealId] : [],
+        product: input.productId ? [input.productId] : [],
+        quantity: input.quantity,
+        priceOverride: input.priceOverride,
+        notes: input.notes,
+      }),
+    ])
+    return { id: created!.id, ...input } as DealLineItem
+  }
+
+  async deleteLineItem(id: string): Promise<void> {
+    await deleteRecord(this.cfg, 'dealLineItems', id)
   }
 
   // ── API tokens (WP3.4) ───────────────────────────────────────────────────

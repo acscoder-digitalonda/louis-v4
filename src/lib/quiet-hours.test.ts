@@ -97,3 +97,49 @@ describe('nextDeliveryAt', () => {
     assert.ok(nextDeliveryAt(always, night) instanceof Date)
   })
 })
+
+describe('notify honours quiet hours', async () => {
+  const { setProvider } = await import('./data')
+  const { MockProvider } = await import('./data/mock')
+  const { notify } = await import('./notify')
+
+  it('writes the in-app record at any hour, and marks a held one', async () => {
+    // The bell is silent by nature. Holding the record back would mean somebody opening
+    // the app at 7am sees an empty bell for something that happened at 2am.
+    const provider = new MockProvider()
+    setProvider(provider)
+    try {
+      await notify({
+        type: 'payment-confirmed',
+        title: 'Payment received',
+        roles: ['ops'],
+        at: new Date('2026-09-08T05:00:00Z'), // 22:00 in Los Angeles
+      })
+      const rows = await provider.listNotifications('liezel@bennemtin.com')
+      const held = rows.find((r) => r.title.startsWith('Payment received'))
+      assert.ok(held, 'the record landed')
+      assert.match(held.title, /held until/)
+      assert.equal(held.emailed, false, 'the email waited')
+    } finally {
+      setProvider(null)
+    }
+  })
+
+  it('emails a red alert whatever the hour', async () => {
+    const provider = new MockProvider()
+    setProvider(provider)
+    try {
+      await notify({
+        type: 'red-alert',
+        title: 'Logistics incomplete',
+        roles: ['ops'],
+        at: new Date('2026-09-08T05:00:00Z'),
+      })
+      const rows = await provider.listNotifications('liezel@bennemtin.com')
+      const alert = rows.find((r) => r.title === 'Logistics incomplete')
+      assert.ok(alert, 'not renamed, because it was not held')
+    } finally {
+      setProvider(null)
+    }
+  })
+})

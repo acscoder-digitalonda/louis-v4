@@ -7,6 +7,8 @@ import { invalidateSearchCache } from '@/lib/search'
 import { changeStage } from '@/workers/f5-stage-engine'
 import { fail, ok } from '@/lib/http'
 import { ALL_STAGES } from '@/lib/stages'
+import { buildBrief, shouldResend } from '@/lib/road-warrior'
+import { notify } from '@/lib/notify'
 import type { Deal, StageKey } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -65,6 +67,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       }
     }
 
+    const tasks = await provider.listTasks({ dealId: id })
     const updated = await provider.updateDeal(id, patch as Partial<Deal>)
     await recordChanges({
       table: 'deals',
@@ -74,10 +77,42 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       actor: humanActor(user.email),
     })
     invalidateSearchCache()
+
+    // WP3.3 — a logistics change after the brief has gone out means Ben is carrying the
+    // wrong hotel. Re-sent with an UPDATED header so the newest is obviously the newest.
+    // Only the fields the brief prints trigger it: re-sending because somebody edited the
+    // audience profile teaches him to stop opening it.
+    if (shouldResend(Object.keys(patch) as (keyof Deal)[]) && briefAlreadySent(updated, tasks)) {
+      try {
+        const brief = buildBrief(updated, {
+          contacts: (await provider.listContacts()).filter((c) => c.dealIds.includes(id)),
+          tasks,
+          updated: true,
+        })
+        await notify({
+          type: 'review-item',
+          title: brief.title,
+          body: brief.text,
+          link: `/deals/${id}?tab=logistics`,
+          roles: ['owner', 'ops'],
+        })
+      } catch (err) {
+        // A re-send that fails must not undo an edit that succeeded.
+        console.error('[deals] road-warrior re-send failed', err)
+      }
+    }
+
     return ok({ deal: updated })
   } catch (err) {
     return fail(err)
   }
+}
+
+/** Only re-send a brief that has already gone out once. */
+function briefAlreadySent(deal: Deal, tasks: { dealId: string | null; title: string }[]): boolean {
+  return tasks.some(
+    (t) => t.dealId === deal.id && t.title.toLowerCase().startsWith('road warrior brief'),
+  )
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -32,3 +32,6 @@ fixtures/seed-*/
 
 # WP3.5 nightly backup output — the repo it belongs in is louis-data-backup, not this one.
 backup/
+
+# QuickBooks token — rotates on every refresh, and is a live credential.
+.qb-token.json

@@ -3,6 +3,7 @@ import { describe, it } from 'node:test'
 import {
   FULFILLMENT_FLOW,
   digestFor,
+  fulfillmentFor,
   isOpen,
   leadDays,
   needsFulfillment,
@@ -132,5 +133,32 @@ describe('digestFor', () => {
   it('leaves out anything with nothing wrong', () => {
     const out = digestFor([rec({ status: 'Delivered' }), rec({ status: 'Mentioned' })], TODAY)
     assert.equal(out.length, 0)
+  })
+})
+
+describe('fulfillmentFor', () => {
+  const product = (physical: boolean) => ({ physical })
+  const line = { id: 'li1', dealId: 'd1', quantity: 2_000 }
+
+  it('opens a record for a physical line item', () => {
+    const out = fulfillmentFor(line, product(true), { eventDate: '2026-12-01' })
+    assert.ok(out)
+    assert.equal(out.status, 'Mentioned', 'it starts at the beginning of the flow')
+    assert.equal(out.quantity, 2_000)
+    assert.equal(out.shipBy, '2026-10-17', '45 days for a run this size')
+    assert.equal(out.lineItemId, 'li1')
+  })
+
+  it('opens nothing for a workshop', () => {
+    // A record with no shipment is a row on a board that never closes.
+    assert.equal(fulfillmentFor(line, product(false), { eventDate: '2026-12-01' }), null)
+  })
+
+  it('still opens a record when the event has no date yet', () => {
+    // The order is real even if the date is not. A missing ship-by is a gap the digest
+    // can chase; a missing record is one nobody knows about.
+    const out = fulfillmentFor(line, product(true), { eventDate: null })
+    assert.ok(out)
+    assert.equal(out.shipBy, null)
   })
 })

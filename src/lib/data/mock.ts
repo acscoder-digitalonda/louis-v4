@@ -32,6 +32,8 @@ import type {
   ApiToken,
   Fulfillment,
   PastClient,
+  DealLineItem,
+  Product,
   RateCard,
   Testimonial,
   Template,
@@ -425,6 +427,33 @@ export class MockProvider implements DataProvider {
 
   async listFulfillment(): Promise<Fulfillment[]> {
     return clone(store().fulfillment)
+  }
+
+  async createFulfillment(input: NewRecord<Fulfillment>): Promise<Fulfillment> {
+    const record = { id: id('recFUL'), ...input } as Fulfillment
+    store().fulfillment.push(record)
+    return clone(record)
+  }
+
+  async listProducts(): Promise<Product[]> {
+    return clone(store().products)
+  }
+
+  async listLineItems(dealId?: string): Promise<DealLineItem[]> {
+    const all = store().lineItems
+    return clone(dealId ? all.filter((l: DealLineItem) => l.dealId === dealId) : all)
+  }
+
+  async createLineItem(input: NewRecord<DealLineItem>): Promise<DealLineItem> {
+    const record = { id: id('recLIN'), ...input } as DealLineItem
+    store().lineItems.push(record)
+    return clone(record)
+  }
+
+  async deleteLineItem(lineId: string): Promise<void> {
+    const list = store().lineItems
+    const i = list.findIndex((l: DealLineItem) => l.id === lineId)
+    if (i >= 0) list.splice(i, 1)
   }
 
   async listApiTokens(): Promise<ApiToken[]> {

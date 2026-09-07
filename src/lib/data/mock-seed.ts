@@ -17,6 +17,8 @@ import type {
   ApiToken,
   Fulfillment,
   PastClient,
+  DealLineItem,
+  Product,
   RateCard,
   Testimonial,
   Template,
@@ -49,6 +51,8 @@ export interface SeedData {
   rateCards: RateCard[]
   testimonials: Testimonial[]
   pastClients: PastClient[]
+  products: Product[]
+  lineItems: DealLineItem[]
   apiTokens: ApiToken[]
   deals: Deal[]
   clients: Client[]
@@ -893,6 +897,11 @@ export function buildSeed(): SeedData {
         active: true,
       },
     ],
+    products: [
+      { id: 'recPRD001', name: 'Journal', kind: 'Journal', unitPrice: 25, physical: true, active: true },
+      { id: 'recPRD002', name: 'Half-day workshop', kind: 'Workshop', unitPrice: 7000, physical: false, active: true },
+    ],
+    lineItems: [],
     pastClients: [
       { id: 'recPC001', industry: 'Financial Services', clientName: 'Northwind Mutual', bookings: 2, lastYear: 2025, anyVirtual: false },
       { id: 'recPC002', industry: 'Financial Services', clientName: 'Harbour Trust', bookings: 1, lastYear: 2024, anyVirtual: true },

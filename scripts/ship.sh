@@ -29,14 +29,21 @@ fi
 
 echo
 echo "── Deploy ─────────────────────────────────────────"
-# Captured rather than piped, so the exit status is the deploy's own.
-url="$(npx vercel --prod --yes | tail -1 | tr -d '[:space:]')"
-[[ "$url" == https://* ]] || { echo "No deployment URL in the output: $url"; exit 1; }
+# Captured rather than piped, so the exit status is the deploy's own. The URL is grepped
+# out rather than taken from the last line: the CLI's final line is sometimes a closing
+# brace of its own JSON, which `tail -1` cheerfully returns as the deployment URL.
+out="$(npx vercel --prod --yes 2>&1)"
+url="$(grep -oE 'https://[a-z0-9.-]+\.vercel\.app' <<<"$out" | tail -1)"
+[[ -n "$url" ]] || { echo "$out"; echo "No deployment URL in that output."; exit 1; }
 echo "Built $url"
 
-echo
-echo "── Alias ──────────────────────────────────────────"
-npx vercel alias set "${url#https://}" "$ALIAS"
+# `vercel --prod` on a linked project aliases the production domain itself, so this only
+# has work to do when it did not.
+if ! grep -q "Aliased" <<<"$out"; then
+  echo
+  echo "── Alias ──────────────────────────────────────────"
+  npx vercel alias set "${url#https://}" "$ALIAS"
+fi
 
 echo
 code="$(curl -s -o /dev/null -w '%{http_code}' "https://$ALIAS/signin")"

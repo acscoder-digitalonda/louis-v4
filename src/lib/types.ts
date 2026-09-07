@@ -622,3 +622,20 @@ export interface ApiToken {
   expiresAt: string | null
   revoked: boolean
 }
+
+/**
+ * Where add-on money lives (WP1.1). The deal's Amount is a rollup of these, so a journal
+ * order and a workshop are the same kind of thing to the money model and different kinds
+ * of thing to the warehouse — which is why Fulfillment is a separate record.
+ */
+export interface DealLineItem {
+  id: string
+  dealId: string | null
+  productId: string | null
+  productName: string | null
+  quantity: number
+  /** Set to book something at a price other than the product's. Dream fulfilment is 0. */
+  priceOverride: number | null
+  lineTotal: number | null
+  notes: string | null
+}

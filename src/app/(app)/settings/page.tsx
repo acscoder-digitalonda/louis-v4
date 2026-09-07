@@ -11,6 +11,8 @@ import { UserRow } from '@/components/settings/UserRow'
 import { TokenList } from '@/components/settings/TokenList'
 import { TemplateEditor } from '@/components/settings/TemplateEditor'
 import { RateCardTable } from '@/components/settings/RateCardTable'
+import { ModeDial } from '@/components/settings/ModeDial'
+import { isMode } from '@/lib/gateway/modes'
 import { loadTemplates } from '@/lib/templates'
 import { templateValues } from '@/workers/f7-drafts'
 import { relativeTime } from '@/lib/format'
@@ -110,6 +112,10 @@ export default async function SettingsPage({
         <div className="space-y-4">
           <Card>
             <SectionTitle>AI backend</SectionTitle>
+            <ModeDial
+              current={isMode(settings.ai.mode) ? settings.ai.mode : 'steady'}
+              canEdit={canWrite(user.role, 'settings').allowed}
+            />
             <AiSettingsForm
               initial={settings.ai}
               hasOpenRouterKey={Boolean(process.env.OPENROUTER_API_KEY)}

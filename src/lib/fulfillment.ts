@@ -155,3 +155,31 @@ export function digestFor(records: (Fulfillment & { dealName?: string })[], toda
         (a.record.shipBy ?? '9999').localeCompare(b.record.shipBy ?? '9999'),
     )
 }
+
+/**
+ * The Fulfillment record a new line item needs, or null when it needs none.
+ *
+ * Created with the line item rather than by a nightly sweep, because the gap between
+ * "somebody ordered 2,000 journals" and "somebody noticed" is exactly where runs die.
+ * Non-physical products get nothing: a workshop has nothing to ship, and a fulfillment
+ * record with no shipment is a row in a board that never closes.
+ */
+export function fulfillmentFor(
+  lineItem: { id: string; dealId: string | null; quantity: number | null },
+  product: Pick<Product, 'physical'>,
+  deal: Pick<Deal, 'eventDate'>,
+): Omit<Fulfillment, 'id'> | null {
+  if (!needsFulfillment(product)) return null
+  return {
+    lineItemId: lineItem.id,
+    dealId: lineItem.dealId,
+    status: 'Mentioned',
+    quantity: lineItem.quantity,
+    shipBy: shipBy(deal, lineItem.quantity),
+    carrier: null,
+    tracking: null,
+    warehouseNotes: null,
+    slackThread: null,
+    notes: null,
+  }
+}

@@ -42,7 +42,8 @@
     "mcp:token": "tsx --env-file=.env.local scripts/mcp-token.ts",
     "schedule": "tsx scripts/generate-schedule.ts",
     "restore": "tsx --env-file=.env.local scripts/backup-restore.ts",
-    "ship": "bash scripts/ship.sh"
+    "ship": "bash scripts/ship.sh",
+    "seed:quickbooks": "tsx --env-file=.env.local scripts/seed-quickbooks.ts"
   },
   "dependencies": {
     "fuse.js": "^7.1.0",

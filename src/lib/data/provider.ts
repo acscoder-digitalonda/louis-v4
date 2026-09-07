@@ -31,6 +31,8 @@ import type {
   ApiToken,
   Fulfillment,
   PastClient,
+  DealLineItem,
+  Product,
   RateCard,
   Testimonial,
   Template,
@@ -141,6 +143,11 @@ export interface DataProvider {
   listTestimonials(): Promise<Testimonial[]>
   listPastClients(): Promise<PastClient[]>
   listFulfillment(): Promise<Fulfillment[]>
+  createFulfillment(input: NewRecord<Fulfillment>): Promise<Fulfillment>
+  listProducts(): Promise<Product[]>
+  listLineItems(dealId?: string): Promise<DealLineItem[]>
+  createLineItem(input: NewRecord<DealLineItem>): Promise<DealLineItem>
+  deleteLineItem(id: string): Promise<void>
 
   listApiTokens(): Promise<ApiToken[]>
   createApiToken(input: NewRecord<ApiToken>): Promise<ApiToken>
