@@ -31,6 +31,19 @@ const WORKER = 'F2'
 const LABEL = process.env.GMAIL_WATCH_LABEL ?? 'louis-intake'
 const MAX_PER_RUN = Number(process.env.EMAIL_INTAKE_BATCH ?? 25)
 
+/**
+ * How long one sweep may take before it stops and leaves the rest for the next run.
+ *
+ * The serverless function is killed at 300 seconds, and a kill loses the report: the
+ * emails already written stay written, but nothing says how far it got or what is left.
+ * Four mailboxes at twenty-five messages is a hundred classifications, and the first run
+ * after a backlog will always be the slow one.
+ *
+ * So the sweep is time-boxed below the kill. It drains a backlog across runs — which,
+ * every fifteen minutes, is fast enough — and every run returns a real report.
+ */
+const RUN_BUDGET_MS = Number(process.env.EMAIL_INTAKE_BUDGET_MS ?? 210_000)
+
 export interface IntakeReport {
   fetched: number
   /** Copies of a message already seen in another mailbox or an earlier sweep. */
@@ -40,6 +53,8 @@ export interface IntakeReport {
   noise: number
   forwarded: number
   errors: number
+  /** Left for the next run because this one spent its time budget. */
+  deferred: number
 }
 
 interface RawMessage {
@@ -65,11 +80,12 @@ export async function run(): Promise<IntakeReport> {
     noise: 0,
     forwarded: 0,
     errors: 0,
+    deferred: 0,
   }
   const provider = db()
+  const startedAt = Date.now()
 
   const messages = await fetchMessages()
-  report.fetched = messages.length
   if (messages.length === 0) return report
 
   // Deduped on the RFC Message-ID, not the Gmail id. Gmail ids are per mailbox, so the
@@ -86,7 +102,13 @@ export async function run(): Promise<IntakeReport> {
   const contacts = await provider.listContacts()
 
   for (const message of fresh) {
+    if (Date.now() - startedAt > RUN_BUDGET_MS) {
+      report.deferred = fresh.length - report.fetched
+      console.info(`[F2] budget spent — ${report.deferred} message(s) left for the next run`)
+      break
+    }
     try {
+      report.fetched += 1
 
       const sender = extractAddress(message.from)
       const contact = contacts.find((c) => c.email?.toLowerCase() === sender)

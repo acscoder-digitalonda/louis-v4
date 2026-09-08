@@ -19,10 +19,10 @@ import { createRecords, listRecords, readConfig } from '../src/lib/airtable/rest
 import { fieldRef } from '../src/lib/airtable/fields'
 
 const ACCOUNTS = [
-  { address: 'speaking@bennemtin.com', label: 'Public inquiries', scope: 'Full mailbox', watchedLabel: 'louis-intake', lookbackDays: 14 },
-  { address: 'liezel@bennemtin.com', label: 'Liezel', scope: 'Watched label', watchedLabel: 'louis-intake', lookbackDays: 14 },
-  { address: 'b@bennemtin.com', label: 'Ben', scope: 'Watched label', watchedLabel: 'louis-intake', lookbackDays: 14 },
-  { address: 'team@bennemtin.com', label: 'Team', scope: 'Watched label', watchedLabel: 'louis-intake', lookbackDays: 14 },
+  { address: 'speaking@bennemtin.com', label: 'Public inquiries', scope: 'Full mailbox', watchedLabel: 'louis-intake', lookbackDays: 2 },
+  { address: 'liezel@bennemtin.com', label: 'Liezel', scope: 'Watched label', watchedLabel: 'louis-intake', lookbackDays: 2 },
+  { address: 'b@bennemtin.com', label: 'Ben', scope: 'Watched label', watchedLabel: 'louis-intake', lookbackDays: 2 },
+  { address: 'team@bennemtin.com', label: 'Team', scope: 'Watched label', watchedLabel: 'louis-intake', lookbackDays: 2 },
 ]
 
 async function main() {
