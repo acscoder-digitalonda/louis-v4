@@ -235,6 +235,26 @@ function pickFields(deal: Deal): Record<string, unknown> {
   return out
 }
 
+/** How long two identically-titled enquiries are assumed to be the same one. */
+const DUPLICATE_WINDOW_DAYS = 5
+
+/** Below this a subject is too generic to match on. "Hi" is not a fingerprint. */
+const MIN_SUBJECT_MATCH = 12
+
+/** Drops the reply and forward decoration Gmail stacks up, and the company prefix. */
+export function strippedSubject(subject: string): string {
+  return subject
+    .replace(/^((re|fw|fwd|aw|tr)\s*:\s*)+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+function withinDays(a: string, b: string, days: number): boolean {
+  const gap = Math.abs(new Date(a).getTime() - new Date(b).getTime())
+  return Number.isFinite(gap) && gap <= days * 86_400_000
+}
+
 // ── deal matching ───────────────────────────────────────────────────────────
 
 async function attachDeal(
@@ -261,7 +281,34 @@ async function attachDeal(
     if (live.length === 1) return live[0]!
   }
 
-  // 3. An inquiry with no match starts a new deal.
+  // 3. The same enquiry arriving twice by two routes.
+  //
+  // The website form relays every submission from one robot address, and somebody also
+  // forwards the notification inwards. Message-ID dedupe cannot see this: a forward is a
+  // new message with a new id, from a different sender, in a different thread. What is
+  // the same is the subject.
+  //
+  // Matched on the stripped subject and only against an inquiry raised in the last few
+  // days, because two clients can genuinely write "Speaking enquiry" a year apart — and
+  // only when the subject is long enough to mean something.
+  if (email.classification === 'inquiry') {
+    const subject = strippedSubject(message.subject)
+    if (subject.length >= MIN_SUBJECT_MATCH) {
+      const twin = deals.find(
+        (d) =>
+          d.stage === 'inquiry' &&
+          isLive(d) &&
+          strippedSubject(d.name) === subject &&
+          withinDays(d.createdAt, message.date, DUPLICATE_WINDOW_DAYS),
+      )
+      if (twin) {
+        console.info(`[F2] "${message.subject}" is the same enquiry as ${twin.name}`)
+        return twin
+      }
+    }
+  }
+
+  // 4. An inquiry with no match starts a new deal.
   if (email.classification !== 'inquiry') return null
 
   const domain = email.from.split('@')[1]?.toLowerCase() ?? null
