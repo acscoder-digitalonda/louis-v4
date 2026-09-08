@@ -45,7 +45,8 @@
     "ship": "bash scripts/ship.sh",
     "seed:quickbooks": "tsx --env-file=.env.local scripts/seed-quickbooks.ts",
     "seed:sheets": "tsx --env-file=.env.local scripts/seed-sheets.ts",
-    "enrich:companies": "tsx --env-file=.env.local scripts/enrich-companies.ts"
+    "enrich:companies": "tsx --env-file=.env.local scripts/enrich-companies.ts",
+    "seed:mail-accounts": "tsx --env-file=.env.local scripts/seed-mail-accounts.ts"
   },
   "dependencies": {
     "fuse.js": "^7.1.0",

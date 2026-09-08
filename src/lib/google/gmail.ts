@@ -158,6 +158,19 @@ function toMessage(raw: RawMessage): GmailMessage {
   }
 }
 
+/**
+ * A raw Gmail GET against one mailbox, impersonating it.
+ *
+ * Exported because F2 was doing this itself with a single token taken from the mailer —
+ * one identity, `GMAIL_SERVICE_ADDRESS`, and the compose scope. With a delegated service
+ * account that reads the same mailbox four times under four names, and with no service
+ * address set it read nothing at all. Reading a mailbox means impersonating *that*
+ * mailbox, which is what `get` has always done here.
+ */
+export async function gmailGetAs<T>(mailbox: string, path: string): Promise<T> {
+  return get<T>(path, mailbox)
+}
+
 /** Thread IDs matching a Gmail query, newest first. */
 export async function listThreadIds(
   mailbox: string,

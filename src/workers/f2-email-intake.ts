@@ -13,7 +13,9 @@
 import { db } from '@/lib/data'
 import { dedupe, dedupeKey, queryFor, resolveAccounts } from '@/lib/intake/accounts'
 import { complete } from '@/lib/gateway'
-import { gmailAccessToken, sendMail } from '@/lib/mailer'
+import { sendMail } from '@/lib/mailer'
+import { gmailGetAs } from '@/lib/google/gmail'
+import { googleConfigured } from '@/lib/google/auth'
 import { notify } from '@/lib/notify'
 import { agentActor, recordEvent } from '@/lib/audit'
 import { invalidateSearchCache } from '@/lib/search'
@@ -302,13 +304,18 @@ async function forwardToOwner(message: RawMessage): Promise<void> {
  * mailbox must not stop Liezel's mail being read.
  */
 async function fetchMessages(): Promise<RawMessage[]> {
-  if (!process.env.GMAIL_REFRESH_TOKEN) {
+  // `googleConfigured`, not `GMAIL_REFRESH_TOKEN`. The refresh token is the old
+  // single-user credential; this deployment authenticates with a delegated service
+  // account, so the original check skipped every sweep and logged a warning nobody reads.
+  if (!googleConfigured()) {
     console.warn('[F2] Gmail is not configured — intake skipped.')
     return []
   }
 
+  // The Mail Accounts table is the source of truth; the env var is the fallback for an
+  // install that has not filled it in.
   const accounts = resolveAccounts(await db().listMailAccounts().catch(() => []), {
-    addresses: process.env.GMAIL_ADDRESSES,
+    addresses: process.env.GMAIL_ADDRESSES ?? process.env.INTAKE_MAILBOXES,
     label: LABEL,
   })
   if (accounts.length === 0) {
@@ -316,17 +323,21 @@ async function fetchMessages(): Promise<RawMessage[]> {
     return []
   }
 
-  const token = await gmailAccessToken()
   const out: RawMessage[] = []
 
   for (const account of accounts) {
     try {
-      const list = await gmailGet<{ messages?: { id: string }[] }>(
-        token,
-        `/messages?q=${encodeURIComponent(queryFor(account))}&maxResults=${MAX_PER_RUN}`,
+      // Impersonating this mailbox, with the read scope. One shared token would read
+      // whichever single mailbox it belonged to, four times over.
+      const list = await gmailGetAs<{ messages?: { id: string }[] }>(
+        account.address,
+        `/users/me/messages?q=${encodeURIComponent(queryFor(account))}&maxResults=${MAX_PER_RUN}`,
       )
       for (const item of list.messages ?? []) {
-        const full = await gmailGet<GmailMessage>(token, `/messages/${item.id}?format=full`)
+        const full = await gmailGetAs<GmailMessage>(
+          account.address,
+          `/users/me/messages/${item.id}?format=full`,
+        )
         out.push({ ...parseMessage(full), mailbox: account.address })
       }
     } catch (err) {
@@ -388,10 +399,3 @@ function extractAddress(from: string): string {
   return (match?.[1] ?? from).trim().toLowerCase()
 }
 
-async function gmailGet<T>(token: string, path: string): Promise<T> {
-  const res = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  if (!res.ok) throw new Error(`Gmail GET ${path} failed: ${res.status} ${await res.text()}`)
-  return (await res.json()) as T
-}
