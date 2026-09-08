@@ -83,8 +83,11 @@ export function shouldReport(
   now: number = Date.now(),
 ): boolean {
   if (kind === 'transient') return false
-  if (kind === 'bug') return true
 
+  // A bug used to report every time. A worker that throws on a fifteen-minute schedule
+  // is then ninety-six identical emails a day, and the ninety-sixth carries no more
+  // information than the first — it just makes the first harder to find. Repeats are
+  // damped the same way as everything else; the first one still goes immediately.
   const key = `${worker}:${kind}`
   const last = lastReported.get(key)
   if (last !== undefined && now - last < QUIET_HOURS * 3_600_000) return false

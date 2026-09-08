@@ -51,10 +51,15 @@ describe('shouldReport', () => {
     }
   })
 
-  it('always emails about a bug', () => {
-    for (let i = 0; i < 3; i += 1) {
-      assert.equal(shouldReport('f6-timers', 'bug'), true)
-    }
+  it('emails about a bug once, then damps the repeats', () => {
+    // This test used to assert the opposite — "always emails about a bug" — and that is
+    // what it did: a worker throwing on a fifteen-minute schedule sent ninety-six
+    // identical emails a day, and the ninety-sixth carried nothing the first did not.
+    // The first report still goes immediately; only the repetition is held.
+    const t0 = Date.parse('2026-09-08T09:00:00Z')
+    assert.equal(shouldReport('f6-timers', 'bug', t0), true)
+    assert.equal(shouldReport('f6-timers', 'bug', t0 + 60_000), false)
+    assert.equal(shouldReport('f6-timers', 'bug', t0 + (QUIET_HOURS + 1) * 3_600_000), true)
   })
 
   it('emails once about a standing problem, then holds its tongue', () => {

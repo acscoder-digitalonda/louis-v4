@@ -24,6 +24,7 @@ import type { NotificationType, Role, User } from './types'
 import { speaker } from '~/speaker.config'
 import { sendMail } from './mailer'
 import { DEFAULT_QUIET_HOURS, decideDelivery, type QuietHours } from './quiet-hours'
+import { QUIET_HOURS } from './backend-health'
 
 export interface NotifyInput {
   type: NotificationType
@@ -154,17 +155,57 @@ function buildEmailBody(input: NotifyInput): string {
  * The failure path every worker uses. Includes the log tail and the worker name,
  * because "something broke" is not actionable.
  */
+/**
+ * Whether the same failure was already emailed recently, according to the base.
+ *
+ * `shouldReport` remembers in process memory, which on serverless is per warm instance —
+ * it dampens a flood without ever suppressing the first report. That reasoning is right
+ * and it was not enough: a crontab installed with the placeholder secret produced a
+ * failure email every fifteen minutes for hours, because each one landed on a different
+ * instance with an empty memory.
+ *
+ * So the Notifications table is consulted as well. It is the backend being reported on,
+ * which is exactly why a failed lookup **sends** rather than suppresses: a notifier that
+ * goes quiet when its own storage is down is a notifier that goes quiet precisely when
+ * it matters.
+ */
+async function alreadyReported(title: string, now: Date): Promise<boolean> {
+  try {
+    const provider = db()
+    const users = await provider.listUsers()
+    const admin = users.find((u) => u.active && u.role === 'admin')
+    if (!admin) return false
+
+    const since = now.getTime() - QUIET_HOURS * 3_600_000
+    const recent = await provider.listNotifications(admin.email, 25)
+    return recent.some(
+      (n) =>
+        n.type === 'worker-failure' &&
+        n.title === title &&
+        new Date(n.createdAt).getTime() >= since,
+    )
+  } catch {
+    return false
+  }
+}
+
 export async function notifyWorkerFailure(params: {
   worker: string
   error: unknown
   logTail?: string
   link?: string
 }): Promise<void> {
+  const title = `${params.worker} failed`
+  if (await alreadyReported(title, new Date())) {
+    console.warn(`[notify] ${title} — already reported within ${QUIET_HOURS}h, not emailing again`)
+    return
+  }
+
   const message = params.error instanceof Error ? params.error.message : String(params.error)
   const stack = params.error instanceof Error ? params.error.stack : undefined
   await notify({
     type: 'worker-failure',
-    title: `${params.worker} failed`,
+    title,
     body: [message, params.logTail, stack].filter(Boolean).join('\n\n').slice(0, 4000),
     link: params.link ?? '/settings?tab=ai',
     roles: ['admin'],

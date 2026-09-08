@@ -14,8 +14,23 @@ export const maxDuration = 300
  */
 export async function GET(request: Request, { params }: { params: Promise<{ worker: string }> }) {
   const { worker: name } = await params
+
+  // Authentication is settled before the try, and never reaches the failure notifier.
+  //
+  // This endpoint is public — that is the point of a bearer token — so anything inside
+  // the catch below can be triggered by a stranger. A rejected caller emailing the admins
+  // is an unauthenticated mail amplifier, and it fired for real: a crontab installed with
+  // the `replace-me` placeholder produced a "worker failed" email every fifteen minutes.
+  // A wrong token is not a worker failure. It is logged, and the silence of a worker that
+  // never runs is what the QA sweep is for.
   try {
     assertCronAuth(request)
+  } catch (err) {
+    console.warn(`[cron] ${name} rejected: ${(err as Error)?.message ?? 'unauthorised'}`)
+    return fail(err)
+  }
+
+  try {
     const worker = WORKERS[name]
     if (!worker) return ok({ error: `Unknown worker "${name}".` }, { status: 404 })
 
