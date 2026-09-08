@@ -136,6 +136,7 @@ async function main() {
   const plans: Plan[] = []
   for (const client of unclassified.slice(0, limit === Infinity ? undefined : limit)) {
     const domain = deriveDomain({
+      name: client.name,
       domain: client.domain,
       website: client.website,
       emails: emailsByClient.get(client.id),

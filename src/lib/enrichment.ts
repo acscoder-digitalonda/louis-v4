@@ -54,6 +54,7 @@ export function isFreeMailDomain(domain: string): boolean {
  * contacts at the same employer has already told us its domain three times.
  */
 export function deriveDomain(input: {
+  name?: string | null
   domain?: string | null
   website?: string | null
   emails?: (string | null)[]
@@ -64,16 +65,52 @@ export function deriveDomain(input: {
   const fromSite = normaliseDomain(input.website)
   if (fromSite) return fromSite
 
-  // The most common work domain among the people attached to the company. One address is
-  // a coincidence — a contractor, a personal account — and two is a fact.
   const counts = new Map<string, number>()
   for (const email of input.emails ?? []) {
     const domain = email?.split('@')[1]?.toLowerCase().trim()
     if (!domain || isFreeMailDomain(domain)) continue
     counts.set(domain, (counts.get(domain) ?? 0) + 1)
   }
+  if (counts.size === 0) return null
+
+  // ── Name beats majority ───────────────────────────────────────────────
+  //
+  // A company called Stratum had three people at tidewell.org and one at
+  // stratumhealthsystem.org, and counting votes picked Tidewell — a different
+  // organisation that happened to have more people on the thread.
+  //
+  // A domain carrying the company's own name is two signals agreeing, which beats one
+  // signal repeated. Same rule the inbox sweep had to learn: a majority is not a
+  // corroboration, it is the same weak signal counted twice.
+  const key = nameKey(input.name)
+  if (key) {
+    const named = [...counts].filter(([domain]) => hostLabel(domain).includes(key))
+    if (named.length > 0) {
+      return named.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]![0]
+    }
+  }
+
+  // Otherwise the most common work domain. One address is a coincidence — a contractor,
+  // a personal account — and two is a fact.
   const best = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]
   return best && best[1] >= 2 ? best[0] : null
+}
+
+/**
+ * The company name reduced to something a hostname could contain.
+ *
+ * Nothing under three characters: "A-Speakers" would become "a" and match every domain
+ * with an a in it, which is the same class of bug as the bureau names that became match
+ * keys.
+ */
+function nameKey(name: string | null | undefined): string | null {
+  const key = (name ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')
+  return key.length >= 3 ? key : null
+}
+
+/** `stratumhealthsystem.org` → `stratumhealthsystem`. */
+function hostLabel(domain: string): string {
+  return domain.split('.')[0]!.replace(/[^a-z0-9]/g, '')
 }
 
 /** `https://www.Acme.com/about?x=1` → `acme.com`. Returns null for anything unusable. */

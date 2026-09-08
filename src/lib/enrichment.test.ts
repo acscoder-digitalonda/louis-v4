@@ -148,3 +148,33 @@ describe('classifyPrompt', () => {
     assert.equal(isKnownIndustry('Insurance'), false)
   })
 })
+
+describe('deriveDomain — name beats majority', () => {
+  it('picks the domain carrying the company name over the more common one', () => {
+    // Live case: a company called Stratum had three people at tidewell.org and one at
+    // stratumhealthsystem.org. Counting votes picked Tidewell, a different organisation.
+    const emails = [
+      'phancock@tidewell.org',
+      'acromie@tidewell.org',
+      'jschilson@stratumhealthsystem.org',
+      'katie@alignanywhere.com',
+    ]
+    assert.equal(deriveDomain({ name: 'Stratum', emails }), 'stratumhealthsystem.org')
+  })
+
+  it('still takes the majority when no domain carries the name', () => {
+    const emails = ['a@acme.com', 'b@acme.com', 'c@other.com']
+    assert.equal(deriveDomain({ name: 'Ridgeline Partners', emails }), 'acme.com')
+  })
+
+  it('will not match on a name too short to mean anything', () => {
+    // "A-Speakers" reduces to "a", which is in almost every hostname. That is the bureau
+    // match-key bug wearing a different hat.
+    const emails = ['x@alpha.com', 'y@alpha.com', 'z@beta.com']
+    assert.equal(deriveDomain({ name: 'A', emails }), 'alpha.com')
+  })
+
+  it('matches a name that is a prefix of the host', () => {
+    assert.equal(deriveDomain({ name: 'BLP', emails: ['m@blplegal.com'] }), 'blplegal.com')
+  })
+})

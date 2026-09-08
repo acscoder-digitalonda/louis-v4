@@ -1,6 +1,6 @@
 {
   "baseId": "app5In2fKegyPm4sU",
-  "generatedAt": "2026-09-05T13:59:49.371Z",
+  "generatedAt": "2026-09-08T14:28:26.429Z",
   "tables": {
     "clients": {
       "tableId": "tblrMl2530lYOQlRX",
@@ -50,6 +50,7 @@
         "holdOrder": "fldagIg6JSMeHMHgY",
         "rateRegion": "fldNvRHigK640nLeP",
         "travelStipend": "fldSoBvo9R1Zzyr7R",
+        "pricingNote": "fldaJ1qzpDFUu0YsW",
         "nextActionDate": "fldKsxofOTFoIbhSf",
         "followUpCount": "fldQ8S8k97wbzM9s7",
         "muted": "fldaNpJ2Xxwvd45o0",
@@ -107,6 +108,8 @@
         "approver": "fldKLfCUPUKdtdKYN",
         "sentAt": "fldUIjodHpwoVZdhK",
         "threadId": "fldOscAv7NWpEj3tM",
+        "messageId": "fldCrtGGWOnOh5mdg",
+        "mailbox": "fld8LokDKDmQvcPTf",
         "checkerVerdict": "fld4gUV5AZIf64xn9",
         "revisions": "fldJ5fmT8IkdSsKUc"
       }
@@ -329,9 +332,13 @@
         "dealType": "fldRaciJ7SsUhLSqZ",
         "secondaryType": "fldQWMxt6XageQQtD",
         "rateRegion": "fldT0j6oM6MFRYyNT",
-        "amount": "flduZtHl8r8i4fhVk",
+        "baseFee": "flduZtHl8r8i4fhVk",
         "weekendSurcharge": "fldHYpBtk7E8BQtii",
-        "travelStipend": "fldEsLlkEiSYPHAUy",
+        "weekendRule": "fldvkV8v8NxEpqqfH",
+        "travelBuyout": "fldEsLlkEiSYPHAUy",
+        "travelTerms": "fldh3h5xfnKtzERxJ",
+        "effectiveFrom": "fldtvZCorDxgxzOus",
+        "effectiveTo": "fldBqZkQlqkqawcBx",
         "active": "flduQ2vayktKHR4g2"
       }
     },
@@ -361,9 +368,12 @@
         "lineItem": "fld8Z0rXGc79OSk9Y",
         "deal": "fld0ixsr0IVBlgal3",
         "status": "fldDRrD94MJdgF4LO",
-        "shipBy": "fldjCUyvD45jKV8YX",
+        "quantity": "fldDvIXkMNfq17vI6",
+        "shipBy": "fld6zi7PiL1UJuYr1",
         "carrier": "fldY0KiOPXGBVVh7b",
         "tracking": "fldISx6j02W8dhU2Z",
+        "warehouseNotes": "fldB2Zwr7bDMLwmQG",
+        "slackThread": "fld48Hx3uA7rkCT18",
         "notes": "fldgq24WtmUMUrUJO"
       }
     },
@@ -410,6 +420,30 @@
         "bookings": "fldO9YGHfOqMV9bvG",
         "lastYear": "fldwlSzmNRNBmfhoo",
         "anyVirtual": "fldhQZPneT28ZiD92"
+      }
+    },
+    "standaloneOrders": {
+      "tableId": "tbl7ip7MfWk9Fkfib",
+      "fields": {
+        "client": "fldez4juV5aERFblm",
+        "orderDate": "fld34rXuBlu3HslnD",
+        "channel": "fldAUTVqXN60tbEAK",
+        "product": "fld8QddMHQDTuHmQE",
+        "quantity": "fldsge8X0ZxfR0uPZ",
+        "notes": "fldcL23wHInxuCYaA"
+      }
+    },
+    "apiTokens": {
+      "tableId": "tblIl9espEtd7kyhE",
+      "fields": {
+        "label": "fldFI5PxxBWsps14Q",
+        "tokenHash": "fldLngH4BocFWXAK2",
+        "prefix": "fld8HO3lQbGGmd9h0",
+        "userEmail": "fldJfFISvi01o6Csf",
+        "createdAt": "fld0ZTgdThWodN6dD",
+        "lastUsedAt": "fldi5EWDPOGAvENT4",
+        "expiresAt": "fldUElsRznMalEWr9",
+        "revoked": "fld91uWjpVD7R2CDj"
       }
     },
     "mailAccounts": {
