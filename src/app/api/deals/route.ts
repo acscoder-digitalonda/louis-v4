@@ -6,6 +6,7 @@ import { agentActor, recordEvent } from '@/lib/audit'
 import { invalidateSearchCache } from '@/lib/search'
 import { firePacket } from '@/workers/f5-stage-engine'
 import { fail, ok } from '@/lib/http'
+import { ALL_STAGES } from '@/lib/stages'
 import { speaker } from '~/speaker.config'
 
 export const dynamic = 'force-dynamic'
@@ -49,6 +50,33 @@ export async function POST(request: Request) {
     invalidateSearchCache()
 
     return ok({ deal }, { status: 201 })
+  } catch (err) {
+    return fail(err)
+  }
+}
+
+/**
+ * One page of deals, for the list screen's search and "load more".
+ *
+ * Everything that narrows the result is a query parameter handled server-side. A search
+ * that reads the whole table and filters in the browser is not a search — it is the same
+ * nine requests with a nicer spinner.
+ */
+export async function GET(request: Request) {
+  try {
+    await requireUser()
+    const url = new URL(request.url)
+    const stage = url.searchParams.get('stage') ?? undefined
+
+    const page = await db().listDealsPage({
+      q: url.searchParams.get('q') ?? undefined,
+      stage: ALL_STAGES.includes(stage as never) ? (stage as never) : undefined,
+      includeHistorical: url.searchParams.get('historical') === '1',
+      cursor: url.searchParams.get('cursor') ?? undefined,
+      pageSize: Math.min(Number(url.searchParams.get('pageSize')) || 40, 100),
+    })
+
+    return ok(page)
   } catch (err) {
     return fail(err)
   }

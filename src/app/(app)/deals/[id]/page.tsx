@@ -24,7 +24,12 @@ import { speaker, stageByKey } from '~/speaker.config'
 import { priceDeal, type PricedDeal } from '@/lib/pricing'
 import { isMuted, shouldChase } from '@/lib/followup'
 import { nudgesFor } from '@/lib/fulfillment'
-import type { Deal, Fulfillment, JournalOrder, Task } from '@/lib/types'
+import { LineItems } from '@/components/deal/LineItems'
+import { CoachingLedger } from '@/components/deal/CoachingLedger'
+import { CapacityCheck } from '@/components/deal/CapacityCheck'
+import { REPLY_SLA_MINUTES, slaState, type SlaState } from '@/lib/sla'
+import { isCoaching } from '@/lib/coaching'
+import type { Deal, DealLineItem, Fulfillment, JournalOrder, Product, Task } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +38,7 @@ const TABS = [
   'sales',
   'logistics',
   'questionnaire',
+  'coaching',
   'assets',
   'journal',
   'money',
@@ -77,6 +83,15 @@ export default async function DealPage({
   const fulfillment = (await provider.listFulfillment().catch(() => [])).filter(
     (f) => f.dealId === deal.id,
   )
+  // Only for a coaching deal: a keynote has no sessions and the read would be waste.
+  const coachingSessions = isCoaching(deal.dealType)
+    ? await provider.listCoachingSessions(deal.id).catch(() => [])
+    : []
+
+  const [lineItems, products] = await Promise.all([
+    provider.listLineItems(deal.id).catch(() => []),
+    provider.listProducts().catch(() => []),
+  ])
   const companyDeals = deal.client
     ? (await provider.listDeals()).filter((d) => d.client?.id === deal.client!.id)
     : []
@@ -164,6 +179,7 @@ export default async function DealPage({
           lockReason={lockReason}
           showAmounts={showAmounts}
           drafts={drafts.filter((d) => ['proposal', 'follow-up', 'forcing'].includes(d.type))}
+          sla={deal.stage === 'inquiry' ? slaState(deal, drafts) : null}
         />
       ) : null}
 
@@ -177,11 +193,30 @@ export default async function DealPage({
 
       {tab === 'assets' ? <AssetsTab deal={deal} endpoint={endpoint} editable={editable} /> : null}
 
+      {tab === 'coaching' ? (
+        isCoaching(deal.dealType) ? (
+          <CoachingLedger
+            sessions={coachingSessions}
+            canEdit={canWrite(user.role, 'coachingSessions').allowed}
+          />
+        ) : (
+          <EmptyState
+            title="Not a coaching deal"
+            filledBy="The session ledger belongs to Speaker Coaching and Executive Coaching. Change the Deal Type on the Overview tab if this is one."
+          />
+        )
+      ) : null}
+
       {tab === 'journal' ? (
         <JournalTab
           orders={dealJournal}
           fulfillment={fulfillment}
           purchaseHistory={purchaseHistory}
+          lineItems={lineItems}
+          products={products.filter((p) => p.active)}
+          dealId={deal.id}
+          showAmounts={showAmounts}
+          canEdit={canWrite(user.role, 'dealLineItems').allowed}
         />
       ) : null}
 
@@ -364,6 +399,7 @@ function SalesTab({
   showAmounts,
   drafts,
   priced,
+  sla,
 }: {
   deal: Deal
   endpoint: string
@@ -372,6 +408,7 @@ function SalesTab({
   showAmounts: boolean
   drafts: { id: string; subject: string; type: string; status: string; createdAt: string }[]
   priced: PricedDeal
+  sla: SlaState | null
 }) {
   const weight = forecastWeight(deal)
   const belowFloor = (deal.negotiatedFee ?? Infinity) < speaker.fees.floor
@@ -470,6 +507,28 @@ function SalesTab({
               ) : null}
             </>
           )}
+        </Card>
+      ) : null}
+
+      {/* The one service promise with a number on it. Only asked while it is live. */}
+      {sla ? (
+        <Card className={sla.breached ? 'border-danger' : undefined}>
+          <SectionTitle right={<span className="sub">target {REPLY_SLA_MINUTES} min</span>}>
+            Reply clock
+          </SectionTitle>
+          <p className={`body-copy ${sla.breached ? 'text-danger' : ''}`}>{sla.label}</p>
+          <p className="sub mt-1">
+            Counted in working hours only — an inquiry that lands at eleven at night has not
+            been ignored by midnight.
+          </p>
+        </Card>
+      ) : null}
+
+      {/* Ben's rule: three keynotes a week, Liezel checks a day either side. Advisory. */}
+      {deal.dealType === 'keynote' ? (
+        <Card>
+          <SectionTitle>Load around this date</SectionTitle>
+          <CapacityCheck dealId={deal.id} date={deal.eventDate} />
         </Card>
       ) : null}
 
@@ -627,6 +686,9 @@ function LogisticsTab({
     ? Math.round((new Date(deal.eventDate).getTime() - Date.now()) / 86_400_000)
     : null
   const redAlert = days !== null && days <= 12 && days >= 0 && !deal.logisticsComplete
+  // The handoff card appears on the day and stays. Showing it a month out is clutter;
+  // hiding it once the deal moves on is how notes go unwritten.
+  const onsite = deal.stage === 'delivered' || deal.stage === 'debriefed' || (days !== null && days <= 0)
 
   return (
     <div className="space-y-4">
@@ -672,6 +734,35 @@ function LogisticsTab({
           />
           <EditableField
             endpoint={endpoint}
+            field="travelDepartureDate"
+            label="Travel departs"
+            value={deal.travelDepartureDate}
+            kind="date"
+            placeholder="Day before the event"
+            readOnly={!editable('travelDepartureDate')}
+            lockReason={lockReason('travelDepartureDate')}
+            lastModified={deal.lastModified}
+          />
+          <EditableField
+            endpoint={endpoint}
+            field="outboundFlight"
+            label="Outbound flight"
+            value={deal.outboundFlight}
+            readOnly={!editable('outboundFlight')}
+            lockReason={lockReason('outboundFlight')}
+            lastModified={deal.lastModified}
+          />
+          <EditableField
+            endpoint={endpoint}
+            field="returnFlight"
+            label="Return flight"
+            value={deal.returnFlight}
+            readOnly={!editable('returnFlight')}
+            lockReason={lockReason('returnFlight')}
+            lastModified={deal.lastModified}
+          />
+          <EditableField
+            endpoint={endpoint}
             field="logisticsComplete"
             label="Logistics complete"
             value={deal.logisticsComplete}
@@ -681,7 +772,45 @@ function LogisticsTab({
             lastModified={deal.lastModified}
           />
         </div>
+        <p className="sub mt-3">
+          The road-warrior brief goes out the day before travel, falling back to the day
+          before the event. Editing the hotel, flights or AV check after it has gone re-sends
+          it marked UPDATED.
+        </p>
       </Card>
+
+      {onsite ? (
+        <Card>
+          <SectionTitle>After the keynote</SectionTitle>
+          <p className="body-copy mb-3 text-ink-secondary">
+            One tick is the whole handoff. It puts what happened in the room in front of the
+            office while it is still fresh; notes typed afterwards send a short update.
+          </p>
+          <EditableField
+            endpoint={endpoint}
+            field="postKeynoteAlert"
+            label="Send post-keynote alert"
+            value={deal.postKeynoteAlert}
+            kind="checkbox"
+            readOnly={!editable('postKeynoteAlert')}
+            lockReason={lockReason('postKeynoteAlert')}
+            lastModified={deal.lastModified}
+          />
+          <div className="mt-4">
+            <EditableField
+              endpoint={endpoint}
+              field="postKeynoteNotes"
+              label="Post-keynote notes"
+              value={deal.postKeynoteNotes}
+              kind="textarea"
+              placeholder="What happened in the room"
+              readOnly={!editable('postKeynoteNotes')}
+              lockReason={lockReason('postKeynoteNotes')}
+              lastModified={deal.lastModified}
+            />
+          </div>
+        </Card>
+      ) : null}
 
       <Card>
         <SectionTitle>Pending details</SectionTitle>
@@ -741,18 +870,6 @@ function QuestionnaireTab({
           kind="textarea"
           readOnly={!editable('desiredOutcomes')}
           lockReason={lockReason('desiredOutcomes')}
-          lastModified={deal.lastModified}
-        />
-      </Card>
-      <Card>
-        <EditableField
-          endpoint={endpoint}
-          field="postKeynoteNotes"
-          label="Post-keynote notes"
-          value={deal.postKeynoteNotes}
-          kind="textarea"
-          readOnly={!editable('postKeynoteNotes')}
-          lockReason={lockReason('postKeynoteNotes')}
           lastModified={deal.lastModified}
         />
       </Card>
@@ -817,11 +934,21 @@ function JournalTab({
   orders,
   fulfillment,
   purchaseHistory,
+  lineItems,
+  products,
+  dealId,
+  showAmounts,
+  canEdit,
 }: {
   orders: JournalOrder[]
   fulfillment: Fulfillment[]
   /** Every past order by this company, so nobody walks into a call not knowing. */
   purchaseHistory: { dealName: string; quantity: number; year: string | null }[]
+  lineItems: DealLineItem[]
+  products: Product[]
+  dealId: string
+  showAmounts: boolean
+  canEdit: boolean
 }) {
   const lifetime = purchaseHistory.reduce((n, p) => n + p.quantity, 0)
 
@@ -873,7 +1000,17 @@ function JournalTab({
       </Card>
     ) : null
 
-  if (orders.length === 0 && !strip && !history) {
+  const lines = (
+    <LineItems
+      dealId={dealId}
+      items={lineItems}
+      products={products}
+      showAmounts={showAmounts}
+      canEdit={canEdit}
+    />
+  )
+
+  if (orders.length === 0 && !strip && !history && lineItems.length === 0 && !canEdit) {
     return (
       <EmptyState
         title="No journal orders on this deal"
@@ -888,6 +1025,7 @@ function JournalTab({
   }
   return (
     <div className="space-y-4">
+    {lines}
     {history}
     {strip}
     <Card>

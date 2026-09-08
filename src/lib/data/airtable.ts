@@ -15,6 +15,8 @@ import {
   formulaValue,
   getRecord,
   listRecords,
+  listRecordsPage,
+  listRecordsFresh,
   readConfig,
   updateRecord,
   type AirtableConfig,
@@ -47,6 +49,8 @@ import type {
   Fulfillment,
   PastClient,
   DealLineItem,
+  MailAccount,
+  CoachingSession,
   Product,
   RateCard,
   Testimonial,
@@ -54,7 +58,12 @@ import type {
   User,
 } from '../types'
 import type {
+  ClientPage,
+  ContactPage,
   DataProvider,
+  DealPage,
+  DealPageQuery,
+  ListPageQuery,
   DealFilter,
   DraftFilter,
   NewRecord,
@@ -661,6 +670,8 @@ export class AirtableProvider implements DataProvider {
       to: reqStr(f('to')),
       subject: reqStr(f('subject')),
       threadId: str(f('threadId')),
+      messageId: str(f('messageId')),
+      mailbox: str(f('mailbox')),
       receivedAt: reqStr(f('receivedAt'), record.createdTime),
       bodyRef: str(f('bodyRef')),
       classification: classificationCodec.fromAirtable(f('classification'), 'unclassified'),
@@ -1060,6 +1071,114 @@ export class AirtableProvider implements DataProvider {
     return records.map((r) => this.decodeDeal(r, names))
   }
 
+  async getDealProposalFresh(id: string): Promise<DealProposal | null> {
+    const records = await listRecordsFresh(this.cfg, 'dealProposals', {
+      filterByFormula: `RECORD_ID() = ${formulaValue(id)}`,
+      maxRecords: 1,
+    })
+    return records[0] ? this.decodeDealProposal(records[0]) : null
+  }
+
+  async listDealsPage(opts: DealPageQuery): Promise<DealPage> {
+    const clauses: string[] = []
+
+    if (opts.stage) {
+      clauses.push(`{${fieldRef('deals', 'stage')}} = ${formulaValue(stageCodec.toAirtable(opts.stage))}`)
+    }
+    if (!opts.includeHistorical) {
+      // 802 of 802 deals are imported history. Leading with them buries the handful of
+      // real ones, so seeing them is a deliberate act rather than the default.
+      clauses.push(`NOT({${fieldRef('deals', 'historical')}} = 1)`)
+    }
+    if (opts.q?.trim()) {
+      // Searched server-side, which is the whole point: this costs one request instead of
+      // reading the table and filtering afterwards.
+      //
+      // The deal *name* is enough to search on, and that is a property of the data rather
+      // than a shortcut — the import built every name as "Client — Event (Year)", so the
+      // company is already in it. Searching the linked company record would need a lookup
+      // field that does not exist.
+      const term = opts.q.trim().toLowerCase()
+      clauses.push(
+        `OR(` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('deals', 'name')}})) > 0,` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('deals', 'location')}} & "")) > 0` +
+          `)`,
+      )
+    }
+
+    const page = await listRecordsPage(this.cfg, 'deals', {
+      filterByFormula: clauses.length ? `AND(${clauses.join(',')})` : undefined,
+      pageSize: opts.pageSize ?? 40,
+      cursor: opts.cursor,
+      sort: [{ field: fieldRef('deals', 'eventDate'), direction: 'desc' }],
+    })
+
+    const names = await this.names()
+    return { deals: page.records.map((r) => this.decodeDeal(r, names)), cursor: page.cursor }
+  }
+
+  async listClientsPage(opts: ListPageQuery): Promise<ClientPage> {
+    const clauses: string[] = []
+    if (opts.q?.trim()) {
+      const term = opts.q.trim().toLowerCase()
+      clauses.push(
+        `OR(` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('clients', 'name')}})) > 0,` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('clients', 'domain')}} & "")) > 0,` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('clients', 'industry')}} & "")) > 0` +
+          `)`,
+      )
+    }
+    const page = await listRecordsPage(this.cfg, 'clients', {
+      filterByFormula: clauses.length ? clauses[0] : undefined,
+      pageSize: opts.pageSize ?? 40,
+      cursor: opts.cursor,
+    })
+    return {
+      clients: page.records.map((r) => this.decodeClient(r)),
+      cursor: page.cursor,
+    }
+  }
+
+  async listContactsPage(
+    opts: ListPageQuery & { bureauOnly?: boolean; directOnly?: boolean },
+  ): Promise<ContactPage> {
+    const clauses: string[] = []
+    const agent = formulaValue(contactTypeCodec.toAirtable('bureau-agent'))
+    if (opts.bureauOnly) clauses.push(`{${fieldRef('contacts', 'type')}} = ${agent}`)
+    if (opts.directOnly) clauses.push(`NOT({${fieldRef('contacts', 'type')}} = ${agent})`)
+    if (opts.q?.trim()) {
+      const term = opts.q.trim().toLowerCase()
+      clauses.push(
+        `OR(` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('contacts', 'name')}})) > 0,` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('contacts', 'email')}} & "")) > 0,` +
+          `FIND(${formulaValue(term)}, LOWER({${fieldRef('contacts', 'agency')}} & "")) > 0` +
+          `)`,
+      )
+    }
+    const page = await listRecordsPage(this.cfg, 'contacts', {
+      filterByFormula: clauses.length ? `AND(${clauses.join(',')})` : undefined,
+      pageSize: opts.pageSize ?? 40,
+      cursor: opts.cursor,
+    })
+    return {
+      contacts: page.records.map((r) => this.decodeContact(r)),
+      cursor: page.cursor,
+    }
+  }
+
+  async getDealByKitToken(token: string): Promise<Deal | null> {
+    if (!token) return null
+    const records = await listRecords(this.cfg, 'deals', {
+      filterByFormula: `{${fieldRef('deals', 'kitToken')}} = ${formulaValue(token)}`,
+      maxRecords: 1,
+    })
+    if (records.length === 0) return null
+    return this.decodeDeal(records[0]!, await this.names())
+  }
+
   // ── Pricing and social proof (WP1.1, WP1.5) ──────────────────────────────
 
   async listRateCards(): Promise<RateCard[]> {
@@ -1163,6 +1282,58 @@ export class AirtableProvider implements DataProvider {
         kind: (str(f('kind')) ?? 'Other') as Product['kind'],
         unitPrice: num(f('unitPrice')),
         physical: bool(f('physical')),
+        active: bool(f('active')),
+      }
+    })
+  }
+
+  async listCoachingSessions(dealId?: string): Promise<CoachingSession[]> {
+    const records = await listRecords(this.cfg, 'coachingSessions')
+    const all = records.map((record) => {
+      const f = makeReader('coachingSessions', record)
+      return {
+        id: record.id,
+        dealId: firstLink(f('deal')),
+        sessionNumber: num(f('sessionNumber')) ?? 0,
+        scheduledFor: str(f('scheduledFor')),
+        held: bool(f('held')),
+        notes: str(f('notes')),
+      }
+    })
+    return dealId ? all.filter((s) => s.dealId === dealId) : all
+  }
+
+  async createCoachingSession(input: NewRecord<CoachingSession>): Promise<CoachingSession> {
+    const [created] = await createRecords(this.cfg, 'coachingSessions', [
+      this.w('coachingSessions', {
+        deal: input.dealId ? [input.dealId] : [],
+        sessionNumber: input.sessionNumber,
+        scheduledFor: input.scheduledFor,
+        held: input.held,
+        notes: input.notes,
+      }),
+    ])
+    return { id: created!.id, ...input } as CoachingSession
+  }
+
+  async updateCoachingSession(id: string, patch: Partial<CoachingSession>): Promise<CoachingSession> {
+    await updateRecord(this.cfg, 'coachingSessions', id, this.w('coachingSessions', patch))
+    const found = (await this.listCoachingSessions()).find((s) => s.id === id)
+    if (!found) throw new Error(`Coaching session ${id} did not persist.`)
+    return found
+  }
+
+  async listMailAccounts(): Promise<MailAccount[]> {
+    const records = await listRecords(this.cfg, 'mailAccounts')
+    return records.map((record) => {
+      const f = makeReader('mailAccounts', record)
+      return {
+        id: record.id,
+        address: reqStr(f('address'), ''),
+        label: reqStr(f('label'), ''),
+        scope: reqStr(f('scope'), 'Watched label'),
+        watchedLabel: str(f('watchedLabel')),
+        lookbackDays: num(f('lookbackDays')),
         active: bool(f('active')),
       }
     })

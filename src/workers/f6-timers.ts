@@ -24,17 +24,19 @@ import { db } from '@/lib/data'
 import { notify } from '@/lib/notify'
 import { daysUntil } from '@/lib/format'
 import { composeDraft } from './f7-drafts'
-import { agentActor, recordChanges } from '@/lib/audit'
-import { afterChase, isMuted, nextActionDate, shouldChase } from '@/lib/followup'
+import { agentActor, recordChanges, recordEvent } from '@/lib/audit'
+import { afterChase, isMuted, nextActionDate, shouldChase, STALE_HOLD_DAYS } from '@/lib/followup'
 import { detectConflicts, existingFor } from '@/lib/conflicts'
 import { digestFor } from '@/lib/fulfillment'
 import { planCampaign } from '@/lib/reengagement'
 import { buildBrief, isDueToday } from '@/lib/road-warrior'
-import type { Deal, Draft, JournalOrder } from '@/lib/types'
+import { issueKitToken, kitReadiness, kitRecipient } from '@/lib/kit'
+import { isCoaching, ledger } from '@/lib/coaching'
+import { buildDigest, renderDigest } from '@/lib/digest'
+import type { Deal, Draft, JournalOrder, Role } from '@/lib/types'
 import { isTerminal } from '@/lib/stages'
 
 const WORKER = 'F6'
-const STALE_HOLD_DAYS = 21
 const JOURNAL_NUDGE_DAYS = 35
 
 export interface TimerReport {
@@ -56,6 +58,12 @@ export interface TimerReport {
   reEngagementsDue: number
   /** WP3.3 — road-warrior briefs due the day before travel. */
   briefsSent: number
+  /** Welcome kits that became due because the sequence completed. */
+  kitsReady: number
+  /** Coaching tracks that have gone quiet with sessions still owed. */
+  coachingStalled: number
+  /** Morning digests sent, one per owner who had anything. */
+  digestsSent: number
 }
 
 export async function run(): Promise<TimerReport> {
@@ -80,6 +88,9 @@ export async function run(): Promise<TimerReport> {
     fulfillmentAlerts: 0,
     reEngagementsDue: 0,
     briefsSent: 0,
+    kitsReady: 0,
+    coachingStalled: 0,
+    digestsSent: 0,
   }
 
   const today = new Date().toISOString().slice(0, 10)
@@ -113,8 +124,62 @@ export async function run(): Promise<TimerReport> {
     console.error(`[${WORKER}] re-engagement sweep failed`, err)
   }
 
+  // ── WP1.2: one morning message per person, instead of one per finding ────
+  //
+  // The sweep above raises the urgent things immediately — a red alert at T-12 is not a
+  // digest item. Everything else arrives here, once, addressed to whoever has to act.
+  // Fifteen separate emails at 7am is a filter rule, which is the opposite of the point.
+  try {
+    await sendDigests()
+  } catch (err) {
+    console.error(`[${WORKER}] digest failed`, err)
+  }
+
   console.info(`[${WORKER}]`, report)
   return report
+
+  async function sendDigests(): Promise<void> {
+    const [users, fulfillment, conflicts] = await Promise.all([
+      provider.listUsers(),
+      provider.listFulfillment().catch(() => []),
+      provider.listDateConflicts().catch(() => []),
+    ])
+
+    const sessionsByDeal = new Map<string, Awaited<ReturnType<typeof provider.listCoachingSessions>>>()
+    for (const session of await provider.listCoachingSessions().catch(() => [])) {
+      if (!session.dealId) continue
+      sessionsByDeal.set(session.dealId, [...(sessionsByDeal.get(session.dealId) ?? []), session])
+    }
+
+    const openLogisticsByDeal = new Map<string, string[]>()
+    for (const deal of deals) {
+      const open = openLogistics(tasks, deal)
+      if (open.length > 0) openLogisticsByDeal.set(deal.id, open)
+    }
+
+    const conflictDealIds = new Set(
+      conflicts.filter((c) => c.status === 'open').flatMap((c) => c.dealIds),
+    )
+
+    for (const owner of ['ops', 'owner'] as const) {
+      const digest = buildDigest(owner, { deals, today, sessionsByDeal, fulfillment, conflictDealIds, openLogisticsByDeal })
+      // A digest with nothing in it still goes: silence that means "nothing to do" and
+      // silence that means "the worker died" have to look different.
+      const wanted: Role[] = owner === 'ops' ? ['ops', 'admin'] : ['owner']
+      const recipients = users.filter((u) => u.active && wanted.includes(u.role))
+      if (recipients.length === 0) continue
+
+      const { subject, body } = renderDigest(digest, recipients[0]!.name?.split(' ')[0] ?? 'there')
+      await notify({
+        type: 'qa-digest',
+        title: subject,
+        body,
+        link: '/pipeline',
+        to: recipients.map((u) => u.email),
+      })
+      report.digestsSent += 1
+    }
+  }
 
   /**
    * WP1.3 — two live deals holding one date.
@@ -153,19 +218,9 @@ export async function run(): Promise<TimerReport> {
   /** WP1.4 — journals that will miss the ship-by unless somebody moves. */
   async function sweepFulfillment(): Promise<void> {
     const records = await provider.listFulfillment()
-    const digest = digestFor(records, today)
-    for (const { record, nudges } of digest) {
-      const red = nudges.filter((n) => n.severity === 'red')
-      if (red.length === 0) continue
-      await notify({
-        type: 'red-alert',
-        title: `Journal order at risk${record.shipBy ? ` — ship by ${record.shipBy}` : ''}`,
-        body: red.map((n) => n.message).join(' · '),
-        link: record.dealId ? `/deals/${record.dealId}?tab=journal` : '/journal',
-        roles: ['ops', 'admin'],
-      })
-    }
-    report.fulfillmentAlerts = digest.length
+    // Raised in the morning list rather than one alert per order: a ship-by that is a
+    // week out does not improve by arriving separately.
+    report.fulfillmentAlerts = digestFor(records, today).length
   }
 
   /**
@@ -238,14 +293,9 @@ export async function run(): Promise<TimerReport> {
 
     // ── stale hold ──────────────────────────────────────────────────────
     const holdAge = negate(daysUntil(deal.holdDate))
+    // Counted, not notified. The morning digest lists it — a hold that has sat for three
+    // weeks has never once been urgent at the moment the sweep happens to notice it.
     if (deal.stage === 'qualified' && holdAge !== null && holdAge >= STALE_HOLD_DAYS) {
-      await notify({
-        type: 'red-alert',
-        title: `Hold going stale — ${deal.name}`,
-        body: `The hold was placed ${holdAge} days ago with no movement. Release it or force a decision.`,
-        link: `/deals/${deal.id}?tab=sales`,
-        roles: ['ops', 'admin'],
-      })
       report.staleHolds += 1
     }
 
@@ -272,14 +322,49 @@ export async function run(): Promise<TimerReport> {
       !deal.logisticsComplete &&
       deal.stage === 'pre-event'
     ) {
-      await notify({
-        type: 'red-alert',
-        title: `Logistics incomplete at T-${toEvent} — ${deal.name}`,
-        body: openLogistics(tasks, deal).join(' · ') || 'Logistics are not marked complete.',
-        link: `/deals/${deal.id}?tab=logistics`,
-        roles: ['ops', 'admin'],
-      })
+      // Also a digest line. It is twelve days out, so it needs to be on today's list and
+      // not in today's inbox.
       report.redAlerts += 1
+    }
+
+    // ── A coaching track that has stopped moving ────────────────────────
+    //
+    // A keynote that goes wrong is loud. A coaching engagement that goes wrong quietly
+    // stops after session two, and the client who paid for three notices before we do.
+    if (isCoaching(deal.dealType) && !isTerminal(deal.stage)) {
+      const sessions = await provider.listCoachingSessions(deal.id)
+      const state = ledger(sessions, today, deal.lastModified)
+      if (state.stalled) report.coachingStalled += 1
+    }
+
+    // ── The welcome kit, once the sequence has completed ────────────────
+    //
+    // Closed Won, then contract signed, then invoice shared, then the kit. Not at
+    // Closed-Won, which is where v3 drafted it: the kit says "delighted this is
+    // happening" and reads badly to somebody who has not signed anything.
+    if (!deal.kitToken && kitReadiness(deal).ready) {
+      const token = issueKitToken()
+      await provider.updateDeal(deal.id, { kitToken: token })
+      deal = { ...deal, kitToken: token }
+
+      const to = kitRecipient(deal)
+      await composeDraft({
+        deal,
+        type: 'kit',
+        templateKey: to === 'agent' ? 'kit.welcome' : 'kit.welcome',
+      }).catch((err) => console.error(`[${WORKER}] kit draft failed for ${deal.name}`, err))
+
+      await recordEvent({
+        table: 'deals',
+        recordId: deal.id,
+        what: 'Welcome kit ready',
+        detail:
+          `${process.env.NEXTAUTH_URL ?? ''}/kit/${token}` +
+          (to === 'agent' ? ' — goes to the bureau agent, who forwards it' : ''),
+        actor: agentActor(WORKER),
+        reversible: true,
+      })
+      report.kitsReady += 1
     }
 
     // ── WP3.3: the road-warrior brief, T-1 from travel ──────────────────

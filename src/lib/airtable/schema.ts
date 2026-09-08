@@ -408,6 +408,13 @@ export const TABLES: Record<TableKey, TableSpec> = {
       { key: 'approver', name: 'Approver', type: 'email' },
       { key: 'sentAt', name: 'Sent At', type: 'dateTime' },
       { key: 'threadId', name: 'Thread ID', type: 'singleLineText' },
+      {
+        key: 'messageId',
+        name: 'Message ID',
+        type: 'singleLineText',
+        description: 'RFC 5322 Message-ID. The same in every mailbox, which the Gmail id is not.',
+      },
+      { key: 'mailbox', name: 'Mailbox', type: 'email' },
       { key: 'checkerVerdict', name: 'Checker Verdict', type: 'multilineText' },
       { key: 'revisions', name: 'Revisions', type: 'multilineText' },
       { key: 'createdAt', name: 'Created', type: 'createdTime', computed: true },

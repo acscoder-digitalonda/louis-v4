@@ -2,7 +2,7 @@
   "name": "louis",
   "version": "3.0.0",
   "private": true,
-  "description": "Louis v3 — keynote deal pipeline. Airtable is the database; this is the skin.",
+  "description": "Louis v3 \u2014 keynote deal pipeline. Airtable is the database; this is the skin.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -43,7 +43,9 @@
     "schedule": "tsx scripts/generate-schedule.ts",
     "restore": "tsx --env-file=.env.local scripts/backup-restore.ts",
     "ship": "bash scripts/ship.sh",
-    "seed:quickbooks": "tsx --env-file=.env.local scripts/seed-quickbooks.ts"
+    "seed:quickbooks": "tsx --env-file=.env.local scripts/seed-quickbooks.ts",
+    "seed:sheets": "tsx --env-file=.env.local scripts/seed-sheets.ts",
+    "enrich:companies": "tsx scripts/enrich-companies.ts"
   },
   "dependencies": {
     "fuse.js": "^7.1.0",

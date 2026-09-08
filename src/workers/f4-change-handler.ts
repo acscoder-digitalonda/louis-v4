@@ -1,24 +1,34 @@
 /**
  * F4 — EMAIL-CHANGE HANDLER. The rule that decides what automation may write.
  *
- * Empty field + extracted value  → write it silently, log it, surface it as a
- *                                  "recent auto-update" chip on the deal.
- * Existing field + different value → NEVER silent. It becomes a Proposal
- *                                  (old → new, with the source email) in the Review
- *                                  Queue, plus a notification. Accept writes + audits;
- *                                  dismiss is logged too.
+ * **Every extraction becomes a proposal.** Filling a blank and overwriting a value are
+ * both proposals, both visible in the Review Queue, both accepted or dismissed by a
+ * person. Nothing a model extracts reaches a live record on its own.
  *
- * The asymmetry is the whole point: filling a blank cannot destroy information, and
- * overwriting a human's value can.
+ * ── Why this changed, and what it cost to keep the old way ─────────────────
+ *
+ * v3 had an asymmetry that reads as obviously correct: filling a blank cannot destroy
+ * information, so fill it silently and only propose an overwrite. The Run Plan's rule 3
+ * overrides it — *"Every AI write is a proposal in the Review Queue. No silent fills
+ * (this tightens the earlier F4 rule)"* — and SpeakerOS puts it more plainly: nothing an
+ * agent writes reaches a live record without review.
+ *
+ * The argument for the tightening is not about destroying data. It is that a silent fill
+ * is **invisible**, and an invisible wrong answer is worse than a visible one: a model
+ * that reads "we're thinking about the 15th" and fills an empty Event Date has put a
+ * confident-looking date on a deal nobody agreed, and the next person to look has no way
+ * to tell it from a date Liezel typed. The inbox sweep produced exactly this class of
+ * confident nonsense on its first run — sixteen matches, three of them real.
+ *
+ * The cost is that Liezel accepts more rows. That is the trade the rule makes, and it is
+ * the right way round: an extra click is cheaper than an unnoticed wrong date.
  */
 
 import { db } from '@/lib/data'
 import { notify } from '@/lib/notify'
-import { agentActor, fieldLabel, recordChanges } from '@/lib/audit'
+import { fieldLabel } from '@/lib/audit'
 import { invalidateSearchCache } from '@/lib/search'
 import type { Deal, FieldProposal } from '@/lib/types'
-
-const WORKER = 'F4'
 
 /** Deal fields automation is allowed to touch at all. */
 export const EXTRACTABLE_FIELDS = [
@@ -45,8 +55,15 @@ export interface Extraction {
 }
 
 export interface ApplyResult {
-  silentWrites: { field: string; value: string }[]
+  /**
+   * Kept in the shape, always empty, and named so anyone reading a caller sees the rule
+   * rather than an absence. Removing the key would make "no silent writes happened" and
+   * "this version does not do silent writes" look identical at the call site.
+   */
+  silentWrites: never[]
   proposals: FieldProposal[]
+  /** Proposals that fill a blank, as opposed to changing an existing value. */
+  fills: number
 }
 
 export async function applyExtractions(params: {
@@ -55,8 +72,11 @@ export async function applyExtractions(params: {
   sourceEmailId?: string | null
 }): Promise<ApplyResult> {
   const provider = db()
-  const result: ApplyResult = { silentWrites: [], proposals: [] }
-  const silentPatch: Record<string, unknown> = {}
+  const result: ApplyResult = { silentWrites: [], proposals: [], fills: 0 }
+
+  // A re-read of the same thread must not raise the same proposal twice. Liezel working
+  // through a queue where every row appears three times is a queue she stops trusting.
+  const open = await provider.listProposals('proposed')
 
   for (const extraction of params.extractions) {
     if (!EXTRACTABLE_FIELDS.includes(extraction.field)) continue
@@ -66,44 +86,38 @@ export async function applyExtractions(params: {
     const nextStr = String(extraction.value)
     if (currentStr === nextStr) continue
 
-    if (currentStr === null || currentStr === '') {
-      silentPatch[extraction.field] = extraction.value
-      result.silentWrites.push({ field: extraction.field, value: nextStr })
-    } else {
-      result.proposals.push(
-        await provider.createProposal({
-          dealId: params.deal.id,
-          field: extraction.field,
-          fieldLabel: fieldLabel('deals', extraction.field),
-          oldValue: currentStr,
-          newValue: nextStr,
-          sourceEmailId: params.sourceEmailId ?? null,
-          status: 'proposed',
-          createdAt: new Date().toISOString(),
-          resolvedBy: null,
-          confidence: extraction.confidence ?? null,
-        }),
-      )
-    }
-  }
+    const duplicate = open.some(
+      (p) =>
+        p.dealId === params.deal.id && p.field === extraction.field && p.newValue === nextStr,
+    )
+    if (duplicate) continue
 
-  if (Object.keys(silentPatch).length > 0) {
-    await provider.updateDeal(params.deal.id, silentPatch)
-    await recordChanges({
-      table: 'deals',
-      recordId: params.deal.id,
-      before: params.deal as unknown as Record<string, unknown>,
-      after: silentPatch,
-      actor: agentActor(WORKER),
-      source: params.sourceEmailId ?? null,
-    })
+    const isFill = currentStr === null || currentStr === ''
+    if (isFill) result.fills += 1
+
+    result.proposals.push(
+      await provider.createProposal({
+        dealId: params.deal.id,
+        field: extraction.field,
+        fieldLabel: fieldLabel('deals', extraction.field),
+        oldValue: currentStr,
+        newValue: nextStr,
+        sourceEmailId: params.sourceEmailId ?? null,
+        status: 'proposed',
+        createdAt: new Date().toISOString(),
+        resolvedBy: null,
+        confidence: extraction.confidence ?? null,
+      }),
+    )
   }
 
   if (result.proposals.length > 0) {
     await notify({
       type: 'review-item',
       title: `${result.proposals.length} field change(s) proposed — ${params.deal.name}`,
-      body: result.proposals.map((p) => `${p.fieldLabel}: ${p.oldValue} → ${p.newValue}`).join('\n'),
+      body: result.proposals
+        .map((p) => `${p.fieldLabel}: ${p.oldValue ?? '(empty)'} → ${p.newValue}`)
+        .join('\n'),
       link: '/queue',
       roles: ['ops', 'admin'],
     })

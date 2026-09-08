@@ -11,6 +11,7 @@
  */
 
 import { db } from '@/lib/data'
+import { dedupe, dedupeKey, queryFor, resolveAccounts } from '@/lib/intake/accounts'
 import { complete } from '@/lib/gateway'
 import { gmailAccessToken, sendMail } from '@/lib/mailer'
 import { notify } from '@/lib/notify'
@@ -30,6 +31,8 @@ const MAX_PER_RUN = Number(process.env.EMAIL_INTAKE_BATCH ?? 25)
 
 export interface IntakeReport {
   fetched: number
+  /** Copies of a message already seen in another mailbox or an earlier sweep. */
+  duplicates: number
   inquiries: number
   updates: number
   noise: number
@@ -45,22 +48,43 @@ interface RawMessage {
   subject: string
   date: string
   body: string
+  /** Which mailbox this copy came from. */
+  mailbox?: string
+  /** Raw headers, kept so the dedupe key can find Message-ID. */
+  headers?: { name: string; value: string }[]
 }
 
 export async function run(): Promise<IntakeReport> {
-  const report: IntakeReport = { fetched: 0, inquiries: 0, updates: 0, noise: 0, forwarded: 0, errors: 0 }
+  const report: IntakeReport = {
+    fetched: 0,
+    duplicates: 0,
+    inquiries: 0,
+    updates: 0,
+    noise: 0,
+    forwarded: 0,
+    errors: 0,
+  }
   const provider = db()
 
   const messages = await fetchMessages()
   report.fetched = messages.length
   if (messages.length === 0) return report
 
-  const known = new Set((await provider.listEmails()).map((e) => e.id))
+  // Deduped on the RFC Message-ID, not the Gmail id. Gmail ids are per mailbox, so the
+  // same email in Ben's inbox and Liezel's has two of them — and deduping on those makes
+  // two records of one email, two classifications, and eventually two deals.
+  const seen = await provider.listEmails()
+  const known = new Set(seen.map((e) => e.messageId ?? e.id).filter(Boolean))
+  const { fresh, duplicates } = dedupe(messages, known as Set<string>)
+  report.duplicates = duplicates
+  if (duplicates > 0) {
+    console.info(`[F2] ${duplicates} message(s) already seen in another mailbox`)
+  }
+
   const contacts = await provider.listContacts()
 
-  for (const message of messages) {
+  for (const message of fresh) {
     try {
-      if (known.has(message.id)) continue
 
       const sender = extractAddress(message.from)
       const contact = contacts.find((c) => c.email?.toLowerCase() === sender)
@@ -72,6 +96,8 @@ export async function run(): Promise<IntakeReport> {
         to: message.to,
         subject: message.subject,
         threadId: message.threadId,
+        messageId: dedupeKey(message),
+        mailbox: message.mailbox ?? null,
         receivedAt: message.date,
         bodyRef: null,
         classification,
@@ -269,22 +295,44 @@ async function forwardToOwner(message: RawMessage): Promise<void> {
 
 // ── Gmail ───────────────────────────────────────────────────────────────────
 
+/**
+ * Every configured mailbox, in the order the Mail Accounts table lists them (WP1.6).
+ *
+ * One account failing does not cost the others their sweep: a revoked delegation on Ben's
+ * mailbox must not stop Liezel's mail being read.
+ */
 async function fetchMessages(): Promise<RawMessage[]> {
   if (!process.env.GMAIL_REFRESH_TOKEN) {
     console.warn('[F2] Gmail is not configured — intake skipped.')
     return []
   }
-  const token = await gmailAccessToken()
-  const list = await gmailGet<{ messages?: { id: string }[] }>(
-    token,
-    `/messages?q=${encodeURIComponent(`label:${LABEL} newer_than:2d`)}&maxResults=${MAX_PER_RUN}`,
-  )
-  if (!list.messages?.length) return []
 
+  const accounts = resolveAccounts(await db().listMailAccounts().catch(() => []), {
+    addresses: process.env.GMAIL_ADDRESSES,
+    label: LABEL,
+  })
+  if (accounts.length === 0) {
+    console.warn('[F2] No mail accounts configured — intake skipped.')
+    return []
+  }
+
+  const token = await gmailAccessToken()
   const out: RawMessage[] = []
-  for (const item of list.messages) {
-    const full = await gmailGet<GmailMessage>(token, `/messages/${item.id}?format=full`)
-    out.push(parseMessage(full))
+
+  for (const account of accounts) {
+    try {
+      const list = await gmailGet<{ messages?: { id: string }[] }>(
+        token,
+        `/messages?q=${encodeURIComponent(queryFor(account))}&maxResults=${MAX_PER_RUN}`,
+      )
+      for (const item of list.messages ?? []) {
+        const full = await gmailGet<GmailMessage>(token, `/messages/${item.id}?format=full`)
+        out.push({ ...parseMessage(full), mailbox: account.address })
+      }
+    } catch (err) {
+      // A revoked delegation on one mailbox must not stop the others being read.
+      console.error(`[F2] ${account.address} could not be swept`, err)
+    }
   }
   return out
 }
@@ -309,6 +357,7 @@ function parseMessage(message: GmailMessage): RawMessage {
   return {
     id: message.id,
     threadId: message.threadId,
+    headers,
     from: header('from'),
     to: header('to'),
     subject: header('subject'),

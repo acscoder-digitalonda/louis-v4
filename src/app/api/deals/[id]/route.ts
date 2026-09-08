@@ -8,6 +8,7 @@ import { changeStage } from '@/workers/f5-stage-engine'
 import { fail, ok } from '@/lib/http'
 import { ALL_STAGES } from '@/lib/stages'
 import { buildBrief, shouldResend } from '@/lib/road-warrior'
+import { alertMessage, alertReason } from '@/lib/post-keynote'
 import { notify } from '@/lib/notify'
 import type { Deal, StageKey } from '@/lib/types'
 
@@ -99,6 +100,25 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       } catch (err) {
         // A re-send that fails must not undo an edit that succeeded.
         console.error('[deals] road-warrior re-send failed', err)
+      }
+    }
+
+    // E17 — Ben comes offstage and ticks one box. Read from `deal`, the value before the
+    // write, because the whole rule is the false→true edge.
+    const reason = alertReason(deal, patch)
+    if (reason) {
+      try {
+        const { title, body } = alertMessage(updated, reason)
+        await notify({
+          type: 'review-item',
+          title,
+          body,
+          link: `/deals/${id}?tab=questionnaire`,
+          roles: ['ops', 'admin'],
+        })
+      } catch (err) {
+        // A failed alert must not roll back notes he typed on a phone in a car park.
+        console.error('[deals] post-keynote alert failed', err)
       }
     }
 

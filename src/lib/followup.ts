@@ -60,6 +60,15 @@ export function isMuted(
 export const FOLLOW_UP_GAP_DAYS = 3
 
 /**
+ * How long a hold may sit unmoved before it is a decision nobody has made.
+ *
+ * Lives here rather than in the timer because two callers now need the same number: the
+ * sweep that counts stale holds and the digest that lists them. A rule with two copies is
+ * a rule that will be changed in one of them.
+ */
+export const STALE_HOLD_DAYS = 21
+
+/**
  * The date the next chase is due.
  *
  * The decision date stretches the cadence rather than replacing it: while a client is

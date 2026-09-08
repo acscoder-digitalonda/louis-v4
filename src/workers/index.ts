@@ -13,6 +13,7 @@ import * as research from './f3-research'
 import * as timers from './f6-timers'
 import * as mirror from './f9-mirror'
 import * as qa from './f13-qa-sweep'
+import * as sla from './f14-sla'
 
 export interface WorkerDef {
   name: string
@@ -58,6 +59,14 @@ export const WORKERS: Record<string, WorkerDef> = {
     schedule: '30 5 * * *',
     critical: false,
     run: qa.run,
+  },
+  'f14-sla': {
+    name: 'f14-sla',
+    title: 'Reply SLA',
+    // Hourly, and free during quiet hours: the clock it watches does not run at night.
+    schedule: '0 * * * *',
+    critical: true,
+    run: sla.run,
   },
 }
 

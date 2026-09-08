@@ -23,7 +23,7 @@
 
 import { readFileSync } from 'node:fs'
 import { db } from '../src/lib/data'
-import { agentActor, recordChanges } from '../src/lib/audit'
+import { agentActor, recordChangesMany, type AuditWrite } from '../src/lib/audit'
 import { parseCsv } from '../src/workers/f11-import'
 import type { Deal } from '../src/lib/types'
 
@@ -91,10 +91,15 @@ async function main() {
     return
   }
 
+  // One audit row per record, but written ten to a request rather than one at a time.
+  // Doing it the other way is what exhausted a month of Airtable quota in a day: this
+  // script alone was 802 updates plus 802 audit writes, where 160 requests would do.
+  const audits: AuditWrite[] = []
   let done = 0
+
   for (const d of [...plain, ...flagged]) {
     await provider.updateDeal(d.id, { dealType: 'keynote' } satisfies Partial<Deal>)
-    await recordChanges({
+    audits.push({
       table: 'deals',
       recordId: d.id,
       before: { dealType: null },
@@ -107,7 +112,9 @@ async function main() {
     if (done % 100 === 0) console.log(`  ${done}/${candidates.length}`)
   }
 
-  console.log(`\nSet Deal Type on ${done} deal(s). Batch ${BATCH_ID} — reversible with revert:batch.`)
+  const rows = await recordChangesMany(audits)
+  console.log(`\nSet Deal Type on ${done} deal(s), ${rows} audit row(s) written in batches.`)
+  console.log(`Batch ${BATCH_ID} — reversible with revert:batch.`)
 }
 
 main().catch((err) => {

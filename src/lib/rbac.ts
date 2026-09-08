@@ -38,6 +38,9 @@ const OWNER_WRITABLE_DEAL_FIELDS = new Set([
   'stage',
   'kickoffNotes',
   'postKeynoteNotes',
+  // The alert exists for him to tick, onsite, from a phone. Denying it here is how the
+  // field stayed dead: the only person the feature is for could not use it.
+  'postKeynoteAlert',
   'audienceProfile',
   'desiredOutcomes',
 ])

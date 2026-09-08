@@ -315,6 +315,13 @@ export interface EmailRecord {
   to: string
   subject: string
   threadId: string | null
+  /**
+   * The RFC Message-ID, normalised. The dedupe key across mailboxes — the Gmail `id` is
+   * per mailbox and cannot do this job.
+   */
+  messageId: string | null
+  /** Which mailbox this copy was read from. */
+  mailbox: string | null
   receivedAt: string
   bodyRef: string | null
   classification: 'inquiry' | 'update' | 'noise' | 'unclassified'
@@ -637,5 +644,27 @@ export interface DealLineItem {
   /** Set to book something at a price other than the product's. Dream fulfilment is 0. */
   priceOverride: number | null
   lineTotal: number | null
+  notes: string | null
+}
+
+/** A mailbox the intake sweeps, and how much of it (WP1.6). */
+export interface MailAccount {
+  id: string
+  address: string
+  label: string
+  /** Airtable's label, decoded by `resolveAccounts`. */
+  scope: string
+  watchedLabel: string | null
+  lookbackDays: number | null
+  active: boolean
+}
+
+/** One of the three sessions a coaching track delivers. */
+export interface CoachingSession {
+  id: string
+  dealId: string | null
+  sessionNumber: number
+  scheduledFor: string | null
+  held: boolean
   notes: string | null
 }

@@ -33,6 +33,8 @@ import type {
   Fulfillment,
   PastClient,
   DealLineItem,
+  MailAccount,
+  CoachingSession,
   Product,
   RateCard,
   Testimonial,
@@ -42,7 +44,12 @@ import type {
 import { defaultNotificationPrefs } from '../rbac'
 import { buildSeed, NEW_DEAL_FIELDS, type SeedData } from './mock-seed'
 import type {
+  ClientPage,
+  ContactPage,
   DataProvider,
+  DealPage,
+  DealPageQuery,
+  ListPageQuery,
   DealFilter,
   DraftFilter,
   NewRecord,
@@ -413,6 +420,64 @@ export class MockProvider implements DataProvider {
     return clone(store().deals.filter((d: Deal) => d.lastModified > since))
   }
 
+  async getDealProposalFresh(pid: string): Promise<DealProposal | null> {
+    return clone(store().dealProposals.find((p: DealProposal) => p.id === pid) ?? null)
+  }
+
+  async listDealsPage(opts: DealPageQuery): Promise<DealPage> {
+    const size = opts.pageSize ?? 40
+    const term = opts.q?.trim().toLowerCase()
+    const all = store()
+      .deals.filter((d: Deal) => (opts.includeHistorical ? true : !d.historical))
+      .filter((d: Deal) => (opts.stage ? d.stage === opts.stage : true))
+      .filter((d: Deal) =>
+        term ? `${d.name} ${d.location ?? ''}`.toLowerCase().includes(term) : true,
+      )
+      .sort((a: Deal, b: Deal) => (b.eventDate ?? '').localeCompare(a.eventDate ?? ''))
+
+    const start = opts.cursor ? Number(opts.cursor) : 0
+    const slice = all.slice(start, start + size)
+    return {
+      deals: clone(slice),
+      cursor: start + size < all.length ? String(start + size) : undefined,
+    }
+  }
+
+  async listClientsPage(opts: ListPageQuery): Promise<ClientPage> {
+    const term = opts.q?.trim().toLowerCase()
+    const all = store().clients.filter((c: Client) =>
+      term ? `${c.name} ${c.domain ?? ''} ${c.industry ?? ''}`.toLowerCase().includes(term) : true,
+    )
+    const start = opts.cursor ? Number(opts.cursor) : 0
+    const size = opts.pageSize ?? 40
+    return {
+      clients: clone(all.slice(start, start + size)),
+      cursor: start + size < all.length ? String(start + size) : undefined,
+    }
+  }
+
+  async listContactsPage(
+    opts: ListPageQuery & { bureauOnly?: boolean; directOnly?: boolean },
+  ): Promise<ContactPage> {
+    const term = opts.q?.trim().toLowerCase()
+    const all = store()
+      .contacts.filter((c: Contact) => (opts.bureauOnly ? c.type === 'bureau-agent' : true))
+      .filter((c: Contact) => (opts.directOnly ? c.type !== 'bureau-agent' : true))
+      .filter((c: Contact) =>
+        term ? `${c.name} ${c.email ?? ''} ${c.agency ?? ''}`.toLowerCase().includes(term) : true,
+      )
+    const start = opts.cursor ? Number(opts.cursor) : 0
+    const size = opts.pageSize ?? 40
+    return {
+      contacts: clone(all.slice(start, start + size)),
+      cursor: start + size < all.length ? String(start + size) : undefined,
+    }
+  }
+
+  async getDealByKitToken(token: string): Promise<Deal | null> {
+    return clone(store().deals.find((d: Deal) => d.kitToken === token) ?? null)
+  }
+
   async listRateCards(): Promise<RateCard[]> {
     return clone(store().rateCards)
   }
@@ -437,6 +502,28 @@ export class MockProvider implements DataProvider {
 
   async listProducts(): Promise<Product[]> {
     return clone(store().products)
+  }
+
+  async listCoachingSessions(dealId?: string): Promise<CoachingSession[]> {
+    const all = store().coachingSessions
+    return clone(dealId ? all.filter((s: CoachingSession) => s.dealId === dealId) : all)
+  }
+
+  async createCoachingSession(input: NewRecord<CoachingSession>): Promise<CoachingSession> {
+    const record = { id: id('recCOA'), ...input } as CoachingSession
+    store().coachingSessions.push(record)
+    return clone(record)
+  }
+
+  async updateCoachingSession(sid: string, patch: Partial<CoachingSession>): Promise<CoachingSession> {
+    const found = store().coachingSessions.find((s: CoachingSession) => s.id === sid)
+    if (!found) throw new Error(`Coaching session ${sid} not found`)
+    Object.assign(found, patch)
+    return clone(found)
+  }
+
+  async listMailAccounts(): Promise<MailAccount[]> {
+    return clone(store().mailAccounts)
   }
 
   async listLineItems(dealId?: string): Promise<DealLineItem[]> {

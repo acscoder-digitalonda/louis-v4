@@ -15,6 +15,7 @@ import type {
   Contact,
   DateConflict,
   Deal,
+  StageKey,
   DealProposal,
   Draft,
   EmailRecord,
@@ -32,6 +33,8 @@ import type {
   Fulfillment,
   PastClient,
   DealLineItem,
+  MailAccount,
+  CoachingSession,
   Product,
   RateCard,
   Testimonial,
@@ -139,12 +142,49 @@ export interface DataProvider {
    */
   listDealsModifiedSince(since: string): Promise<Deal[]>
 
+  /**
+   * The deal a welcome-kit token belongs to.
+   *
+   * Its own method because the public kit page would otherwise read all 802 deals to find
+   * one — nine Airtable requests, on an unauthenticated URL anyone can hit.
+   */
+  getDealByKitToken(token: string): Promise<Deal | null>
+
+  /**
+   * One page of deals, filtered server-side.
+   *
+   * Separate from `listDeals` because the two want opposite things: a worker needs every
+   * deal and a screen needs twenty. Search and stage go into the Airtable formula rather
+   * than being applied after the fact, so a search costs one request instead of nine.
+   */
+  listDealsPage(opts: DealPageQuery): Promise<DealPage>
+
+  /**
+   * One proposal, read past the cache.
+   *
+   * The read cache is per process, so on serverless an accept on one instance does not
+   * clear the entry on another. Two people working the same review queue would both see
+   * `proposed` and both accept — two deals from one proposal, with no error anywhere.
+   * Accepting is a decision acted on, so it reads fresh.
+   */
+  getDealProposalFresh(id: string): Promise<DealProposal | null>
+
+  /** One page of companies, searched server-side. */
+  listClientsPage(opts: ListPageQuery): Promise<ClientPage>
+  /** One page of people, searched server-side, optionally only bureau agents. */
+  listContactsPage(opts: ListPageQuery & { bureauOnly?: boolean; directOnly?: boolean }): Promise<ContactPage>
+
   listRateCards(): Promise<RateCard[]>
   listTestimonials(): Promise<Testimonial[]>
   listPastClients(): Promise<PastClient[]>
   listFulfillment(): Promise<Fulfillment[]>
   createFulfillment(input: NewRecord<Fulfillment>): Promise<Fulfillment>
+  listCoachingSessions(dealId?: string): Promise<CoachingSession[]>
+  createCoachingSession(input: NewRecord<CoachingSession>): Promise<CoachingSession>
+  updateCoachingSession(id: string, patch: Partial<CoachingSession>): Promise<CoachingSession>
+
   listProducts(): Promise<Product[]>
+  listMailAccounts(): Promise<MailAccount[]>
   listLineItems(dealId?: string): Promise<DealLineItem[]>
   createLineItem(input: NewRecord<DealLineItem>): Promise<DealLineItem>
   deleteLineItem(id: string): Promise<void>
@@ -173,4 +213,35 @@ export interface DataProvider {
 
   getSettings(): Promise<Settings>
   saveSettings(patch: Partial<Settings>): Promise<Settings>
+}
+
+export interface DealPageQuery {
+  q?: string
+  stage?: StageKey
+  /** Imported history is excluded unless this is set. */
+  includeHistorical?: boolean
+  cursor?: string
+  pageSize?: number
+}
+
+export interface DealPage {
+  deals: Deal[]
+  /** Pass back to fetch the next page. Absent means there are no more. */
+  cursor?: string
+}
+
+export interface ListPageQuery {
+  q?: string
+  cursor?: string
+  pageSize?: number
+}
+
+export interface ClientPage {
+  clients: Client[]
+  cursor?: string
+}
+
+export interface ContactPage {
+  contacts: Contact[]
+  cursor?: string
 }

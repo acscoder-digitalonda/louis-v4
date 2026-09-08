@@ -18,6 +18,8 @@ import type {
   Fulfillment,
   PastClient,
   DealLineItem,
+  MailAccount,
+  CoachingSession,
   Product,
   RateCard,
   Testimonial,
@@ -52,6 +54,8 @@ export interface SeedData {
   testimonials: Testimonial[]
   pastClients: PastClient[]
   products: Product[]
+  mailAccounts: MailAccount[]
+  coachingSessions: CoachingSession[]
   lineItems: DealLineItem[]
   apiTokens: ApiToken[]
   deals: Deal[]
@@ -597,6 +601,8 @@ export function buildSeed(): SeedData {
       to: 'ops@bennemtin.com',
       subject: 'Re: run of show — AV moved',
       threadId: 'thread-mckee-014',
+      messageId: 'thread-mckee-014@seed.example',
+      mailbox: 'liezel@bennemtin.com',
       receivedAt: iso(-2),
       bodyRef: 'https://drive.google.com/file/d/mckee-email-014',
       classification: 'update',
@@ -609,6 +615,8 @@ export function buildSeed(): SeedData {
       to: 'ops@bennemtin.com',
       subject: 'Speaking enquiry — leadership summit',
       threadId: 'thread-halcyon-001',
+      messageId: 'thread-halcyon-001@seed.example',
+      mailbox: 'liezel@bennemtin.com',
       receivedAt: iso(-1),
       bodyRef: 'https://drive.google.com/file/d/halcyon-email-001',
       classification: 'inquiry',
@@ -902,6 +910,11 @@ export function buildSeed(): SeedData {
       { id: 'recPRD002', name: 'Half-day workshop', kind: 'Workshop', unitPrice: 7000, physical: false, active: true },
     ],
     lineItems: [],
+    coachingSessions: [],
+    mailAccounts: [
+      { id: 'recMAI001', address: 'liezel@bennemtin.com', label: 'Liezel', scope: 'Watched label', watchedLabel: 'louis', lookbackDays: 2, active: true },
+      { id: 'recMAI002', address: 'ben@bennemtin.com', label: 'Ben', scope: 'Watched label', watchedLabel: 'louis', lookbackDays: 2, active: true },
+    ],
     pastClients: [
       { id: 'recPC001', industry: 'Financial Services', clientName: 'Northwind Mutual', bookings: 2, lastYear: 2025, anyVirtual: false },
       { id: 'recPC002', industry: 'Financial Services', clientName: 'Harbour Trust', bookings: 1, lastYear: 2024, anyVirtual: true },

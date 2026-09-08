@@ -130,6 +130,45 @@ function estimatedRequests(table: TableKey): number {
   return Math.max(1, Math.ceil((lastSize.get(table) ?? 100) / 100))
 }
 
+export interface Page {
+  records: AirtableRecord[]
+  /** Pass back as `opts.cursor` for the next page. Absent means this was the last one. */
+  cursor?: string
+}
+
+/**
+ * One page of records, rather than the whole table.
+ *
+ * `listRecords` drains every page in a loop, which is right for a worker that has to see
+ * everything and wrong for a screen. A list of 802 deals costs nine requests to render
+ * and nobody scrolls past the first twenty; this costs one.
+ *
+ * Cached like any other read, and the cursor is part of the key, so paging back and forth
+ * over the same pages is free inside the TTL.
+ */
+export async function listRecordsPage(
+  cfg: AirtableConfig,
+  table: TableKey,
+  opts: ListOptions & { cursor?: string; pageSize?: number } = {},
+): Promise<Page> {
+  return readThrough(table, opts, 1, async () => {
+    const params = new URLSearchParams()
+    if (fieldsAreGenerated) params.set('returnFieldsByFieldId', 'true')
+    if (opts.filterByFormula) params.set('filterByFormula', opts.filterByFormula)
+    params.set('pageSize', String(Math.min(opts.pageSize ?? 50, 100)))
+    if (opts.view) params.set('view', opts.view)
+    opts.sort?.forEach((srt, i) => {
+      params.set(`sort[${i}][field]`, srt.field)
+      params.set(`sort[${i}][direction]`, srt.direction)
+    })
+    if (opts.cursor) params.set('offset', opts.cursor)
+
+    const url = `${API}/${cfg.baseId}/${encodeURIComponent(tableRef(table))}?${params}`
+    const page = await request<{ records: AirtableRecord[]; offset?: string }>(cfg, url)
+    return { records: page.records, cursor: page.offset }
+  })
+}
+
 /** Straight to Airtable, no cache. For a read whose answer is about to be acted on. */
 export async function listRecordsFresh(
   cfg: AirtableConfig,

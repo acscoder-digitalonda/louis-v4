@@ -12,6 +12,9 @@ import { TokenList } from '@/components/settings/TokenList'
 import { TemplateEditor } from '@/components/settings/TemplateEditor'
 import { RateCardTable } from '@/components/settings/RateCardTable'
 import { ModeDial } from '@/components/settings/ModeDial'
+import { NotificationMatrix } from '@/components/settings/NotificationMatrix'
+import { IntakeSettings } from '@/components/settings/IntakeSettings'
+import { DEFAULT_QUIET_HOURS, type QuietHours } from '@/lib/quiet-hours'
 import { isMode } from '@/lib/gateway/modes'
 import { loadTemplates } from '@/lib/templates'
 import { templateValues } from '@/workers/f7-drafts'
@@ -22,7 +25,7 @@ import { transport } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
 
-const TABS = ['appearance', 'templates', 'pricing', 'users', 'ai', 'mcp', 'mirror', 'data'] as const
+const TABS = ['appearance', 'templates', 'pricing', 'users', 'notifications', 'intake', 'ai', 'mcp', 'mirror', 'data'] as const
 type Tab = (typeof TABS)[number]
 
 export default async function SettingsPage({
@@ -126,6 +129,22 @@ export default async function SettingsPage({
             <UsageMeter rows={usage} ai={settings.ai} />
           </Card>
         </div>
+      ) : null}
+
+      {tab === 'intake' ? (
+        <IntakeSettings accounts={await provider.listMailAccounts().catch(() => [])} />
+      ) : null}
+
+      {tab === 'notifications' ? (
+        <NotificationMatrix
+          users={users.filter((u) => u.active !== false)}
+          quietHours={{
+            ...DEFAULT_QUIET_HOURS,
+            timezone: speaker.timezone,
+            ...((settings as unknown as { quietHours?: Partial<QuietHours> }).quietHours ?? {}),
+          }}
+          canEdit={canWrite(user.role, 'settings').allowed}
+        />
       ) : null}
 
       {tab === 'templates' ? (

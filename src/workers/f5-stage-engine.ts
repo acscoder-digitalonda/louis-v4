@@ -9,8 +9,10 @@
  */
 
 import { db } from '@/lib/data'
+import { checkCapacity } from '@/lib/capacity'
 import { isHold, packetFor, STAGE_PACKETS, guardStage } from '@/lib/stages'
 import { detectConflicts, existingFor } from '@/lib/conflicts'
+import { SESSIONS_PER_TRACK, isCoaching, plannedSessions } from '@/lib/coaching'
 import { notify } from '@/lib/notify'
 import { agentActor, recordEvent } from '@/lib/audit'
 import { composeDraft } from './f7-drafts'
@@ -88,6 +90,31 @@ export async function firePacket(deal: Deal, opts: { source?: string } = {}): Pr
     await pushMirror(surface, deal)
   }
 
+  // A coaching deal is three sessions, not an event. The ledger opens when the deal is
+  // won, unscheduled, because nobody has agreed times yet — and an empty date is what
+  // makes the ledger chase rather than look arranged.
+  if (deal.stage === 'closed-won' && isCoaching(deal.dealType)) {
+    try {
+      const existing = await provider.listCoachingSessions(deal.id)
+      if (existing.length === 0) {
+        for (const session of plannedSessions(deal)) {
+          await provider.createCoachingSession(session)
+        }
+        await recordEvent({
+          table: 'deals',
+          recordId: deal.id,
+          what: 'Coaching ledger opened',
+          detail: `${SESSIONS_PER_TRACK} sessions, unscheduled`,
+          actor: agentActor(WORKER),
+          reversible: true,
+        })
+      }
+    } catch (err) {
+      // A ledger that cannot be opened must not undo a stage change that happened.
+      console.error(`[${WORKER}] could not open the coaching ledger for ${deal.name}`, err)
+    }
+  }
+
   // WP1.3 — a hold that has just become a firm offer is exactly the moment a competing
   // hold has to be told. Waiting for the nightly sweep would give the first client a day
   // less than the twenty-four hours they are owed.
@@ -143,6 +170,27 @@ export async function changeStage(params: {
   })
 
   const packet = await firePacket(updated, { source: `stage:${from}→${params.to}` })
+
+  // The capacity check, at Qualify — the moment a hold is granted, which is what the
+  // rule is about. It advises and never refuses: the run plan has no capacity guards, and
+  // a fourth booking in a week is sometimes three short sessions in one city.
+  if (params.to === 'qualified' && updated.eventDate && updated.dealType === 'keynote') {
+    try {
+      const check = checkCapacity(updated.eventDate, await provider.listDeals(), updated.id)
+      if (check.atCap || check.adjacent.length > 0) {
+        await notify({
+          type: 'review-item',
+          title: `Load check — ${updated.client?.name ?? updated.name}`,
+          body: `${check.verdict}\n\nThe hold is placed either way. This is for Ben to weigh.`,
+          link: `/deals/${updated.id}?tab=sales`,
+          roles: ['ops', 'owner'],
+        })
+      }
+    } catch (err) {
+      // A hold that is granted must not fail because the advisory could not be sent.
+      console.error('[F5] capacity check failed', err)
+    }
+  }
 
   if (params.to === 'closed-won') {
     await notify({

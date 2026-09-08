@@ -39,8 +39,11 @@ export async function acceptDealProposal(
   mergeIntoDealId?: string,
 ): Promise<Deal> {
   const provider = db()
-  const proposals = await provider.listDealProposals()
-  const proposal = proposals.find((p) => p.id === proposalId)
+  // Read past the cache. The cache is per process, so an accept on one server instance
+  // does not clear the entry on another — and the C5 session is two people working the
+  // same queue at the same time. Both would see `proposed`, both would accept, and one
+  // proposal would become two deals with nothing erroring.
+  const proposal = await provider.getDealProposalFresh(proposalId)
   if (!proposal) throw new ProposalNotFound(`Deal proposal ${proposalId} not found`)
   if (proposal.status !== 'proposed') {
     throw new ProposalAlreadyResolved(`Proposal ${proposalId} is already ${proposal.status}`)
@@ -177,7 +180,7 @@ async function mergeInto(dealId: string, proposal: DealProposal, approver: strin
 
 export async function dismissDealProposal(proposalId: string, approver: string): Promise<void> {
   const provider = db()
-  const proposal = (await provider.listDealProposals()).find((p) => p.id === proposalId)
+  const proposal = await provider.getDealProposalFresh(proposalId)
   if (!proposal) throw new ProposalNotFound(`Deal proposal ${proposalId} not found`)
 
   await provider.updateDealProposal(proposalId, { status: 'dismissed', resolvedBy: approver })

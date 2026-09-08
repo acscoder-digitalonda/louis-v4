@@ -15,7 +15,7 @@
 
 import { readFileSync } from 'node:fs'
 import { db } from '../src/lib/data'
-import { agentActor, recordChanges } from '../src/lib/audit'
+import { agentActor, recordChangesMany, type AuditWrite } from '../src/lib/audit'
 import { parseCsv } from '../src/workers/f11-import'
 import {
   bureauKey,
@@ -88,10 +88,14 @@ async function main() {
     return
   }
 
+  // Batched, for the reason in the header of `recordChangesMany`: this script's first
+  // run was 698 updates plus 698 separate audit writes, on a plan billed per request.
+  const audits: AuditWrite[] = []
   let done = 0
+
   for (const ch of changes) {
     await db().updateContact(ch.id, { agency: ch.to })
-    await recordChanges({
+    audits.push({
       table: 'contacts',
       recordId: ch.id,
       before: { agency: ch.from },
@@ -103,6 +107,8 @@ async function main() {
     done += 1
     if (done % 50 === 0) console.log(`  ${done}/${changes.length}`)
   }
+
+  await recordChangesMany(audits)
   console.log(`Repaired ${done} contact(s). Batch ${BATCH_ID} — reversible with revert:batch.`)
 }
 

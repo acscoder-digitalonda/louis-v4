@@ -10,6 +10,9 @@ export const dynamic = 'force-dynamic'
 
 const colorMap = z.record(z.string().refine(isSafeColor, 'Colours must be hex or rgb().'))
 
+import { DEFAULT_QUIET_HOURS, type QuietHours } from '@/lib/quiet-hours'
+import { speaker } from '~/speaker.config'
+
 const patchSchema = z.object({
   theme: z.object({ light: colorMap, dark: colorMap }).partial().optional(),
   ai: z
@@ -19,6 +22,19 @@ const patchSchema = z.object({
       fallbackModels: z.object({ haiku: z.string(), sonnet: z.string(), opus: z.string() }),
       monthlyCapUsd: z.number().min(0).max(100_000),
       pauseNonCriticalAtCap: z.boolean(),
+      // WP3.1 — the mode dial. Validated as an enum so a typo cannot silently put the
+      // gateway on a tier map that does not exist.
+      mode: z.enum(['launch', 'steady', 'economy']),
+    })
+    .partial()
+    .optional(),
+  // WP3.2 — hours are 0-23 and may wrap past midnight, which is the normal case.
+  quietHours: z
+    .object({
+      from: z.number().int().min(0).max(23),
+      to: z.number().int().min(0).max(23),
+      timezone: z.string().min(1),
+      enabled: z.boolean(),
     })
     .partial()
     .optional(),
@@ -47,7 +63,15 @@ export async function PATCH(request: Request) {
         ? { light: input.theme.light ?? current.theme.light, dark: input.theme.dark ?? current.theme.dark }
         : undefined,
       ai: input.ai ? { ...current.ai, ...input.ai } : undefined,
-    })
+      quietHours: input.quietHours
+        ? {
+            ...DEFAULT_QUIET_HOURS,
+            timezone: speaker.timezone,
+            ...((current as unknown as { quietHours?: QuietHours }).quietHours ?? {}),
+            ...input.quietHours,
+          }
+        : undefined,
+    } as never)
 
     await recordEvent({
       table: 'settings',
