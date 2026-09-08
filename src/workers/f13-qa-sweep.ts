@@ -18,6 +18,16 @@ import { isTerminal } from '@/lib/stages'
 const WORKER = 'F13'
 const STALE_QUEUE_HOURS = 48
 
+/**
+ * How many of one kind of finding are worth listing before it stops being a list.
+ *
+ * A sweep that reports six hundred and fifty-four companies with no domain is not
+ * reporting a problem, it is reporting the shape of the base — and it buries the one
+ * mirror error that actually needed somebody this morning. Beyond the cap the kind is
+ * counted and named once.
+ */
+export const MAX_PER_KIND = 10
+
 export interface Finding {
   kind: string
   detail: string
@@ -47,7 +57,9 @@ export async function run(): Promise<QaReport> {
 
   // Deals with nothing queued next — the classic silent stall.
   for (const deal of deals) {
-    if (isTerminal(deal.stage)) continue
+    // Seven years of imported history is at Delivered, which is not terminal, and none
+    // of it will ever have a next task. Flagging it says "802 problems" every night.
+    if (deal.historical || isTerminal(deal.stage)) continue
     const open = tasks.filter((t) => t.dealId === deal.id && !t.done)
     if (open.length === 0) {
       findings.push({
@@ -89,8 +101,13 @@ export async function run(): Promise<QaReport> {
     }
   }
 
-  // The export dedupe key.
+  // The export dedupe key — but only for companies in play. A 2019 client with no
+  // domain is a fact about the import, not a job for tonight.
+  const liveClientIds = new Set(
+    deals.filter((d) => !d.historical && !isTerminal(d.stage)).map((d) => d.client?.id).filter(Boolean),
+  )
   for (const client of clients) {
+    if (!liveClientIds.has(client.id)) continue
     if (!client.domain) {
       findings.push({
         kind: 'missing-domain',
@@ -144,18 +161,39 @@ export async function run(): Promise<QaReport> {
     }
   }
 
-  const summary = await writeSummary(findings)
+  const shown = capPerKind(findings)
+  const summary = await writeSummary(shown.findings)
 
   await notify({
     type: 'qa-digest',
     title: findings.length === 0 ? 'QA sweep — all clear' : `QA sweep — ${findings.length} finding(s)`,
-    body: [summary, '', ...findings.slice(0, 40).map((f) => `· ${f.detail}`)].join('\n'),
+    body: [summary, '', ...shown.findings.map((f) => `· ${f.detail}`), ...shown.elided].join('\n'),
     link: '/settings?tab=mirror',
     roles: ['admin'],
   })
 
   console.info(`[${WORKER}] ${findings.length} findings`)
   return { findings, summary }
+}
+
+/**
+ * Keeps at most `MAX_PER_KIND` of each kind, and says plainly what it left out.
+ *
+ * The elision is reported rather than silent: "and 644 more companies with no domain" is
+ * itself the finding, and a reader who sees ten and no note would think there were ten.
+ */
+export function capPerKind(findings: Finding[]): { findings: Finding[]; elided: string[] } {
+  const seen = new Map<string, number>()
+  const kept: Finding[] = []
+  for (const f of findings) {
+    const n = (seen.get(f.kind) ?? 0) + 1
+    seen.set(f.kind, n)
+    if (n <= MAX_PER_KIND) kept.push(f)
+  }
+  const elided = [...seen.entries()]
+    .filter(([, n]) => n > MAX_PER_KIND)
+    .map(([kind, n]) => `… and ${n - MAX_PER_KIND} more ${kind}`)
+  return { findings: kept, elided }
 }
 
 async function writeSummary(findings: Finding[]): Promise<string> {
