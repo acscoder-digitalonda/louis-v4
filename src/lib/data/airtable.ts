@@ -1680,7 +1680,15 @@ export class AirtableProvider implements DataProvider {
       mirror: { ...current.mirror, ...(patch.mirror ?? {}) },
       updatedAt: new Date().toISOString(),
     }
-    for (const key of ['theme', 'ai', 'mirror'] as const) {
+    // Derived from the object, not a list written out beside it. A hardcoded list is how
+    // the mirror's timestamp went missing for a month: `saveSettings` persisted `theme`
+    // and `ai`, and dropped a third section without a word. Adding a section to `Settings`
+    // now persists it whether or not anyone remembers this loop.
+    const sections = Object.keys(next).filter((k) => k !== 'updatedAt') as (keyof Omit<
+      Settings,
+      'updatedAt'
+    >)[]
+    for (const key of sections) {
       const encoded = this.w('settings', {
         key,
         value: JSON.stringify(next[key]),
