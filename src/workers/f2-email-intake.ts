@@ -100,6 +100,18 @@ export async function run(): Promise<IntakeReport> {
     console.info(`[F2] ${duplicates} message(s) already seen in another mailbox`)
   }
 
+  // Nothing new: stop before the expensive reads.
+  //
+  // A quiet sweep still cost 23 Airtable requests, almost all of it 1,348 contacts loaded
+  // to match senders against — for zero messages. At four sweeps an hour that is sixty
+  // thousand requests a month spent confirming there was no mail, on a plan billed per
+  // request. The reads below exist to place a message; with no message to place they are
+  // pure cost.
+  if (fresh.length === 0) {
+    console.info(`[F2] nothing new (${duplicates} already seen)`)
+    return report
+  }
+
   const contacts = await provider.listContacts()
 
   for (const message of fresh) {
