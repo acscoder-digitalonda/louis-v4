@@ -430,6 +430,15 @@ export const TABLES: Record<TableKey, TableSpec> = {
       { key: 'from', name: 'From', type: 'email' },
       { key: 'to', name: 'To', type: 'singleLineText' },
       { key: 'threadId', name: 'Thread ID', type: 'singleLineText' },
+      {
+        key: 'messageId',
+        name: 'Message ID',
+        type: 'singleLineText',
+        description:
+          'RFC Message-ID, normalised. The idempotency key for intake: without it every ' +
+          'sweep re-ingests the same mail, because a Gmail id is per mailbox.',
+      },
+      { key: 'mailbox', name: 'Mailbox', type: 'email', description: 'Which mailbox this copy was read from.' },
       { key: 'receivedAt', name: 'Received', type: 'dateTime' },
       { key: 'bodyRef', name: 'Body Ref', type: 'url' },
       { key: 'dealId', name: 'Deal', type: 'multipleRecordLinks', link: 'deals' },

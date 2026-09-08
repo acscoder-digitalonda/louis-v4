@@ -686,6 +686,12 @@ export class AirtableProvider implements DataProvider {
     if (patch.to !== undefined) out.to = patch.to
     if (patch.subject !== undefined) out.subject = patch.subject
     if (patch.threadId !== undefined) out.threadId = patch.threadId
+    // These two were read by `decodeEmail` and written by nothing. F2 passed a messageId
+    // on every create; this encoder dropped it in silence, so `listEmails` returned null
+    // for all of them, dedupe compared against Airtable record ids instead, and every
+    // sweep re-ingested every message it had already seen.
+    if (patch.messageId !== undefined) out.messageId = patch.messageId
+    if (patch.mailbox !== undefined) out.mailbox = patch.mailbox
     if (patch.receivedAt !== undefined) out.receivedAt = patch.receivedAt
     if (patch.bodyRef !== undefined) out.bodyRef = patch.bodyRef
     if (patch.classification !== undefined) {

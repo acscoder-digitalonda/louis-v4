@@ -1,6 +1,6 @@
 {
   "baseId": "app5In2fKegyPm4sU",
-  "generatedAt": "2026-09-08T14:28:26.429Z",
+  "generatedAt": "2026-09-08T15:38:04.220Z",
   "tables": {
     "clients": {
       "tableId": "tblrMl2530lYOQlRX",
@@ -121,6 +121,8 @@
         "from": "fld34JWqcLFqYqtNr",
         "to": "fldI2OF67WitAR3nr",
         "threadId": "fldgSskpVvbtgXF6x",
+        "messageId": "fldenhJcrfwGYiqxw",
+        "mailbox": "fld70Fe2KPhr75H5O",
         "receivedAt": "fld6qc3FFKQZo20dI",
         "bodyRef": "fldqGtGaq2dyL7YHR",
         "dealId": "fldDxVaEjnprqlQwg",

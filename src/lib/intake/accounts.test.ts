@@ -9,6 +9,7 @@ import {
   resolveAccounts,
 } from './accounts'
 import type { MailAccount } from '../types'
+import { TABLES } from '@/lib/airtable/schema'
 
 const account = (over: Partial<MailAccount> = {}): MailAccount => ({
   id: 'a1',
@@ -165,5 +166,17 @@ describe('dedupe', () => {
     )
     assert.equal(out.fresh.length, 2)
     assert.equal(out.duplicates, 0)
+  })
+})
+
+describe('the dedupe key has somewhere to live', () => {
+  it('is declared on the Emails table, not just on the type', () => {
+    // It was on the `Email` type, written by F2 on every create, read by `decodeEmail`,
+    // and declared in neither `schema.ts` nor the base. The encoder dropped it without
+    // a word, so every sweep re-ingested every message it had already seen — twice in
+    // a row on the live base before anyone noticed.
+    const emails = TABLES.emails.fields.map((f) => f.key)
+    assert.ok(emails.includes('messageId'), 'Emails.messageId must exist to dedupe on')
+    assert.ok(emails.includes('mailbox'), 'Emails.mailbox records which copy was read')
   })
 })
