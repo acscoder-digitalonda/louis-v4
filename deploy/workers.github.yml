@@ -12,6 +12,7 @@ on:
     - cron: '0 7 * * *'
     - cron: '0 * * * *'
     - cron: '30 5 * * *'
+    - cron: '0 * * * *'
   workflow_dispatch:
     inputs:
       worker:
@@ -25,7 +26,7 @@ jobs:
       # One failing worker must not cancel the others.
       fail-fast: false
       matrix:
-        worker: [f2-email-intake, f3-research, f6-timers, f9-mirror, f13-qa-sweep]
+        worker: [f2-email-intake, f3-research, f6-timers, f9-mirror, f13-qa-sweep, f14-sla]
     steps:
       - name: ${{ matrix.worker }}
         run: |

@@ -20,3 +20,6 @@ CRON_SECRET=replace-me
 
 # QA sweep
 30 5 * * * curl -sS --fail --max-time 280 -H "Authorization: Bearer $CRON_SECRET" https://louis-v3.vercel.app/api/cron/f13-qa-sweep > /dev/null
+
+# Reply SLA (critical: runs even at the AI cap)
+0 * * * * curl -sS --fail --max-time 280 -H "Authorization: Bearer $CRON_SECRET" https://louis-v3.vercel.app/api/cron/f14-sla > /dev/null

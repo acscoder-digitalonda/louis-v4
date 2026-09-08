@@ -13,6 +13,7 @@
  */
 
 import { strict as assert } from 'node:assert'
+import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 import { crontab, vercelHobbyNote, workflow } from '../../scripts/generate-schedule'
 import { WORKERS, WORKER_NAMES } from './index'
@@ -68,6 +69,32 @@ describe('the generated workflow', () => {
   it('keeps the secret in secrets', () => {
     assert.match(GHA, /secrets\.CRON_SECRET/)
     assert.equal(/Bearer\s+louis_|Bearer\s+[a-z0-9]{16}/.test(GHA), false, 'no literal token')
+  })
+})
+
+/**
+ * The third time, and the same failure wearing a different hat.
+ *
+ * The tests above check what the generator *would* write. They passed all the way through
+ * a run in which `deploy/louis.crontab` on disk was missing a worker entirely, because
+ * `npm run schedule` prints unless you pass `--write` and nobody had. A generated file
+ * that has drifted from its generator is exactly as useless as the empty `vercel.json`
+ * this suite was written about.
+ */
+describe('the files actually committed to deploy/', () => {
+  const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
+
+  it('matches what the generator produces today', () => {
+    // Regenerate with `npm run schedule -- --write` when this fails.
+    assert.equal(read('deploy/louis.crontab'), crontab(), 'deploy/louis.crontab is stale')
+    assert.equal(read('deploy/workers.github.yml'), workflow(), 'deploy/workers.github.yml is stale')
+  })
+
+  it('names every worker in the registry', () => {
+    const onDisk = read('deploy/louis.crontab')
+    for (const name of WORKER_NAMES) {
+      assert.ok(onDisk.includes(`/api/cron/${name}`), `${name} is not in the committed crontab`)
+    }
   })
 })
 
