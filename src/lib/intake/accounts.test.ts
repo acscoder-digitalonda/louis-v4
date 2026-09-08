@@ -10,6 +10,8 @@ import {
 } from './accounts'
 import type { MailAccount } from '../types'
 import { TABLES } from '@/lib/airtable/schema'
+import { isFreeMailDomain } from '@/lib/enrichment'
+import { speaker } from '~/speaker.config'
 
 const account = (over: Partial<MailAccount> = {}): MailAccount => ({
   id: 'a1',
@@ -178,5 +180,23 @@ describe('the dedupe key has somewhere to live', () => {
     const emails = TABLES.emails.fields.map((f) => f.key)
     assert.ok(emails.includes('messageId'), 'Emails.messageId must exist to dedupe on')
     assert.ok(emails.includes('mailbox'), 'Emails.mailbox records which copy was read')
+  })
+})
+
+describe('what may become a company', () => {
+  it('refuses mailbox providers and our own domain', () => {
+    // The first live sweep created companies called "gmail" and "bennemtin" — one from a
+    // prospect on a personal address, the other from our own team forwarding an enquiry
+    // inwards. A fake company is worse than a blank one: social proof, repeat-client
+    // rollups and every export key on it.
+    assert.equal(isFreeMailDomain('gmail.com'), true)
+    assert.equal(isFreeMailDomain('outlook.com'), true)
+    assert.equal(isFreeMailDomain('bennemtin.com'), false, 'the team domain is not free mail')
+    assert.equal(
+      'bennemtin.com' === speaker.teamDomain.toLowerCase(),
+      true,
+      'it is excluded by being ours, which is a separate test',
+    )
+    assert.equal(isFreeMailDomain('janney.com'), false)
   })
 })

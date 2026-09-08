@@ -16,6 +16,7 @@ import { complete } from '@/lib/gateway'
 import { sendMail } from '@/lib/mailer'
 import { gmailGetAs } from '@/lib/google/gmail'
 import { googleConfigured } from '@/lib/google/auth'
+import { isFreeMailDomain } from '@/lib/enrichment'
 import { notify } from '@/lib/notify'
 import { agentActor, recordEvent } from '@/lib/audit'
 import { invalidateSearchCache } from '@/lib/search'
@@ -263,22 +264,43 @@ async function attachDeal(
   // 3. An inquiry with no match starts a new deal.
   if (email.classification !== 'inquiry') return null
 
-  const domain = email.from.split('@')[1] ?? null
+  const domain = email.from.split('@')[1]?.toLowerCase() ?? null
+
+  // ── What a domain is allowed to become a company ────────────────────────
+  //
+  // The first live sweep created companies called "gmail" and "bennemtin": one from a
+  // prospect writing on a personal address, the other from our own team forwarding an
+  // enquiry inwards. Both are the same mistake — treating the envelope sender as the
+  // organisation — and a fake company in the CRM is worse than a blank one, because the
+  // social-proof engine, the repeat-client rollups and every export all key on it.
+  //
+  // So a company is created only from a domain that could be one. Otherwise the deal is
+  // created without a client and a person places it from the queue, which is exactly the
+  // judgement the review queue exists for.
+  const companyDomain =
+    domain && !isFreeMailDomain(domain) && domain !== speaker.teamDomain.toLowerCase()
+      ? domain
+      : null
+
   const clients = await provider.listClients()
   let client = clientId
     ? clients.find((c) => c.id === clientId)
-    : clients.find((c) => c.domain?.toLowerCase() === domain?.toLowerCase())
+    : companyDomain
+      ? clients.find((c) => c.domain?.toLowerCase() === companyDomain)
+      : undefined
 
-  if (!client && domain) {
+  if (!client && companyDomain) {
     client = await provider.createClient({
-      name: domain.replace(/\.(com|org|net|io|co)$/i, ''),
-      domain,
+      name: companyDomain.replace(/\.(com|org|net|io|co)$/i, ''),
+      domain: companyDomain,
       notes: 'Created from inbound email.',
     })
   }
 
   const deal = await provider.createDeal({
-    name: `${client?.name ?? domain ?? 'Unknown'} — ${message.subject}`.slice(0, 180),
+    // Without a company the subject is the only honest label. "gmail — Book Ben" reads
+    // like a company called gmail; "Book Ben - Dawn Jacobson" reads like what it is.
+    name: (client ? `${client.name} — ${message.subject}` : message.subject).slice(0, 180),
     stage: 'inquiry',
     source: 'direct',
     client: client ? { id: client.id, name: client.name } : null,
