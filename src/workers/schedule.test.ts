@@ -49,6 +49,11 @@ describe('the generated crontab', () => {
     }
   })
 
+  it('pins the timezone to the speaker, not the server', () => {
+    // A VPS is almost always UTC. Without this the 7am digest lands at midnight Pacific.
+    assert.match(CRON, /^CRON_TZ=America\/Los_Angeles$/m)
+  })
+
   it('marks which workers survive the AI cap', () => {
     for (const name of WORKER_NAMES) {
       if (!WORKERS[name]!.critical) continue
