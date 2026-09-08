@@ -278,6 +278,41 @@ export class AirtableProvider implements DataProvider {
     set('historical', patch.historical)
     set('importBatch', patch.importBatch)
     set('sourceRef', patch.sourceRef)
+
+    // ── Everything the add-on added ─────────────────────────────────────
+    //
+    // These fifteen were decoded and never encoded. `updateDeal` took them, dropped them
+    // without a word, and returned the decoded record — which read them back from
+    // Airtable, where they had never been written. Nothing threw and nothing logged.
+    //
+    // What that cost, concretely: `followUpCount` never incremented, so the escalation
+    // to Ben after two touches could not happen; `nextActionDate` never persisted, so the
+    // sweep re-armed the same deal every morning; `kitToken` was re-issued daily, drafting
+    // a new welcome kit each time; the mute button did nothing; and the post-keynote
+    // checkbox re-sent its alert on every save, because the "already ticked" edge it
+    // tests for could never become true.
+    //
+    // The tests could not catch it: they run on the in-memory provider, which stores the
+    // object as given and never passes through an encoder.
+    set('rateRegion', patch.rateRegion && rateRegionCodec.toAirtable(patch.rateRegion))
+    set('travelStipend', patch.travelStipend)
+    set('pricingNote', patch.pricingNote)
+    set('nextActionDate', patch.nextActionDate)
+    set('followUpCount', patch.followUpCount)
+    set('muted', patch.muted)
+    set('muteUntil', patch.muteUntil)
+    set(
+      'closedLostReason',
+      patch.closedLostReason && closedLostReasonCodec.toAirtable(patch.closedLostReason),
+    )
+    set('eventTimezone', patch.eventTimezone)
+    set('kickoffDate', patch.kickoffDate)
+    set('travelDepartureDate', patch.travelDepartureDate)
+    set('outboundFlight', patch.outboundFlight)
+    set('returnFlight', patch.returnFlight)
+    set('postKeynoteAlert', patch.postKeynoteAlert)
+    set('kitToken', patch.kitToken)
+
     // paymentStatus / contractStatus / createdAt / lastModified are owned elsewhere.
     return this.w('deals', out)
   }
