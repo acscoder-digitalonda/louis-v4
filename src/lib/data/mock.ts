@@ -74,6 +74,7 @@ function freshStore(): Store {
     usage: [],
     settings: {
       theme: defaultThemeSettings,
+      mirror: { lastRunAt: null },
       ai: {
         backend: 'claude-code',
         tierModels: {

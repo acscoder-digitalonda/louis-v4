@@ -1621,13 +1621,18 @@ export class AirtableProvider implements DataProvider {
   }
 
   async getSettings(): Promise<Settings> {
-    const [themeRow, aiRow] = await Promise.all([this.settingsRow('theme'), this.settingsRow('ai')])
+    const [themeRow, aiRow, mirrorRow] = await Promise.all([
+      this.settingsRow('theme'),
+      this.settingsRow('ai'),
+      this.settingsRow('mirror'),
+    ])
     const readValue = (record: AirtableRecord | null) =>
       record ? makeReader('settings', record)('value') : null
     const defaults = defaultSettings()
     return {
       theme: jsonField(readValue(themeRow), defaults.theme),
       ai: { ...defaults.ai, ...jsonField(readValue(aiRow), {}) },
+      mirror: { ...defaults.mirror, ...jsonField(readValue(mirrorRow), {}) },
       updatedAt: new Date().toISOString(),
     }
   }
@@ -1637,9 +1642,10 @@ export class AirtableProvider implements DataProvider {
     const next: Settings = {
       theme: { ...current.theme, ...(patch.theme ?? {}) },
       ai: { ...current.ai, ...(patch.ai ?? {}) },
+      mirror: { ...current.mirror, ...(patch.mirror ?? {}) },
       updatedAt: new Date().toISOString(),
     }
-    for (const key of ['theme', 'ai'] as const) {
+    for (const key of ['theme', 'ai', 'mirror'] as const) {
       const encoded = this.w('settings', {
         key,
         value: JSON.stringify(next[key]),
@@ -1671,6 +1677,7 @@ export function defaultSettings(): Settings {
       monthlyCapUsd: 150,
       pauseNonCriticalAtCap: true,
     },
+    mirror: { lastRunAt: null },
     updatedAt: new Date().toISOString(),
   }
 }

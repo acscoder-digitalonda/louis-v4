@@ -507,9 +507,22 @@ export interface AiSettings {
   pauseNonCriticalAtCap: boolean
 }
 
+/**
+ * Where the mirror keeps its own heartbeat.
+ *
+ * A section rather than a loose key, because `saveSettings` persists sections and
+ * silently drops anything else — which is how F9 spent a month doing a full read of
+ * every deal an hour, believing it had recorded the last run.
+ */
+export interface MirrorSettings {
+  /** When F9 last completed. Null means "read everything", the safe direction to fail in. */
+  lastRunAt: string | null
+}
+
 export interface Settings {
   theme: ThemeSettings
   ai: AiSettings
+  mirror: MirrorSettings
   updatedAt: string
 }
 

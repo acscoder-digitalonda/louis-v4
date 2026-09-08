@@ -257,12 +257,10 @@ export async function run(opts: { full?: boolean } = {}): Promise<{ pushed: numb
 // Kept in Settings rather than a new table: it is one timestamp, and a table for it
 // would be a table somebody has to remember to purge.
 
-const LAST_RUN_KEY = 'mirrorLastRunAt'
 
 async function lastRunAt(): Promise<string | null> {
   try {
-    const settings = await db().getSettings()
-    return (settings as unknown as Record<string, string | null>)[LAST_RUN_KEY] ?? null
+    return (await db().getSettings()).mirror.lastRunAt
   } catch {
     // Unknown means "read everything", which is the safe direction to fail in.
     return null
@@ -271,7 +269,7 @@ async function lastRunAt(): Promise<string | null> {
 
 async function recordRun(): Promise<void> {
   try {
-    await db().saveSettings({ [LAST_RUN_KEY]: new Date().toISOString() } as never)
+    await db().saveSettings({ mirror: { lastRunAt: new Date().toISOString() } })
   } catch (err) {
     // A missed timestamp costs one full read next hour. Not worth failing the sweep for.
     console.warn('[F9] could not record the run time:', err)
