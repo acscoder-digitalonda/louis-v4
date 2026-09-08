@@ -13,7 +13,7 @@
 import { db } from '@/lib/data'
 import { complete } from '@/lib/gateway'
 import { notify } from '@/lib/notify'
-import { isTerminal } from '@/lib/stages'
+import { isLive } from '@/lib/stages'
 
 const WORKER = 'F13'
 const STALE_QUEUE_HOURS = 48
@@ -59,7 +59,7 @@ export async function run(): Promise<QaReport> {
   for (const deal of deals) {
     // Seven years of imported history is at Delivered, which is not terminal, and none
     // of it will ever have a next task. Flagging it says "802 problems" every night.
-    if (deal.historical || isTerminal(deal.stage)) continue
+    if (!isLive(deal)) continue
     const open = tasks.filter((t) => t.dealId === deal.id && !t.done)
     if (open.length === 0) {
       findings.push({
@@ -104,7 +104,7 @@ export async function run(): Promise<QaReport> {
   // The export dedupe key — but only for companies in play. A 2019 client with no
   // domain is a fact about the import, not a job for tonight.
   const liveClientIds = new Set(
-    deals.filter((d) => !d.historical && !isTerminal(d.stage)).map((d) => d.client?.id).filter(Boolean),
+    deals.filter(isLive).map((d) => d.client?.id).filter(Boolean),
   )
   for (const client of clients) {
     if (!liveClientIds.has(client.id)) continue

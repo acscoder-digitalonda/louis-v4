@@ -33,7 +33,7 @@ function mirrorSubject(): string | undefined {
   return process.env.GOOGLE_MIRROR_SUBJECT ?? process.env.GMAIL_SERVICE_ADDRESS
 }
 import type { Deal, MirrorSurface } from '@/lib/types'
-import { isHold, isTerminal } from '@/lib/stages'
+import { isHold, isLive } from '@/lib/stages'
 
 const WORKER = 'F9'
 
@@ -215,7 +215,9 @@ export async function run(opts: { full?: boolean } = {}): Promise<{ pushed: numb
   const full = !since || isWeeklySweep()
 
   const deals = full ? await provider.listDeals() : await provider.listDealsModifiedSince(since)
-  const active = deals.filter((d: Deal) => !isTerminal(d.stage))
+  // Imported history is not a booking to mirror. It was pushing 2019 deals to the
+  // calendar every hour and collecting a 404 for each.
+  const active = deals.filter((d: Deal) => isLive(d))
 
   for (const deal of active) {
     await pushMirror('calendar', deal)

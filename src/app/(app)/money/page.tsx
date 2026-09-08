@@ -7,7 +7,7 @@ import { money, shortDate } from '@/lib/format'
 import { Card, EmptyState, Led, Micro, SectionTitle } from '@/components/ui'
 import { ConfirmPayment } from '@/components/ConfirmPayment'
 import { redirect } from 'next/navigation'
-import { isTerminal } from '@/lib/stages'
+import { isLive } from '@/lib/stages'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,7 +31,7 @@ export default async function MoneyPage() {
   const contracted = won.reduce((s, d) => s + dealValue(d), 0)
   const owed = Math.max(contracted - received, 0)
   const weighted = pipelineTotals(
-    deals.filter((d) => !isTerminal(d.stage)),
+    deals.filter((d) => isLive(d)),
   ).weighted
 
   const dealName = (id: string | null) => (id ? (deals.find((d) => d.id === id)?.name ?? id) : '—')

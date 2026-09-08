@@ -1,6 +1,7 @@
 import { strict as assert } from 'node:assert'
 import { describe, it } from 'node:test'
-import { ALL_STAGES, BOARD_STAGES, STAGE_PACKETS, guardStage, isSkip, stageIndex } from './stages'
+import { ALL_STAGES, BOARD_STAGES, STAGE_PACKETS, guardStage, isLive, isSkip, isTerminal, stageIndex } from './stages'
+import type { StageKey } from './types'
 import type { Deal } from './types'
 
 const deal = (over: Partial<Deal> = {}) => ({ id: 'd1', name: 'X', ...over }) as Deal
@@ -104,5 +105,37 @@ describe('stageIndex', () => {
   it('orders the board the way the pipeline reads', () => {
     const order = BOARD_STAGES.map(stageIndex)
     assert.deepEqual(order, [...order].sort((a, b) => a - b))
+  })
+})
+
+describe('isLive', () => {
+  const deal = (over: Partial<{ stage: StageKey; historical: boolean }> = {}) => ({
+    stage: 'delivered' as StageKey,
+    historical: false,
+    ...over,
+  })
+
+  it('excludes imported history even though Delivered is not terminal', () => {
+    // The whole reason this function exists. Four separate places wrote
+    // `!isTerminal(deal.stage)`, and all four treated 802 imported 2019 bookings as
+    // live work: a nightly report of 802 stalled deals, an hourly calendar push that
+    // 404'd on every one, and a weighted pipeline counting them at full weight.
+    assert.equal(isLive(deal({ historical: true })), false)
+    assert.equal(isTerminal('delivered'), false, 'Delivered is genuinely not terminal')
+  })
+
+  it('excludes terminal stages', () => {
+    assert.equal(isLive(deal({ stage: 'closed-lost' })), false)
+    assert.equal(isLive(deal({ stage: 'debriefed' })), false)
+  })
+
+  it('keeps a real deal in play', () => {
+    assert.equal(isLive(deal({ stage: 'qualified' })), true)
+    assert.equal(isLive(deal({ stage: 'delivered' })), true, 'delivered but not imported')
+  })
+
+  it('treats a missing historical flag as not historical', () => {
+    // Callers pass partial deals; an absent flag must not silently mean "imported".
+    assert.equal(isLive({ stage: 'qualified' }), true)
   })
 })

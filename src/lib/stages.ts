@@ -196,6 +196,23 @@ export function isTerminal(stage: StageKey): boolean {
 }
 
 /**
+ * A deal any worker or screen should act on.
+ *
+ * This exists because `!isTerminal(deal.stage)` looks like it means this and does not.
+ * Seven years of imported history — 802 deals — sits at **Delivered**, which is not a
+ * terminal stage, so every sweep written against `isTerminal` alone treated all of it as
+ * live work. The QA sweep reported 802 stalled deals a night; the calendar mirror pushed
+ * 2019 bookings to Google every hour and collected a 404 for each; the money screen added
+ * them to the weighted pipeline at full weight.
+ *
+ * Four places got this wrong independently, which is the signal that it should never have
+ * been four expressions. It is one.
+ */
+export function isLive(deal: { stage: StageKey; historical?: boolean }): boolean {
+  return !deal.historical && !isTerminal(deal.stage)
+}
+
+/**
  * The stages where a date is actually being held, which is what the calendar renders as
  * a HOLD and what a competing hold challenges.
  */

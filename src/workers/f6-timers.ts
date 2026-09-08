@@ -34,7 +34,7 @@ import { issueKitToken, kitReadiness, kitRecipient } from '@/lib/kit'
 import { isCoaching, ledger } from '@/lib/coaching'
 import { buildDigest, renderDigest } from '@/lib/digest'
 import type { Deal, Draft, JournalOrder, Role } from '@/lib/types'
-import { isTerminal } from '@/lib/stages'
+import { isLive } from '@/lib/stages'
 
 const WORKER = 'F6'
 const JOURNAL_NUDGE_DAYS = 35
@@ -96,7 +96,8 @@ export async function run(): Promise<TimerReport> {
   const today = new Date().toISOString().slice(0, 10)
 
   for (const deal of deals) {
-    if (isTerminal(deal.stage)) continue
+    // `isLive`, not `!isTerminal`: the 802 imported bookings sit at Delivered.
+    if (!isLive(deal)) continue
     // One deal that cannot be processed — an unwritable draft, a model outage — must not
     // cost every other deal its sweep for the day.
     try {
@@ -331,7 +332,7 @@ export async function run(): Promise<TimerReport> {
     //
     // A keynote that goes wrong is loud. A coaching engagement that goes wrong quietly
     // stops after session two, and the client who paid for three notices before we do.
-    if (isCoaching(deal.dealType) && !isTerminal(deal.stage)) {
+    if (isCoaching(deal.dealType) && isLive(deal)) {
       const sessions = await provider.listCoachingSessions(deal.id)
       const state = ledger(sessions, today, deal.lastModified)
       if (state.stalled) report.coachingStalled += 1
@@ -368,7 +369,7 @@ export async function run(): Promise<TimerReport> {
     }
 
     // ── WP3.3: the road-warrior brief, T-1 from travel ──────────────────
-    if (isDueToday(deal, today) && !isTerminal(deal.stage)) {
+    if (isDueToday(deal, today) && isLive(deal)) {
       const title = `Road warrior brief — ${deal.name}`
       const already = tasks.some(
         (t) => t.dealId === deal.id && t.title.toLowerCase() === title.toLowerCase(),

@@ -23,7 +23,7 @@ import { runResearch } from './f3-research'
 import { parseJson } from './f7-drafts'
 import { speaker } from '~/speaker.config'
 import type { Deal, EmailRecord } from '@/lib/types'
-import { isTerminal } from '@/lib/stages'
+import { isLive } from '@/lib/stages'
 
 const WORKER = 'F2'
 const LABEL = process.env.GMAIL_WATCH_LABEL ?? 'louis-intake'
@@ -231,7 +231,7 @@ async function attachDeal(
   // 2. The sender's company has exactly one live deal.
   if (clientId) {
     const live = deals.filter(
-      (d) => d.client?.id === clientId && !isTerminal(d.stage),
+      (d) => d.client?.id === clientId && isLive(d),
     )
     if (live.length === 1) return live[0]!
   }
