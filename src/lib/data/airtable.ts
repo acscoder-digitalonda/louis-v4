@@ -21,6 +21,7 @@ import {
   updateRecord,
   type AirtableConfig,
   type AirtableRecord,
+  getRecordFresh,
 } from '../airtable/rest'
 import { defaultThemeSettings } from '../theme'
 import { defaultNotificationPrefs } from '../rbac'
@@ -385,7 +386,9 @@ export class AirtableProvider implements DataProvider {
   }
 
   async getDeal(id: string): Promise<Deal | null> {
-    const record = await getRecord(this.cfg, 'deals', id)
+    // Fresh, always. This is the record somebody is looking at, and a write they just
+    // made must be what they see next — whichever instance renders it.
+    const record = await getRecordFresh(this.cfg, 'deals', id)
     return record ? this.decodeDeal(record, await this.namesFor(this.dealRefs(record))) : null
   }
 

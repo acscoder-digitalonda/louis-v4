@@ -221,13 +221,15 @@ export async function getRecord(
   table: TableKey,
   id: string,
 ): Promise<AirtableRecord | null> {
-  // Cached like a list read, keyed by id, and cleared by the same write-path invalidation.
-  // Uncached, every helper that needed one deal's name to build a filter re-fetched the
-  // deal — eleven times per page.
+  // Cached like a list read, keyed by id. Right for a record read to *label* something —
+  // a name in a filter, a client on a list row. Wrong for the record a person is looking
+  // at: the cache is per serverless instance, so a stage change written on one instance
+  // still read as the old stage on another for up to 45 seconds. That happened, the
+  // afternoon this cache was added. `getRecordFresh` is for the record itself.
   return readThrough(table, { id }, 1, () => getRecordFresh(cfg, table, id))
 }
 
-async function getRecordFresh(
+export async function getRecordFresh(
   cfg: AirtableConfig,
   table: TableKey,
   id: string,
