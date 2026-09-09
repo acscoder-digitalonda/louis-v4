@@ -38,23 +38,25 @@ fi
 
 echo
 echo "── Push ───────────────────────────────────────────"
+GIT_MAIN="louis-v3-git-main-team-digitalondas-projects.vercel.app"
+# What the branch domain serves *before* the push: the wait below is for it to change.
+# Matching "Ready" in the listing is not enough — the row it matches is the last deploy.
+before="$(npx vercel inspect "$GIT_MAIN" 2>/dev/null | awk '/^\s*url/ {print $2}' || true)"
 sha="$(git rev-parse --short HEAD)"
 git push origin main
 echo "Pushed $sha. Vercel builds from GitHub."
 
 echo
 echo "── Wait for Vercel ────────────────────────────────"
-# The newest deployment row, once its commit matches ours, tells us the outcome.
 for _ in $(seq 1 60); do
-  row="$(npx vercel ls "$PROJECT" 2>/dev/null | sed -n '6p' || true)"
-  if grep -q "Ready" <<<"$row"; then
-    echo "Ready: $(grep -oE 'https://[a-z0-9.-]+\.vercel\.app' <<<"$row" | head -1)"
-    break
-  fi
-  if grep -qE "Error|Blocked|Canceled" <<<"$row"; then
-    echo "$row"
-    echo "Vercel did not deploy this push. Open the deployment for the reason."
-    exit 1
+  now="$(npx vercel inspect "$GIT_MAIN" 2>/dev/null || true)"
+  url="$(awk '/^\s*url/ {print $2}' <<<"$now")"
+  status="$(awk '/^\s*status/ {print $0}' <<<"$now")"
+  if [[ -n "$url" && "$url" != "$before" ]]; then
+    if grep -q "Ready" <<<"$status"; then echo "Ready: $url"; break; fi
+    if grep -qE "Error|Blocked|Canceled" <<<"$status"; then
+      echo "$status"; echo "Vercel did not deploy this push. Open $url for the reason."; exit 1
+    fi
   fi
   sleep 10
 done
