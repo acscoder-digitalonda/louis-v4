@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert'
 import { beforeEach, describe, it } from 'node:test'
-import { DEFAULT_TTL_MS, cacheKey, cacheStats, invalidate, invalidateAll, readThrough, resetCache } from './cache'
+import { DEFAULT_TTL_MS, cacheKey, cacheStats, invalidate, invalidateAll, readThrough, resetCache, setRecentWriteProbe } from './cache'
 
 const t0 = 1_757_000_000_000
 
@@ -114,5 +114,30 @@ describe('what this is worth', () => {
 
     assert.equal(fetches, 4, 'four tables fetched once each, not fourteen reads')
     assert.ok(cacheStats().requestsSaved >= 50, `saved ${cacheStats().requestsSaved} requests`)
+  })
+})
+
+describe('read your own writes', () => {
+  it('serves from memory for everyone, but loads afresh for a browser that just wrote', async () => {
+    // The cache is per instance. A write on one instance clears only that instance, so
+    // the pipeline rendered elsewhere showed the old column until a hard refresh. The
+    // middleware stamps the writing browser; a fresh stamp means "load, don't serve".
+    resetCache()
+    let loads = 0
+    const load = async () => ++loads
+    const t0 = 1_000_000
+    await readThrough('deals', { q: 1 }, 1, load, t0)
+    await readThrough('deals', { q: 1 }, 1, load, t0 + 1000)
+    assert.equal(loads, 1, 'a second read within the TTL is a hit')
+
+    setRecentWriteProbe(async () => true)
+    try {
+      await readThrough('deals', { q: 1 }, 1, load, t0 + 2000)
+      assert.equal(loads, 2, 'a fresh stamp bypasses the hit and loads')
+    } finally {
+      setRecentWriteProbe(null)
+    }
+    await readThrough('deals', { q: 1 }, 1, load, t0 + 3000)
+    assert.equal(loads, 2, 'and the fresh value it loaded is what everyone gets next')
   })
 })

@@ -109,7 +109,14 @@ export async function readThrough<T>(
  * answer is no. The point is to make a person's own writes visible to their own next
  * read whichever instance serves it; other people, and the workers, keep the cache.
  */
+/** Test seam: the cookie cannot be set from a test, so the answer can be. */
+let wroteProbe: ((now: number) => Promise<boolean>) | null = null
+export function setRecentWriteProbe(fn: ((now: number) => Promise<boolean>) | null): void {
+  wroteProbe = fn
+}
+
 async function recentlyWrote(now: number): Promise<boolean> {
+  if (wroteProbe) return wroteProbe(now)
   try {
     const { cookies } = await import('next/headers')
     const stamp = (await cookies()).get('louis-fresh')?.value
