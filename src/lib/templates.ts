@@ -156,7 +156,7 @@ Delighted this one is confirmed. Everything your client needs for {{eventName}} 
 2. Speaker assets (bio, headshots, AV rider): {{assetsLink}}
 3. The planning call. We will offer a couple of times about four weeks out.
 
-Anything they ask, send it our way.
+Would you forward these on, and let me know once the questionnaire is back? Anything they ask, send it our way.
 
 {{speakerName}}'s office`,
   },
@@ -198,7 +198,7 @@ When we last spoke, {{eventName}} had been pushed back. If it is back on the cal
     subject: 'How did {{eventName}} go?',
     body: `Hi {{contactFirstName}},
 
-You went another direction last year, and I hope the event landed well. If there is a next one, {{speakerName}} would still like to be in the conversation - no pitch, just keeping the door open.
+You went another direction last year, and I hope the event landed well. If there is a next one, would you keep {{speakerName}} in the conversation? No pitch, just keeping the door open.
 
 {{speakerName}}`,
   },

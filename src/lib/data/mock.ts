@@ -228,7 +228,8 @@ export class MockProvider implements DataProvider {
   }
 
   async listContacts(filter: { dealId?: string } = {}): Promise<Contact[]> {
-    return clone(store().contacts)
+    const all = store().contacts
+    return clone(filter.dealId ? all.filter((c) => c.dealIds.includes(filter.dealId!)) : all)
   }
   async getContact(contactId: string): Promise<Contact | null> {
     return clone(store().contacts.find((c) => c.id === contactId) ?? null)
@@ -256,7 +257,8 @@ export class MockProvider implements DataProvider {
 
   // ── Journal ──────────────────────────────────────────────────────────────
   async listJournalOrders(dealId?: string): Promise<JournalOrder[]> {
-    return clone(store().journalOrders)
+    const all = store().journalOrders
+    return clone(dealId ? all.filter((o) => o.dealId === dealId) : all)
   }
   async createJournalOrder(input: NewRecord<JournalOrder>): Promise<JournalOrder> {
     const record: JournalOrder = { id: id('recJRN'), ...input }
@@ -269,7 +271,8 @@ export class MockProvider implements DataProvider {
 
   // ── Money ────────────────────────────────────────────────────────────────
   async listPayments(dealId?: string): Promise<Payment[]> {
-    return clone(store().payments)
+    const all = store().payments
+    return clone(dealId ? all.filter((p) => p.dealId === dealId) : all)
   }
   async createPayment(input: NewRecord<Payment>): Promise<Payment> {
     const record: Payment = { id: id('recPAY'), ...input }
@@ -280,7 +283,8 @@ export class MockProvider implements DataProvider {
     return patchInto(store().payments, paymentId, patch)
   }
   async listScheduleLegs(dealId?: string): Promise<ScheduleLeg[]> {
-    return clone(store().scheduleLegs)
+    const all = store().scheduleLegs
+    return clone(dealId ? all.filter((l) => l.dealId === dealId) : all)
   }
 
   // ── Operations ───────────────────────────────────────────────────────────
@@ -492,7 +496,8 @@ export class MockProvider implements DataProvider {
   }
 
   async listFulfillment(dealId?: string): Promise<Fulfillment[]> {
-    return clone(store().fulfillment)
+    const all = store().fulfillment
+    return clone(dealId ? all.filter((f) => f.dealId === dealId) : all)
   }
 
   async createFulfillment(input: NewRecord<Fulfillment>): Promise<Fulfillment> {
