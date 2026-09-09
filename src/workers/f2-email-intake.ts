@@ -11,7 +11,7 @@
  */
 
 import { db } from '@/lib/data'
-import { dedupe, dedupeKey, queryFor, resolveAccounts } from '@/lib/intake/accounts'
+import { dedupe, dedupeKey, queryFor, resolveAccounts, isOwnMail } from '@/lib/intake/accounts'
 import { complete } from '@/lib/gateway'
 import { sendMail } from '@/lib/mailer'
 import { gmailGetAs } from '@/lib/google/gmail'
@@ -56,6 +56,8 @@ export interface IntakeReport {
   errors: number
   /** Left for the next run because this one spent its time budget. */
   deferred: number
+  /** Louis's own notifications, read back from the office's inboxes and skipped. */
+  own: number
 }
 
 interface RawMessage {
@@ -82,6 +84,7 @@ export async function run(): Promise<IntakeReport> {
     forwarded: 0,
     errors: 0,
     deferred: 0,
+    own: 0,
   }
   const provider = db()
   const startedAt = Date.now()
@@ -115,6 +118,12 @@ export async function run(): Promise<IntakeReport> {
   const contacts = await provider.listContacts()
 
   for (const message of fresh) {
+    // Our own notifications, read back from the office's inboxes. Skipped before the
+    // model sees them: this loop had ingested fifty-one of them as "updates".
+    if (isOwnMail(message.from, message.subject, speaker)) {
+      report.own += 1
+      continue
+    }
     if (Date.now() - startedAt > RUN_BUDGET_MS) {
       report.deferred = fresh.length - report.fetched
       console.info(`[F2] budget spent — ${report.deferred} message(s) left for the next run`)

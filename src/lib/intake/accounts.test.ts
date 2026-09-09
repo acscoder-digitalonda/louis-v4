@@ -1,13 +1,6 @@
 import { strict as assert } from 'node:assert'
 import { describe, it } from 'node:test'
-import {
-  DEFAULT_LOOKBACK_DAYS,
-  backfillQuery,
-  dedupe,
-  dedupeKey,
-  queryFor,
-  resolveAccounts,
-} from './accounts'
+import { DEFAULT_LOOKBACK_DAYS, backfillQuery, dedupe, dedupeKey, queryFor, resolveAccounts, isOwnMail } from './accounts'
 import type { MailAccount } from '../types'
 import { TABLES } from '@/lib/airtable/schema'
 import { isFreeMailDomain } from '@/lib/enrichment'
@@ -198,5 +191,19 @@ describe('what may become a company', () => {
       'it is excluded by being ours, which is a separate test',
     )
     assert.equal(isFreeMailDomain('janney.com'), false)
+  })
+})
+
+describe('isOwnMail', () => {
+  const own = { teamDomain: 'bennemtin.com', wordmark: 'LOUIS' }
+  it('recognises our own notifications by sender domain and by subject prefix', () => {
+    // Louis read fifty-one of its own digests and alerts back in as "updates".
+    assert.equal(isOwnMail('team@bennemtin.com', 'Nothing needs you today', own), true)
+    assert.equal(isOwnMail('Louis <team@bennemtin.com>', 'anything', own), true)
+    assert.equal(isOwnMail('someone@gmail.com', '[LOUIS] No reply yet — Book Ben', own), true)
+  })
+  it('leaves a client alone, even one replying to us', () => {
+    assert.equal(isOwnMail('dawn@acme.com', 'Re: Speaking Inquiry', own), false)
+    assert.equal(isOwnMail('digitalonda.mailer@gmail.com', 'Book Ben - Dawn Jacobson', own), false)
   })
 })

@@ -151,3 +151,25 @@ export function dedupe<T extends MessageLike>(messages: T[], known: Set<string>)
 
   return { fresh, duplicates }
 }
+
+
+/**
+ * Is this message one of ours?
+ *
+ * Louis sends notifications from the service address to the office — digests, red
+ * alerts, "field changes proposed" — and the office's mailboxes are the ones Louis sweeps.
+ * So it read its own mail back in, classified fifty-one of its own notifications as
+ * "updates", and paid a model call for each. Anything from our own domain, or carrying
+ * the wordmark prefix every notification subject starts with, is skipped before the
+ * model ever sees it.
+ */
+export function isOwnMail(
+  from: string,
+  subject: string,
+  own: { teamDomain: string; wordmark: string },
+): boolean {
+  const address = from.match(/<([^>]+)>/)?.[1] ?? from
+  const domain = address.trim().toLowerCase().split('@')[1] ?? ''
+  if (domain === own.teamDomain.toLowerCase()) return true
+  return subject.trim().toUpperCase().startsWith(`[${own.wordmark.toUpperCase()}]`)
+}
