@@ -352,7 +352,8 @@ export async function run(): Promise<TimerReport> {
       await composeDraft({
         deal,
         type: 'kit',
-        templateKey: to === 'agent' ? 'kit.welcome' : 'kit.welcome',
+        // E11 goes to the bureau agent, who forwards it; E10 goes to the client direct.
+        templateKey: to === 'agent' ? 'kit.welcome.agent' : 'kit.welcome',
       }).catch((err) => console.error(`[${WORKER}] kit draft failed for ${deal.name}`, err))
 
       await recordEvent({

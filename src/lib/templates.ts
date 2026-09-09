@@ -165,6 +165,41 @@ export function missingPlaceholders(text: string): string[] {
 }
 
 /**
+ * The code's names for templates, and Jordan's.
+ *
+ * Every stage packet and timer asks for a template by what it is *for* — `ack.inquiry`,
+ * `followup.forcing` — because that is what the branching logic branches on. The template
+ * library in Airtable is keyed by Jordan's ids — `E01`, `E06` — because that is what the
+ * people editing copy recognise, and what the handoff document indexes by.
+ *
+ * Two vocabularies that never met. The shipped bank below uses the code's names, so it
+ * worked; the seeded table uses Jordan's, so the moment `loadTemplates` was fixed to let
+ * the table win, every draft in the system failed with "Unknown template" — caught by
+ * `firePacket`, logged to a console nobody reads, and the packet reported one draft fewer.
+ * The website form's acknowledgement, the single auto-send in the product, was the first
+ * thing a real test showed missing.
+ *
+ * This is the join. A key resolves by its own name first, then by its library id, so a
+ * row keyed either way is found. The test asserts every name the code uses maps to an id
+ * that exists in the seeded CSV.
+ */
+export const LIBRARY_ID: Record<string, string> = {
+  'ack.inquiry': 'E01',
+  'proposal.standard': 'E04',
+  'followup.soft': 'E05',
+  'followup.forcing': 'E06',
+  'kit.welcome': 'E10',
+  'kit.welcome.agent': 'E11',
+  'chase.questionnaire': 'E13',
+  'journal.promo': 'E15',
+  'debrief.thankyou': 'E18',
+  'reengage.budget': 'E21',
+  'reengage.date': 'E21',
+  'reengage.postponed': 'E21',
+  'reengage.nospeaker': 'E21b',
+}
+
+/**
  * The templates in force: the Airtable table when it has rows, this file when it does not.
  *
  * This function is what the header comment has claimed since v3, and until now it did not
@@ -189,5 +224,7 @@ export async function loadTemplates(): Promise<Template[]> {
 
 /** One template by key, from the table if it is there. */
 export async function loadTemplate(key: string): Promise<Template | null> {
-  return (await loadTemplates()).find((t) => t.key === key) ?? null
+  const all = await loadTemplates()
+  const id = LIBRARY_ID[key]
+  return all.find((t) => t.key === key) ?? (id ? all.find((t) => t.key === id) : undefined) ?? null
 }
