@@ -313,7 +313,11 @@ export class AirtableProvider implements DataProvider {
     set('postKeynoteAlert', patch.postKeynoteAlert)
     set('kitToken', patch.kitToken)
 
-    // paymentStatus / contractStatus / createdAt / lastModified are owned elsewhere.
+    // Once "owned elsewhere" — by a rollup that was never built. The base holds plain
+    // selects, the office sets them, and Pre-Event and the welcome kit both wait on them.
+    set('contractStatus', patch.contractStatus && contractStatusCodec.toAirtable(patch.contractStatus))
+    set('paymentStatus', patch.paymentStatus && paymentStatusCodec.toAirtable(patch.paymentStatus))
+    // createdAt / lastModified are Airtable's own.
     return this.w('deals', out)
   }
 

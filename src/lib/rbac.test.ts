@@ -45,10 +45,19 @@ describe('canWrite', () => {
   })
 
   it('refuses a lookup field even to admin', () => {
-    // A computed field's owner is another table; writing it would silently do nothing.
-    const d = canWrite('admin', 'deals', 'contractStatus')
+    // A computed field's owner is a formula; writing it would silently do nothing.
+    const d = canWrite('admin', 'deals', 'amount')
     assert.equal(d.allowed, false)
     assert.match(d.reason ?? '', /lookup/)
+  })
+
+  it('lets the office set contract and billing status', () => {
+    // These two were marked computed as if a rollup fed them. The base holds plain
+    // selects and nothing fed them, so no role could write them, no screen showed them,
+    // and no deal could ever pass the "contract signed" gate into Pre-Event.
+    assert.equal(canWrite('ops', 'deals', 'contractStatus').allowed, true)
+    assert.equal(canWrite('ops', 'deals', 'paymentStatus').allowed, true)
+    assert.equal(canWrite('owner', 'deals', 'contractStatus').allowed, false, 'money stays with the office')
   })
 
   it('narrows the owner to notes, post-keynote and stage', () => {

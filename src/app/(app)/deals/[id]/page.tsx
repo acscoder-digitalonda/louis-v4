@@ -463,6 +463,53 @@ function SalesTab({
         ) : null}
       </Card>
 
+      {/* Contract and billing. Two selects the office sets; two gates the engine reads.
+          Pre-Event opens on a signed contract; the welcome kit waits for the contract and
+          the deposit invoice. Neither was reachable from any screen before this card. */}
+      <Card>
+        <SectionTitle right={<span className="sub">gates Pre-Event and the kit</span>}>
+          Contract &amp; billing
+        </SectionTitle>
+        <div className="grid grid-cols-2 gap-4">
+          <EditableField
+            endpoint={endpoint}
+            field="contractStatus"
+            label="Contract"
+            value={deal.contractStatus}
+            kind="select"
+            options={[
+              { value: 'none', label: 'Not sent' },
+              { value: 'out', label: 'Out for signature' },
+              { value: 'signed', label: 'Signed' },
+            ]}
+            readOnly={!editable('contractStatus')}
+            lockReason={lockReason('contractStatus')}
+            lastModified={deal.lastModified}
+          />
+          <EditableField
+            endpoint={endpoint}
+            field="paymentStatus"
+            label="Billing"
+            value={deal.paymentStatus}
+            kind="select"
+            options={[
+              { value: 'unbilled', label: 'Unbilled' },
+              { value: 'invoiced', label: 'Invoiced' },
+              { value: 'partial', label: 'Partly paid' },
+              { value: 'paid', label: 'Paid' },
+              { value: 'overdue', label: 'Overdue' },
+            ]}
+            readOnly={!editable('paymentStatus')}
+            lockReason={lockReason('paymentStatus')}
+            lastModified={deal.lastModified}
+          />
+        </div>
+        <p className="sub mt-3">
+          Pre-Event needs the contract signed. The welcome kit goes once the contract is signed
+          and the deposit invoice is out — not when the money lands.
+        </p>
+      </Card>
+
       {/* WP1.1 — what the rate card says, next to what was actually agreed. */}
       {showAmounts ? (
         <Card>

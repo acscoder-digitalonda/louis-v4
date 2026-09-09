@@ -324,16 +324,21 @@ export const TABLES: Record<TableKey, TableSpec> = {
         name: 'Payment Status',
         type: 'singleSelect',
         choices: ['Unbilled', 'Invoiced', 'Partial', 'Paid', 'Overdue'],
-        computed: true,
-        description: 'Rollup from Payments. Read-only everywhere — money owns it.',
+        description:
+          'Set by the office when an invoice goes out or money lands. The Data Map wanted ' +
+          'this as a rollup from Payments; the base holds a plain select, and a select nobody ' +
+          'can write is a gate nobody can open — the welcome kit waits on it.',
       },
       {
         key: 'contractStatus',
         name: 'Contract Status',
         type: 'singleSelect',
         choices: ['None', 'Out', 'Signed'],
-        computed: true,
-        description: 'Rollup from Payments/Schedule Legs. Gates entry to Pre-Event.',
+        description:
+          'Set by the office when the contract goes out and when it comes back signed. ' +
+          'Gates entry to Pre-Event. Was declared a rollup and marked computed, which made it ' +
+          'unwritable by every role while the base held a plain select — so no deal could ' +
+          'ever reach Pre-Event.',
       },
 
       { key: 'driveFolderUrl', name: 'Drive Folder', type: 'url' },
