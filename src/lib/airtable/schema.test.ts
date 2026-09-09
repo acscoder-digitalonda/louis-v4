@@ -38,7 +38,7 @@ describe('select choices match their codec', () => {
     ['deals', 'rateRegion', rateRegionCodec, ['us-canada', 'near-international', 'europe-samerica-japan', 'far-international']],
     ['deals', 'closedLostReason', closedLostReasonCodec, [
       'budget', 'date-unavailable', 'chose-another-speaker',
-      'no-speaker', 'postponed', 'went-quiet', 'other',
+      'no-speaker', 'postponed', 'went-quiet', 'other', 'junk',
     ]],
   ]
 

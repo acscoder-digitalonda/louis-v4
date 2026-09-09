@@ -45,7 +45,7 @@ export const RE_ENGAGEABLE: Record<string, { angle: string; templateKey: string 
 }
 
 /** Reasons a machine must not act on. Each is a person's call, not a campaign's. */
-export const HANDS_OFF: ClosedLostReason[] = ['chose-another-speaker', 'went-quiet', 'other']
+export const HANDS_OFF: ClosedLostReason[] = ['chose-another-speaker', 'went-quiet', 'other', 'junk']
 
 export const WINDOW_MONTHS = 12
 /** How wide the anniversary is. A campaign that fires on one exact day misses most of them. */
@@ -130,7 +130,9 @@ export function planCampaign(deals: Deal[], today: string): CampaignPlan {
             ? 'Chose another speaker — a relationship question, not a campaign.'
             : deal.closedLostReason === 'went-quiet'
               ? 'Went quiet — they already had more from us than they wanted.'
-              : 'Reason is Other, and a campaign built on not knowing burns the list.',
+              : deal.closedLostReason === 'junk'
+                ? 'Discarded as junk — it was never a deal, so there is nobody to re-engage.'
+                : 'Reason is Other, and a campaign built on not knowing burns the list.',
       })
       continue
     }

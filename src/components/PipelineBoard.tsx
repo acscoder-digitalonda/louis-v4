@@ -43,7 +43,9 @@ export function PipelineBoard({ deals, nextTaskByDeal, conflicts, showAmounts, c
       ? deals
       : deals.filter((d) => (d.dealType ?? 'keynote') === typeFilter)
 
-  const closedLost = shown.filter((d) => d.stage === 'closed-lost')
+  // Junk is closed-lost with different consequences: it left the board when it was
+  // discarded, and the collapsed column is not a place for it to come back to.
+  const closedLost = shown.filter((d) => d.stage === 'closed-lost' && d.closedLostReason !== 'junk')
   const byStage = (stage: StageKey) => shown.filter((d) => d.stage === stage)
 
   // Which deals are in an unresolved clash, so a card can say so.

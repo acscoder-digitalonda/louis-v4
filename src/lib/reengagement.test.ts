@@ -135,3 +135,19 @@ describe('planCampaign', () => {
     }
   })
 })
+
+describe('junk', () => {
+  it('is never re-engaged, and says why', () => {
+    // A spam form submission or a marketing reply mis-filed as an inquiry is not a lost
+    // deal. Closing it under any other reason would knock on its door in a year.
+    const lost = {
+      id: 'j1', name: 'Re: Free Resources', stage: 'closed-lost', historical: false,
+      closedLostReason: 'junk', lastModified: '2025-09-01T00:00:00.000Z', eventDate: null,
+      client: null,
+    } as unknown as Deal
+    const plan = planCampaign([lost], '2026-09-09')
+    assert.equal(plan.due.length, 0)
+    assert.equal(plan.skipped.length, 1)
+    assert.match(plan.skipped[0]!.why, /junk/i)
+  })
+})

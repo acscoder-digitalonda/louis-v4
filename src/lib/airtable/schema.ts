@@ -110,6 +110,8 @@ const FULFILLMENT_STATUSES = [
 const CLOSED_LOST_REASONS = [
   'Out of budget', 'Date no longer available', 'Chose another speaker',
   'Decided on no speaker', 'Event postponed or cancelled', 'Went quiet', 'Other',
+  // Not a deal at all. Closed and hidden, never re-engaged.
+  'Junk',
 ]
 
 export const TABLES: Record<TableKey, TableSpec> = {

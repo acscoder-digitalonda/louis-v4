@@ -45,6 +45,17 @@ const OWNER_WRITABLE_DEAL_FIELDS = new Set([
   'desiredOutcomes',
 ])
 
+/**
+ * Who may discard a deal.
+ *
+ * Discarding is not deleting — the deal closes as junk and drops out of every list — but
+ * it is still a judgement that a thing in the pipeline is not a deal, and the owner role
+ * is deliberately kept to notes and stage. The office makes that call.
+ */
+export function canDiscard(role: Role): boolean {
+  return role === 'admin' || role === 'ops'
+}
+
 /** Tables nothing outside the money group may write. */
 const MONEY_WRITERS: Role[] = ['admin', 'ops']
 

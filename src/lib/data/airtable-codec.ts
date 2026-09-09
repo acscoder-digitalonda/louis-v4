@@ -111,6 +111,7 @@ export const closedLostReasonCodec = codec({
   postponed: 'Event postponed or cancelled',
   'went-quiet': 'Went quiet',
   other: 'Other',
+  junk: 'Junk',
 } as const)
 
 export const sourceCodec = codec({ direct: 'Direct', bureau: 'Bureau' } as const)

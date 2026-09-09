@@ -1,16 +1,6 @@
 import { strict as assert } from 'node:assert'
 import { describe, it } from 'node:test'
-import {
-  ROLES,
-  canApproveSends,
-  canConfirmPayments,
-  canSeeMoneyAmounts,
-  canViewScreen,
-  canWrite,
-  canWriteMoney,
-  defaultNotificationPrefs,
-  resolveChannel,
-} from './rbac'
+import { ROLES, canApproveSends, canConfirmPayments, canSeeMoneyAmounts, canViewScreen, canWrite, canWriteMoney, defaultNotificationPrefs, resolveChannel, canDiscard } from './rbac'
 import type { Role, User } from './types'
 
 const user = (role: Role, over: Partial<User> = {}) =>
@@ -135,5 +125,16 @@ describe('notifications', () => {
     assert.equal(defaultNotificationPrefs('owner')['review-item'], 'off')
     assert.equal(defaultNotificationPrefs('admin')['worker-failure'], 'both')
     assert.equal(defaultNotificationPrefs('ops')['review-item'], 'both')
+  })
+})
+
+describe('canDiscard', () => {
+  it('is the office, not the owner', () => {
+    // Discarding is a judgement that a thing in the pipeline is not a deal. The owner
+    // role is kept to notes and stage on purpose; this is the same line.
+    assert.equal(canDiscard('admin'), true)
+    assert.equal(canDiscard('ops'), true)
+    assert.equal(canDiscard('owner'), false)
+    assert.equal(canDiscard('accountant'), false)
   })
 })

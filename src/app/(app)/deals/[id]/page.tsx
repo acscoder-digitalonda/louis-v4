@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { db } from '@/lib/data'
-import { canSeeMoneyAmounts, canWrite } from '@/lib/rbac'
+import { canSeeMoneyAmounts, canWrite, canDiscard } from '@/lib/rbac'
 import { STAGE_PACKETS } from '@/lib/stages'
 import { forecastWeight, dealValue } from '@/lib/forecast'
 import { dayMonth, money, relativeTime, shortDate, tMinus } from '@/lib/format'
@@ -28,6 +28,7 @@ import { LineItems } from '@/components/deal/LineItems'
 import { CoachingLedger } from '@/components/deal/CoachingLedger'
 import { CapacityCheck } from '@/components/deal/CapacityCheck'
 import { DealTabs } from '@/components/deal/DealTabs'
+import { DiscardButton } from '@/components/deal/DiscardButton'
 import { REPLY_SLA_MINUTES, slaState, type SlaState } from '@/lib/sla'
 import { isCoaching } from '@/lib/coaching'
 import type { Deal, DealLineItem, Fulfillment, JournalOrder, Product, Task } from '@/lib/types'
@@ -140,6 +141,9 @@ export default async function DealPage({
               stage={deal.stage}
               canEdit={canWrite(user.role, 'deals', 'stage').allowed}
             />
+            {canDiscard(user.role) && deal.closedLostReason !== 'junk' ? (
+              <DiscardButton dealId={deal.id} name={deal.name} />
+            ) : null}
           </div>
         </div>
       </div>

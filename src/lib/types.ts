@@ -53,6 +53,8 @@ export type ClosedLostReason =
   | 'postponed'
   | 'went-quiet'
   | 'other'
+  /** Not a deal at all — spam, a marketing reply, a test. Closed, hidden, never re-engaged. */
+  | 'junk'
 
 /** Who owns the next chase. A formula, not a choice: 0-1 touches Liezel, 2+ Ben. */
 export type NextActionOwner = 'ops' | 'owner'
