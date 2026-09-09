@@ -10,6 +10,7 @@
  */
 
 import { z } from 'zod'
+import { isFreeMailDomain } from '@/lib/enrichment'
 import { db } from '@/lib/data'
 import { notify } from '@/lib/notify'
 import { agentActor, recordEvent } from '@/lib/audit'
@@ -49,10 +50,17 @@ export async function handleFormSubmission(input: FormSubmission): Promise<Deal>
       ? clients.find((c) => c.name.toLowerCase() === input.company!.toLowerCase())
       : undefined)
 
-  if (!client && (input.company || domain)) {
+  // A company is created from what the person typed, or from a domain that could be one.
+  // Not from gmail.com because they left the company field blank — the same mistake the
+  // inbox sweep made, and a fake company is worse than a blank one.
+  const companyDomain =
+    domain && !isFreeMailDomain(domain) && domain !== speaker.teamDomain.toLowerCase()
+      ? domain
+      : null
+  if (!client && (input.company || companyDomain)) {
     client = await provider.createClient({
-      name: input.company ?? domain ?? 'Unknown company',
-      domain: domain ?? null,
+      name: input.company ?? companyDomain!,
+      domain: companyDomain,
       notes: 'Created from the website form.',
     })
   }
