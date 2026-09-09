@@ -89,7 +89,7 @@ export async function readThrough<T>(
   const key = cacheKey(table, opts)
   const hit = s.entries.get(key)
 
-  if (hit && now - hit.at < DEFAULT_TTL_MS) {
+  if (hit && now - hit.at < DEFAULT_TTL_MS && !(await recentlyWrote(now))) {
     s.hits += 1
     s.requestsSaved += estimatedRequests
     return hit.value as T
@@ -99,6 +99,24 @@ export async function readThrough<T>(
   const value = await load()
   s.entries.set(key, { at: now, value })
   return value
+}
+
+/**
+ * Did this browser write something within the cache's lifetime?
+ *
+ * The middleware stamps a cookie on every write through /api. Inside a request this
+ * reads it; outside one — a worker on the CLI, a test — `next/headers` throws, and the
+ * answer is no. The point is to make a person's own writes visible to their own next
+ * read whichever instance serves it; other people, and the workers, keep the cache.
+ */
+async function recentlyWrote(now: number): Promise<boolean> {
+  try {
+    const { cookies } = await import('next/headers')
+    const stamp = (await cookies()).get('louis-fresh')?.value
+    return Boolean(stamp) && now - Number(stamp) < DEFAULT_TTL_MS
+  } catch {
+    return false
+  }
 }
 
 /**
