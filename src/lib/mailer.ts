@@ -28,13 +28,20 @@ export function transport(): Transport {
   return googleConfigured() && !!process.env.GMAIL_SERVICE_ADDRESS ? 'gmail' : 'console'
 }
 
-export async function sendMail(input: MailInput): Promise<void> {
+/**
+ * Sends. Actually sends — `/messages/send`, not `/drafts`.
+ *
+ * Returns what Gmail returns so a draft record can keep the thread. The console transport
+ * returns a synthetic id and no thread, and says so in the id.
+ */
+export async function sendMail(input: MailInput): Promise<{ id: string; threadId: string | null }> {
   if (transport() === 'console') {
     console.info(`[mailer:console] → ${input.to}\n  ${input.subject}\n${indent(input.text)}`)
-    return
+    return { id: `console-send-${Date.now()}`, threadId: null }
   }
   const raw = encodeMessage({ ...input, from: process.env.GMAIL_SERVICE_ADDRESS! })
-  await gmailRequest('/messages/send', { raw })
+  const res = await gmailRequest<{ id: string; threadId?: string }>('/messages/send', { raw })
+  return { id: res.id, threadId: res.threadId ?? null }
 }
 
 /**
@@ -60,13 +67,27 @@ function indent(text: string): string {
     .join('\n')
 }
 
+/**
+ * A header value Gmail will show as written.
+ *
+ * Headers are ASCII. A subject with an em dash in it — which is most of this product's
+ * subjects — went out as raw UTF-8 bytes, and every mail client read them as Latin-1:
+ * "No reply yet Ã¢Â€Â" Book Ben". RFC 2047 is the envelope: base64 the value and mark
+ * it UTF-8. Pure-ASCII values are left alone so nothing else changes.
+ */
+export function encodeHeader(value: string): string {
+  // eslint-disable-next-line no-control-regex
+  return /^[\x00-\x7f]*$/.test(value) ? value : `=?UTF-8?B?${Buffer.from(value, 'utf8').toString('base64')}?=`
+}
+
 function encodeMessage(input: MailInput & { from: string }): string {
   const lines = [
     `From: ${input.from}`,
     `To: ${input.to}`,
-    `Subject: ${input.subject}`,
+    `Subject: ${encodeHeader(input.subject)}`,
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: 8bit',
     '',
     input.text,
   ]

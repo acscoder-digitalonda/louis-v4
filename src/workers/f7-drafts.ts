@@ -14,7 +14,7 @@
 import { db } from '@/lib/data'
 import { complete, GatewayPaused } from '@/lib/gateway'
 import { loadTemplate, missingPlaceholders, render } from '@/lib/templates'
-import { createGmailDraft } from '@/lib/mailer'
+import { createGmailDraft, sendMail } from '@/lib/mailer'
 import { notify } from '@/lib/notify'
 import { recordEvent, agentActor } from '@/lib/audit'
 import { money, shortDate, daysUntil } from '@/lib/format'
@@ -108,7 +108,13 @@ export async function composeDraft(req: DraftRequest): Promise<Draft> {
 
   if (req.autoSend && recipient) {
     // The one whitelisted auto-send. Still logged, still auditable.
-    const sent = await createGmailDraft({ to: recipient, subject, text: body })
+    //
+    // `sendMail`, not `createGmailDraft`. This line created a Gmail *draft* and then
+    // recorded the record as sent, with an audit row saying "Auto-sent". The website
+    // acknowledgement — the single auto-send in the product — never left anyone's Drafts
+    // folder, and every screen said it had. Found because the person it was addressed to
+    // said they had not received it.
+    const sent = await sendMail({ to: recipient, subject, text: body })
     await provider.updateDraft(draft.id, {
       status: 'sent',
       approver: 'auto',

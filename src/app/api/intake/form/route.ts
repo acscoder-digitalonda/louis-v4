@@ -39,11 +39,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, dealId: deal.id }, { status: 201 })
   } catch (err) {
-    // The submitter gets a clean answer; an admin gets the detail.
-    void notifyWorkerFailure({ worker: 'F1 form intake', error: err }).catch(() => undefined)
+    // A submission that fails validation is the submitter's problem, answered with a 400.
+    // It used to reach the failure notifier first, so every malformed POST — a bot, a
+    // probe, an empty body — emailed the admins a stack trace. This is a public endpoint;
+    // what a stranger can send must not be able to page anyone.
     if (err instanceof Error && err.name === 'ZodError') {
       return NextResponse.json({ error: 'Please check the form fields.' }, { status: 400 })
     }
+    // Everything else is ours — a provider down, a packet that threw — and an admin
+    // should hear about it, once per six hours per cause.
+    void notifyWorkerFailure({ worker: 'F1 form intake', error: err }).catch(() => undefined)
     return fail(err)
   }
 }
