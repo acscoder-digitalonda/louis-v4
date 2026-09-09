@@ -13,7 +13,8 @@ import { countRequest, invalidate, readThrough, type RequestKind } from './cache
 
 const API = 'https://api.airtable.com/v0'
 const META = 'https://api.airtable.com/v0/meta'
-const MIN_GAP_MS = 210
+/** Slack added when waiting for the window to open, so a burst does not re-trip it. */
+const MIN_GAP_MS = 20
 const MAX_RETRIES = 3
 
 export class AirtableError extends Error {
@@ -45,16 +46,29 @@ export function readConfig(): AirtableConfig | null {
   return { apiKey, baseId }
 }
 
-let chain: Promise<unknown> = Promise.resolve()
+/**
+ * Airtable's limit is five requests a second, per base. The old throttle honoured that by
+ * running one request at a time and sleeping 210ms after each — which also meant a
+ * `Promise.all` of nine reads ran as nine reads in a row. Opening one deal took 44 seconds.
+ *
+ * This keeps the same ceiling and drops the serialisation: at most five requests may
+ * *start* in any rolling second, and they may be in flight together. A 429, if the window
+ * is ever wrong, is retried with backoff below — the ceiling is the courtesy, the retry is
+ * the guarantee.
+ */
+const WINDOW_MS = 1000
+const MAX_PER_WINDOW = 5
+const starts: number[] = []
 
-function throttle<T>(fn: () => Promise<T>): Promise<T> {
-  const next = chain.then(async () => {
-    const result = await fn()
-    await new Promise((r) => setTimeout(r, MIN_GAP_MS))
-    return result
-  })
-  chain = next.catch(() => undefined)
-  return next as Promise<T>
+async function throttle<T>(fn: () => Promise<T>): Promise<T> {
+  for (;;) {
+    const now = Date.now()
+    while (starts.length && now - starts[0]! >= WINDOW_MS) starts.shift()
+    if (starts.length < MAX_PER_WINDOW) break
+    await new Promise((r) => setTimeout(r, WINDOW_MS - (now - starts[0]!) + MIN_GAP_MS))
+  }
+  starts.push(Date.now())
+  return fn()
 }
 
 async function request<T>(
@@ -203,6 +217,17 @@ export async function listRecordsFresh(
 }
 
 export async function getRecord(
+  cfg: AirtableConfig,
+  table: TableKey,
+  id: string,
+): Promise<AirtableRecord | null> {
+  // Cached like a list read, keyed by id, and cleared by the same write-path invalidation.
+  // Uncached, every helper that needed one deal's name to build a filter re-fetched the
+  // deal — eleven times per page.
+  return readThrough(table, { id }, 1, () => getRecordFresh(cfg, table, id))
+}
+
+async function getRecordFresh(
   cfg: AirtableConfig,
   table: TableKey,
   id: string,

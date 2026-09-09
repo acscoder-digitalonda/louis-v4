@@ -67,10 +67,10 @@ export default async function DealPage({
     provider.listDrafts({ dealId: id }),
     provider.listEmails(id),
     provider.listAudit(id, 60),
-    provider.listJournalOrders(),
-    provider.listPayments(),
-    provider.listScheduleLegs(),
-    provider.listContacts(),
+    provider.listJournalOrders(id),
+    provider.listPayments(id),
+    provider.listScheduleLegs(id),
+    provider.listContacts({ dealId: id }),
     provider.listResearchBriefs(id),
   ])
 
@@ -80,7 +80,7 @@ export default async function DealPage({
 
   // WP1.4 + Decisions Log §1: what is in flight for this deal, and what this company has
   // bought before. The second is the chip Ben should never walk into a call without.
-  const fulfillment = (await provider.listFulfillment().catch(() => [])).filter(
+  const fulfillment = (await provider.listFulfillment(id).catch(() => [])).filter(
     (f) => f.dealId === deal.id,
   )
   // Only for a coaching deal: a keynote has no sessions and the read would be waste.

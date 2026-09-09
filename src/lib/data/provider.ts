@@ -76,21 +76,21 @@ export interface DataProvider {
   getClient(id: string): Promise<Client | null>
   createClient(input: Partial<Client> & { name: string }): Promise<Client>
   updateClient(id: string, patch: Partial<Client>): Promise<Client>
-  listContacts(): Promise<Contact[]>
+  listContacts(filter?: { dealId?: string }): Promise<Contact[]>
   getContact(id: string): Promise<Contact | null>
   createContact(input: Partial<Contact> & { name: string }): Promise<Contact>
   updateContact(id: string, patch: Partial<Contact>): Promise<Contact>
 
   // Domain 3 — Journal
-  listJournalOrders(): Promise<JournalOrder[]>
+  listJournalOrders(dealId?: string): Promise<JournalOrder[]>
   createJournalOrder(input: NewRecord<JournalOrder>): Promise<JournalOrder>
   updateJournalOrder(id: string, patch: Partial<JournalOrder>): Promise<JournalOrder>
 
   // Domain 4 — Money
-  listPayments(): Promise<Payment[]>
+  listPayments(dealId?: string): Promise<Payment[]>
   createPayment(input: NewRecord<Payment>): Promise<Payment>
   updatePayment(id: string, patch: Partial<Payment>): Promise<Payment>
-  listScheduleLegs(): Promise<ScheduleLeg[]>
+  listScheduleLegs(dealId?: string): Promise<ScheduleLeg[]>
 
   // Operations
   listTasks(filter?: TaskFilter): Promise<Task[]>
@@ -177,7 +177,7 @@ export interface DataProvider {
   listRateCards(): Promise<RateCard[]>
   listTestimonials(): Promise<Testimonial[]>
   listPastClients(): Promise<PastClient[]>
-  listFulfillment(): Promise<Fulfillment[]>
+  listFulfillment(dealId?: string): Promise<Fulfillment[]>
   createFulfillment(input: NewRecord<Fulfillment>): Promise<Fulfillment>
   listCoachingSessions(dealId?: string): Promise<CoachingSession[]>
   createCoachingSession(input: NewRecord<CoachingSession>): Promise<CoachingSession>

@@ -171,6 +171,46 @@ export class AirtableProvider implements DataProvider {
     return names
   }
 
+  private idNames = new Map<string, { name: string; at: number }>()
+
+  /**
+   * Names for a handful of ids, fetched one record at a time and remembered.
+   *
+   * `names()` above builds the whole map — every client and every contact, twenty-two
+   * requests — which amortises over a list of deals and is pure waste for one. A deal
+   * links one client and at most one agent; two single-record reads, or none once warm.
+   */
+  private async namesFor(refs: { table: 'clients' | 'contacts'; id: string | null }[]): Promise<Map<string, string>> {
+    const out = new Map<string, string>()
+    const now = Date.now()
+    if (this.nameCache && now - this.nameCache.at < NAME_CACHE_TTL_MS) return this.nameCache.names
+    await Promise.all(
+      refs
+        .filter((r): r is { table: 'clients' | 'contacts'; id: string } => Boolean(r.id))
+        .map(async ({ table, id }) => {
+          const hit = this.idNames.get(id)
+          if (hit && now - hit.at < NAME_CACHE_TTL_MS) {
+            out.set(id, hit.name)
+            return
+          }
+          const record = await getRecord(this.cfg, table, id)
+          const name = record ? reqStr(makeReader(table, record)('name'), id) : id
+          this.idNames.set(id, { name, at: now })
+          out.set(id, name)
+        }),
+    )
+    return out
+  }
+
+  /** The two ids a deal record links to, for `namesFor`. */
+  private dealRefs(record: AirtableRecord): { table: 'clients' | 'contacts'; id: string | null }[] {
+    const f = makeReader('deals', record)
+    return [
+      { table: 'clients', id: firstLink(f('client')) },
+      { table: 'contacts', id: firstLink(f('bureauAgent')) },
+    ]
+  }
+
   private ref(id: string | null, names: Map<string, string>): Ref | null {
     if (!id) return null
     return { id, name: names.get(id) ?? id }
@@ -345,8 +385,8 @@ export class AirtableProvider implements DataProvider {
   }
 
   async getDeal(id: string): Promise<Deal | null> {
-    const [record, names] = await Promise.all([getRecord(this.cfg, 'deals', id), this.names()])
-    return record ? this.decodeDeal(record, names) : null
+    const record = await getRecord(this.cfg, 'deals', id)
+    return record ? this.decodeDeal(record, await this.namesFor(this.dealRefs(record))) : null
   }
 
   async createDeal(input: Partial<Deal> & { name: string }): Promise<Deal> {
@@ -354,12 +394,12 @@ export class AirtableProvider implements DataProvider {
       this.encodeDeal({ stage: 'inquiry', source: 'direct', ...input }),
     ])
     if (!created) throw new Error('Airtable returned no record for createDeal')
-    return this.decodeDeal(created, await this.names())
+    return this.decodeDeal(created, await this.namesFor(this.dealRefs(created)))
   }
 
   async updateDeal(id: string, patch: Partial<Deal>): Promise<Deal> {
     const updated = await updateRecord(this.cfg, 'deals', id, this.encodeDeal(patch))
-    return this.decodeDeal(updated, await this.names())
+    return this.decodeDeal(updated, await this.namesFor(this.dealRefs(updated)))
   }
 
   // ── CRM ──────────────────────────────────────────────────────────────────
@@ -440,8 +480,31 @@ export class AirtableProvider implements DataProvider {
     }
   }
 
-  async listContacts(): Promise<Contact[]> {
-    const records = await listRecords(this.cfg, 'contacts')
+  /**
+   * A server-side filter for "rows linked to this deal".
+   *
+   * Airtable formulas see a link field as the linked record's *primary field* — the deal
+   * name — never its id, and the lookup that would expose RECORD_ID() cannot be created
+   * through the API. So the formula narrows by name and the caller keeps its exact
+   * id filter for the rare collision. Opening one deal used to read every task, draft,
+   * payment, contact and audit row in the base to find the handful that were its own:
+   * 81 requests and 44 seconds, serialised 210ms apart.
+   *
+   * Returns undefined when the deal cannot be read, which means "read everything" — the
+   * behaviour before this existed, never anything worse.
+   */
+  private async byDeal(table: TableKey, linkKey: string, dealId: string): Promise<string | undefined> {
+    // The raw record, not a decoded deal: decoding resolves names, and this only needs one.
+    const record = await getRecord(this.cfg, 'deals', dealId).catch(() => null)
+    const name = record ? str(makeReader('deals', record)('name')) : null
+    if (!name) return undefined
+    return `FIND(${formulaValue(name)}, ARRAYJOIN({${fieldRef(table, linkKey)}}))`
+  }
+
+  async listContacts(filter: { dealId?: string } = {}): Promise<Contact[]> {
+    const records = await listRecords(this.cfg, 'contacts', {
+      filterByFormula: filter.dealId ? await this.byDeal('contacts', 'dealIds', filter.dealId) : undefined,
+    })
     return records.map((r) => this.decodeContact(r)).sort((a, b) => a.name.localeCompare(b.name))
   }
 
@@ -510,8 +573,10 @@ export class AirtableProvider implements DataProvider {
     return this.w('journalOrders', out)
   }
 
-  async listJournalOrders(): Promise<JournalOrder[]> {
-    const records = await listRecords(this.cfg, 'journalOrders')
+  async listJournalOrders(dealId?: string): Promise<JournalOrder[]> {
+    const records = await listRecords(this.cfg, 'journalOrders', {
+      filterByFormula: dealId ? await this.byDeal('journalOrders', 'dealId', dealId) : undefined,
+    })
     return records.map((r) => this.decodeJournal(r))
   }
 
@@ -557,8 +622,10 @@ export class AirtableProvider implements DataProvider {
     return this.w('payments', out)
   }
 
-  async listPayments(): Promise<Payment[]> {
-    const records = await listRecords(this.cfg, 'payments')
+  async listPayments(dealId?: string): Promise<Payment[]> {
+    const records = await listRecords(this.cfg, 'payments', {
+      filterByFormula: dealId ? await this.byDeal('payments', 'dealId', dealId) : undefined,
+    })
     return records.map((r) => this.decodePayment(r))
   }
 
@@ -572,8 +639,10 @@ export class AirtableProvider implements DataProvider {
     return this.decodePayment(await updateRecord(this.cfg, 'payments', id, this.encodePayment(patch)))
   }
 
-  async listScheduleLegs(): Promise<ScheduleLeg[]> {
-    const records = await listRecords(this.cfg, 'scheduleLegs')
+  async listScheduleLegs(dealId?: string): Promise<ScheduleLeg[]> {
+    const records = await listRecords(this.cfg, 'scheduleLegs', {
+      filterByFormula: dealId ? await this.byDeal('scheduleLegs', 'dealId', dealId) : undefined,
+    })
     return records.map((record) => {
       const f = makeReader('scheduleLegs', record)
       return {
@@ -617,7 +686,9 @@ export class AirtableProvider implements DataProvider {
   }
 
   async listTasks(filter: TaskFilter = {}): Promise<Task[]> {
-    const records = await listRecords(this.cfg, 'tasks')
+    const records = await listRecords(this.cfg, 'tasks', {
+      filterByFormula: filter.dealId ? await this.byDeal('tasks', 'dealId', filter.dealId) : undefined,
+    })
     let out = records.map((r) => this.decodeTask(r))
     if (filter.dealId) out = out.filter((t) => t.dealId === filter.dealId)
     if (filter.stage) out = out.filter((t) => t.stage === filter.stage)
@@ -676,7 +747,9 @@ export class AirtableProvider implements DataProvider {
   }
 
   async listDrafts(filter: DraftFilter = {}): Promise<Draft[]> {
-    const records = await listRecords(this.cfg, 'drafts')
+    const records = await listRecords(this.cfg, 'drafts', {
+      filterByFormula: filter.dealId ? await this.byDeal('drafts', 'dealId', filter.dealId) : undefined,
+    })
     let out = records.map((r) => this.decodeDraft(r))
     if (filter.dealId) out = out.filter((d) => d.dealId === filter.dealId)
     if (filter.status) out = out.filter((d) => d.status === filter.status)
@@ -743,7 +816,9 @@ export class AirtableProvider implements DataProvider {
   }
 
   async listEmails(dealId?: string): Promise<EmailRecord[]> {
-    const records = await listRecords(this.cfg, 'emails')
+    const records = await listRecords(this.cfg, 'emails', {
+      filterByFormula: dealId ? await this.byDeal('emails', 'dealId', dealId) : undefined,
+    })
     const out = records.map((r) => this.decodeEmail(r))
     return (dealId ? out.filter((e) => e.dealId === dealId) : out).sort((a, b) =>
       b.receivedAt.localeCompare(a.receivedAt),
@@ -965,7 +1040,12 @@ export class AirtableProvider implements DataProvider {
   // ── Audit ────────────────────────────────────────────────────────────────
 
   async listAudit(entityId?: string, limit = 100): Promise<AuditEntry[]> {
-    const records = await listRecords(this.cfg, 'auditLog', { maxRecords: entityId ? undefined : limit })
+    // Record ID is a text column, so this is an exact match — no name trick needed. Before,
+    // asking for one record's history read the entire audit log, every time.
+    const records = await listRecords(this.cfg, 'auditLog', {
+      maxRecords: entityId ? undefined : limit,
+      filterByFormula: entityId ? `{${fieldRef('auditLog', 'entityId')}} = ${formulaValue(entityId)}` : undefined,
+    })
     const out = records
       .map((record) => {
         const f = makeReader('auditLog', record)
@@ -1110,9 +1190,9 @@ export class AirtableProvider implements DataProvider {
     const records = await listRecords(this.cfg, 'deals', {
       filterByFormula: `IS_AFTER(LAST_MODIFIED_TIME(), ${formulaValue(since)})`,
     })
-    // `names()` is itself a cached read, so resolving the client name on a one-deal
-    // result does not undo the saving.
-    const names = await this.names()
+    // Names for the handful of ids these records link to — not the whole map. This runs
+    // every hour to decode a few changed deals; the map is twenty-two requests each time.
+    const names = await this.namesFor(records.flatMap((r) => this.dealRefs(r)))
     return records.map((r) => this.decodeDeal(r, names))
   }
 
@@ -1221,7 +1301,7 @@ export class AirtableProvider implements DataProvider {
       maxRecords: 1,
     })
     if (records.length === 0) return null
-    return this.decodeDeal(records[0]!, await this.names())
+    return this.decodeDeal(records[0]!, await this.namesFor(this.dealRefs(records[0]!)))
   }
 
   // ── Pricing and social proof (WP1.1, WP1.5) ──────────────────────────────
@@ -1286,8 +1366,10 @@ export class AirtableProvider implements DataProvider {
 
   // ── Fulfillment (WP1.4) ──────────────────────────────────────────────────
 
-  async listFulfillment(): Promise<Fulfillment[]> {
-    const records = await listRecords(this.cfg, 'fulfillment')
+  async listFulfillment(dealId?: string): Promise<Fulfillment[]> {
+    const records = await listRecords(this.cfg, 'fulfillment', {
+      filterByFormula: dealId ? await this.byDeal('fulfillment', 'deal', dealId) : undefined,
+    })
     return records.map((record) => {
       const f = makeReader('fulfillment', record)
       return {
@@ -1333,7 +1415,9 @@ export class AirtableProvider implements DataProvider {
   }
 
   async listCoachingSessions(dealId?: string): Promise<CoachingSession[]> {
-    const records = await listRecords(this.cfg, 'coachingSessions')
+    const records = await listRecords(this.cfg, 'coachingSessions', {
+      filterByFormula: dealId ? await this.byDeal('coachingSessions', 'deal', dealId) : undefined,
+    })
     const all = records.map((record) => {
       const f = makeReader('coachingSessions', record)
       return {
@@ -1385,8 +1469,18 @@ export class AirtableProvider implements DataProvider {
   }
 
   async listLineItems(dealId?: string): Promise<DealLineItem[]> {
-    const records = await listRecords(this.cfg, 'dealLineItems')
-    const names = await this.names()
+    const records = await listRecords(this.cfg, 'dealLineItems', {
+      filterByFormula: dealId ? await this.byDeal('dealLineItems', 'deal', dealId) : undefined,
+    })
+    // Product names come from Products. This used to consult the clients-and-contacts map,
+    // which cost twenty-three requests and contains no products — so every line item's
+    // productName was null, and the deal page paid for the privilege.
+    const names = new Map<string, string>()
+    if (records.length > 0) {
+      for (const r of await listRecords(this.cfg, 'products')) {
+        names.set(r.id, reqStr(makeReader('products', r)('name'), r.id))
+      }
+    }
     const all = records.map((record) => {
       const f = makeReader('dealLineItems', record)
       const productId = firstLink(f('product'))
@@ -1520,7 +1614,9 @@ export class AirtableProvider implements DataProvider {
   // ── Research briefs ──────────────────────────────────────────────────────
 
   async listResearchBriefs(dealId?: string): Promise<ResearchBrief[]> {
-    const records = await listRecords(this.cfg, 'researchBriefs')
+    const records = await listRecords(this.cfg, 'researchBriefs', {
+      filterByFormula: dealId ? await this.byDeal('researchBriefs', 'dealId', dealId) : undefined,
+    })
     const out = records.map((record) => {
       const f = makeReader('researchBriefs', record)
       return {

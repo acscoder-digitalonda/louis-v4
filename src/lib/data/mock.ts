@@ -227,7 +227,7 @@ export class MockProvider implements DataProvider {
     return patchInto(store().clients, clientId, patch)
   }
 
-  async listContacts(): Promise<Contact[]> {
+  async listContacts(filter: { dealId?: string } = {}): Promise<Contact[]> {
     return clone(store().contacts)
   }
   async getContact(contactId: string): Promise<Contact | null> {
@@ -255,7 +255,7 @@ export class MockProvider implements DataProvider {
   }
 
   // ── Journal ──────────────────────────────────────────────────────────────
-  async listJournalOrders(): Promise<JournalOrder[]> {
+  async listJournalOrders(dealId?: string): Promise<JournalOrder[]> {
     return clone(store().journalOrders)
   }
   async createJournalOrder(input: NewRecord<JournalOrder>): Promise<JournalOrder> {
@@ -268,7 +268,7 @@ export class MockProvider implements DataProvider {
   }
 
   // ── Money ────────────────────────────────────────────────────────────────
-  async listPayments(): Promise<Payment[]> {
+  async listPayments(dealId?: string): Promise<Payment[]> {
     return clone(store().payments)
   }
   async createPayment(input: NewRecord<Payment>): Promise<Payment> {
@@ -279,7 +279,7 @@ export class MockProvider implements DataProvider {
   async updatePayment(paymentId: string, patch: Partial<Payment>): Promise<Payment> {
     return patchInto(store().payments, paymentId, patch)
   }
-  async listScheduleLegs(): Promise<ScheduleLeg[]> {
+  async listScheduleLegs(dealId?: string): Promise<ScheduleLeg[]> {
     return clone(store().scheduleLegs)
   }
 
@@ -491,7 +491,7 @@ export class MockProvider implements DataProvider {
     return clone(store().pastClients)
   }
 
-  async listFulfillment(): Promise<Fulfillment[]> {
+  async listFulfillment(dealId?: string): Promise<Fulfillment[]> {
     return clone(store().fulfillment)
   }
 
