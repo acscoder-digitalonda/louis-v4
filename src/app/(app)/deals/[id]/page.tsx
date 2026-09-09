@@ -27,6 +27,7 @@ import { nudgesFor } from '@/lib/fulfillment'
 import { LineItems } from '@/components/deal/LineItems'
 import { CoachingLedger } from '@/components/deal/CoachingLedger'
 import { CapacityCheck } from '@/components/deal/CapacityCheck'
+import { DealTabs } from '@/components/deal/DealTabs'
 import { REPLY_SLA_MINUTES, slaState, type SlaState } from '@/lib/sla'
 import { isCoaching } from '@/lib/coaching'
 import type { Deal, DealLineItem, Fulfillment, JournalOrder, Product, Task } from '@/lib/types'
@@ -143,21 +144,13 @@ export default async function DealPage({
         </div>
       </div>
 
-      {/* ── tabs (state in the URL: shareable, back-button-safe) ──────── */}
-      <nav className="scroll-x no-scrollbar -mx-[var(--shell-pad)] mb-5 flex gap-2 border-b px-[var(--shell-pad)] pb-3">
-        {TABS.map((t) => (
-          <Link
-            key={t}
-            href={`/deals/${deal.id}?tab=${t}`}
-            className={`pill ${t === tab ? 'pill-accent' : 'pill-ghost'}`}
-            aria-current={t === tab ? 'page' : undefined}
-          >
-            {t}
-          </Link>
-        ))}
-      </nav>
-
-      {tab === 'overview' ? (
+      {/* ── tabs: switched on the client; the URL follows ───────────────── */}
+      <DealTabs
+        dealId={deal.id}
+        tabs={TABS}
+        initial={tab}
+        panels={{
+          overview: (
         <OverviewTab
           deal={deal}
           tasks={tasks}
@@ -168,9 +161,8 @@ export default async function DealPage({
           contacts={dealContacts}
           briefCount={briefs.length}
         />
-      ) : null}
-
-      {tab === 'sales' ? (
+          ),
+          sales: (
         <SalesTab
           deal={deal}
           priced={priced}
@@ -181,19 +173,17 @@ export default async function DealPage({
           drafts={drafts.filter((d) => ['proposal', 'follow-up', 'forcing'].includes(d.type))}
           sla={deal.stage === 'inquiry' ? slaState(deal, drafts) : null}
         />
-      ) : null}
-
-      {tab === 'logistics' ? (
+          ),
+          logistics: (
         <LogisticsTab deal={deal} endpoint={endpoint} editable={editable} lockReason={lockReason} tasks={tasks} />
-      ) : null}
-
-      {tab === 'questionnaire' ? (
+          ),
+          questionnaire: (
         <QuestionnaireTab deal={deal} endpoint={endpoint} editable={editable} lockReason={lockReason} />
-      ) : null}
-
-      {tab === 'assets' ? <AssetsTab deal={deal} endpoint={endpoint} editable={editable} /> : null}
-
-      {tab === 'coaching' ? (
+          ),
+          assets: (
+        <AssetsTab deal={deal} endpoint={endpoint} editable={editable} />
+          ),
+          coaching: (
         isCoaching(deal.dealType) ? (
           <CoachingLedger
             sessions={coachingSessions}
@@ -205,9 +195,8 @@ export default async function DealPage({
             filledBy="The session ledger belongs to Speaker Coaching and Executive Coaching. Change the Deal Type on the Overview tab if this is one."
           />
         )
-      ) : null}
-
-      {tab === 'journal' ? (
+          ),
+          journal: (
         <JournalTab
           orders={dealJournal}
           fulfillment={fulfillment}
@@ -218,18 +207,20 @@ export default async function DealPage({
           showAmounts={showAmounts}
           canEdit={canWrite(user.role, 'dealLineItems').allowed}
         />
-      ) : null}
-
-      {tab === 'money' ? (
+          ),
+          money: (
         <MoneyTab
           deal={deal}
           showAmounts={showAmounts}
           payments={dealPayments}
           legs={dealLegs}
         />
-      ) : null}
-
-      {tab === 'activity' ? <ActivityTab audit={audit} emails={emails} drafts={drafts} /> : null}
+          ),
+          activity: (
+        <ActivityTab audit={audit} emails={emails} drafts={drafts} />
+          ),
+        }}
+      />
     </div>
   )
 }
