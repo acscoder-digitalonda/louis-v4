@@ -1,6 +1,6 @@
 {
   "baseId": "app5In2fKegyPm4sU",
-  "generatedAt": "2026-09-08T15:38:04.220Z",
+  "generatedAt": "2026-09-09T08:12:21.546Z",
   "tables": {
     "clients": {
       "tableId": "tblrMl2530lYOQlRX",
@@ -81,7 +81,8 @@
         "driveFolderUrl": "fldV6K9tAdKtsn5uD",
         "historical": "fldAX7PzLo2kSVEnk",
         "importBatch": "fldeO56FuEceVg1Si",
-        "sourceRef": "fldgn4rz1dXvrImPq"
+        "sourceRef": "fldgn4rz1dXvrImPq",
+        "lastModified": "fldKSsX61yBg45PIi"
       }
     },
     "tasks": {
