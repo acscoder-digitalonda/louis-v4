@@ -40,8 +40,10 @@ echo
 echo "── Push ───────────────────────────────────────────"
 GIT_MAIN="louis-v3-git-main-team-digitalondas-projects.vercel.app"
 # What the branch domain serves *before* the push: the wait below is for it to change.
+# `2>&1`, not `2>/dev/null`: the CLI prints inspect output on stderr, and with it silenced
+# the loop read an empty url for ever and hung for the full fifteen minutes. Twice.
 # Matching "Ready" in the listing is not enough — the row it matches is the last deploy.
-before="$(npx vercel inspect "$GIT_MAIN" 2>/dev/null | awk '/^\s*url/ {print $2}' || true)"
+before="$(npx vercel inspect "$GIT_MAIN" 2>&1 | awk '/^\s*url/ {print $2}' || true)"
 sha="$(git rev-parse --short HEAD)"
 git push origin main
 echo "Pushed $sha. Vercel builds from GitHub."
@@ -49,7 +51,7 @@ echo "Pushed $sha. Vercel builds from GitHub."
 echo
 echo "── Wait for Vercel ────────────────────────────────"
 for _ in $(seq 1 60); do
-  now="$(npx vercel inspect "$GIT_MAIN" 2>/dev/null || true)"
+  now="$(npx vercel inspect "$GIT_MAIN" 2>&1 || true)"
   url="$(awk '/^\s*url/ {print $2}' <<<"$now")"
   status="$(awk '/^\s*status/ {print $0}' <<<"$now")"
   if [[ -n "$url" && "$url" != "$before" ]]; then
