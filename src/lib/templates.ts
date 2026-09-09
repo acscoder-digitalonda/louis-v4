@@ -137,6 +137,71 @@ And if there is a moment next year where this would be useful again, we would lo
 Best,
 The {{speakerName}} team`,
   },
+  // ── Keys the timers and the re-engagement campaign ask for ────────────────
+  //
+  // The bank backs every key the code uses, or it is not a fallback. These five were
+  // asked for by F6 and the twelve-month campaign and existed only in the Airtable
+  // library, so with the table unreachable the bureau welcome kit and every
+  // re-engagement draft failed. The library copy (E11, E21, E21b) is the one people edit;
+  // this is what goes out if that copy cannot be read.
+  {
+    key: 'kit.welcome.agent',
+    label: 'Welcome kit, to the bureau agent',
+    subject: 'Welcome kit for {{eventName}} - for your client',
+    body: `Hi {{contactFirstName}},
+
+Delighted this one is confirmed. Everything your client needs for {{eventName}} is here, ready to forward:
+
+1. The questionnaire: {{questionnaireLink}}. About ten minutes, and it shapes the whole session.
+2. Speaker assets (bio, headshots, AV rider): {{assetsLink}}
+3. The planning call. We will offer a couple of times about four weeks out.
+
+Anything they ask, send it our way.
+
+{{speakerName}}'s office`,
+  },
+  {
+    key: 'reengage.budget',
+    label: 'Re-engagement, budget was the reason',
+    subject: 'Checking in about {{eventName}}',
+    body: `Hi {{contactFirstName}},
+
+A year ago the budget was not there for {{speakerName}} to join you, and I said I would check back. Checking back.
+
+If this year looks different, I would love to find a way to make it work. Even a shorter session or a different format is worth a conversation.
+
+{{speakerName}}`,
+  },
+  {
+    key: 'reengage.date',
+    label: 'Re-engagement, the date did not work',
+    subject: 'Next time - {{eventName}}',
+    body: `Hi {{contactFirstName}},
+
+Last year the dates did not line up for {{speakerName}} and your event. Is this year's date set yet? If so, I would like to get it on the calendar before it fills.
+
+{{speakerName}}`,
+  },
+  {
+    key: 'reengage.postponed',
+    label: 'Re-engagement, the event was postponed',
+    subject: 'Is {{eventName}} back on?',
+    body: `Hi {{contactFirstName}},
+
+When we last spoke, {{eventName}} had been pushed back. If it is back on the calendar, {{speakerName}} would still love to be part of it. Happy to pick up where we left off.
+
+{{speakerName}}`,
+  },
+  {
+    key: 'reengage.nospeaker',
+    label: 'Re-engagement, they booked another speaker',
+    subject: 'How did {{eventName}} go?',
+    body: `Hi {{contactFirstName}},
+
+You went another direction last year, and I hope the event landed well. If there is a next one, {{speakerName}} would still like to be in the conversation - no pitch, just keeping the door open.
+
+{{speakerName}}`,
+  },
 ]
 
 export const templatesByKey = new Map(TEMPLATES.map((t) => [t.key, t]))

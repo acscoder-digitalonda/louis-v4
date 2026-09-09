@@ -135,7 +135,17 @@ describe('the library join', () => {
 
   it('maps every name the code uses to a library id', () => {
     for (const key of asked) {
-      assert.ok(LIBRARY_ID[key] ?? getTemplate(key), `${key} resolves nowhere — not in LIBRARY_ID, not in the bank`)
+      assert.ok(LIBRARY_ID[key], `${key} has no library id`)
+    }
+  })
+
+  it('backs every name the code uses in the shipped bank too', () => {
+    // The bank is what goes out when the table cannot be read. A key the bank lacks is a
+    // draft that fails exactly when Airtable is down, which is the moment it matters.
+    // Found as "[F6] kit draft failed ... Unknown template kit.welcome.agent" in the
+    // integration test's own log, where the mock provider has no templates table.
+    for (const key of asked) {
+      assert.ok(getTemplate(key), `${key} is not in the shipped bank`)
     }
   })
 
