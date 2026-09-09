@@ -28,6 +28,19 @@ import { cacheStats, requestStats } from '../airtable/cache'
 import type { Role, User } from '../types'
 import type { TableKey } from '../airtable/schema'
 
+/**
+ * The settings a chat client may change, addressed as `section.field`.
+ *
+ * An allowlist rather than a shape check: `ai.backend` decides which provider every model
+ * call goes to and `ai.monthlyCapUsd` is the spend ceiling, so the set of things reachable
+ * from a chat window is worth writing down and reviewing, not deriving.
+ */
+export const SETTABLE = [
+  'ai.mode',
+  'ai.monthlyCapUsd',
+  'ai.pauseNonCriticalAtCap',
+] as const satisfies readonly string[]
+
 /** Tables no MCP tool may write, whatever role the caller has. */
 export const MONEY_TABLES: TableKey[] = ['payments', 'scheduleLegs']
 
@@ -229,9 +242,11 @@ const templateUpdate: McpTool = {
 
 const settingUpdate: McpTool = {
   name: 'setting_update',
-  description: 'Change one setting. Money and auth settings are not reachable from here.',
+  description:
+    'Change one setting, addressed as section.field — for example ai.monthlyCapUsd or ' +
+    'ai.mode. Money and auth settings are not reachable from here.',
   inputSchema: object(
-    { key: S.string('Setting key.'), value: { description: 'New value.' } },
+    { key: S.string('section.field, e.g. "ai.monthlyCapUsd".'), value: { description: 'New value.' } },
     ['key', 'value'],
   ),
   minRole: 'admin',
@@ -240,13 +255,41 @@ const settingUpdate: McpTool = {
     const key = str(args.key)
     if (!key) throw new Error('key is required.')
 
+    // ── Why this validates instead of forwarding ────────────────────────
+    //
+    // It used to be `saveSettings({ [key]: value } as never)`. `saveSettings` merges
+    // known sections and ignores everything else, so any key that was not "theme" or
+    // "ai" changed nothing at all — while this tool returned `{ updated: key }` and
+    // reported success. The same `as never` hid the same mistake in the calendar mirror,
+    // where a run timestamp went unwritten for a month.
+    //
+    // An admin write that quietly does nothing is worse than one that refuses.
+    const [section, field, ...rest] = key.split('.')
+    if (!section || !field || rest.length > 0) {
+      throw new Error(`Address a setting as section.field, not "${key}". Try ${SETTABLE.join(', ')}.`)
+    }
+    if (!(SETTABLE as readonly string[]).includes(key)) {
+      throw new Error(`"${key}" is not settable from here. Try ${SETTABLE.join(', ')}.`)
+    }
+
     const provider = db()
     const before = await provider.getSettings()
-    const after = await provider.saveSettings({ [key]: args.value } as never)
+    const sectionBefore = (before as unknown as Record<string, Record<string, unknown>>)[section]
+    const after = await provider.saveSettings({
+      [section]: { ...sectionBefore, [field]: args.value },
+    } as Parameters<typeof provider.saveSettings>[0])
+
+    // Read back rather than trust the write. This tool's whole failure mode was
+    // reporting a change it had not made.
+    const applied = (after as unknown as Record<string, Record<string, unknown>>)[section]?.[field]
+    if (applied !== args.value) {
+      throw new Error(`${key} did not take: wrote ${JSON.stringify(args.value)}, read ${JSON.stringify(applied)}.`)
+    }
+
     await recordChanges({
       table: 'settings',
       recordId: 'settings',
-      before: { [key]: (before as unknown as Record<string, unknown>)[key] },
+      before: { [key]: sectionBefore?.[field] },
       after: { [key]: args.value },
       actor: humanActor(ctx.user.email),
       source: 'MCP',

@@ -4,7 +4,7 @@ import { setProvider, type DataProvider } from '../data'
 import { MockProvider } from '../data/mock'
 import { setProviderRunner } from '../gateway'
 import { TOKEN_PREFIX, authenticate, bearerFrom, hashToken, issueToken, roleAllowed } from './tokens'
-import { MONEY_TABLES, TOOLS, TOOLS_BY_NAME, authorise } from './tools'
+import { MONEY_TABLES, TOOLS, TOOLS_BY_NAME, authorise, SETTABLE } from './tools'
 import { PROTOCOL_VERSION, RPC, defaultBatchId, dispatch, dispatchBatch, isNotification } from './server'
 import type { ApiToken, Role, User } from '../types'
 
@@ -281,5 +281,39 @@ describe('a write, end to end', () => {
     assert.equal(entry.actor, 'jordan@bennemtin.com', 'attributed to the person, not the robot')
     assert.equal(entry.source, 'MCP', 'and to the door they came through')
     assert.equal(entry.reversible, true)
+  })
+})
+
+describe('setting_update refuses rather than pretending', () => {
+  const tool = TOOLS.find((t) => t.name === 'setting_update')!
+  const ctx = { user: { email: 'a@test.example', role: 'admin' } as never, batchId: 'test' }
+
+  it('rejects a bare key, because a bare key silently changed nothing', () => {
+    // It used to be `saveSettings({ [key]: value } as never)`. saveSettings merges known
+    // sections and ignores the rest, so "monthlyCapUsd" changed nothing while the tool
+    // returned `{ updated: 'monthlyCapUsd' }`. An admin write that quietly does nothing
+    // is worse than one that refuses.
+    return assert.rejects(
+      () => tool.run({ key: 'monthlyCapUsd', value: 200 }, ctx),
+      /section\.field/,
+    )
+  })
+
+  it('rejects a section it does not own', () => {
+    return assert.rejects(() => tool.run({ key: 'ai.backend', value: 'x' }, ctx), /not settable/)
+  })
+
+  it('rejects a nested path it cannot address', () => {
+    return assert.rejects(() => tool.run({ key: 'ai.tierModels.haiku', value: 'x' }, ctx), /section\.field/)
+  })
+
+  it('names what is settable in the refusal, so the caller can retry', () => {
+    return assert.rejects(
+      () => tool.run({ key: 'theme.light', value: {} }, ctx),
+      (err: Error) => {
+        for (const k of SETTABLE) assert.ok(err.message.includes(k), k)
+        return true
+      },
+    )
   })
 })
