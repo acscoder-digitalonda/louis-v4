@@ -28,7 +28,14 @@ export const WORKERS: Record<string, WorkerDef> = {
   'f2-email-intake': {
     name: 'f2-email-intake',
     title: 'Email intake',
-    schedule: '*/15 * * * *',
+    // Hourly. A quiet sweep costs ten Airtable requests, and four an hour was thirty
+    // thousand a month spent confirming there was no mail — on a plan billed per request.
+    //
+    // This is safe to slow down only because the reply clock now starts at the moment the
+    // client's email says it arrived, not at the moment this sweep noticed it. Measuring
+    // from discovery would mean the one-hour promise could be kept by sweeping less often,
+    // which is the opposite of keeping it.
+    schedule: '0 * * * *',
     critical: true,
     run: emailIntake.run,
   },

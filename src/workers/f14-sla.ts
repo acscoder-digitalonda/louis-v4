@@ -55,9 +55,22 @@ export async function run(now: Date = new Date()): Promise<SlaReport> {
 
   const provider = db()
   // Filtered server-side: on a normal morning this is one request returning three rows.
-  const inquiries = (await provider.listDeals({ stage: 'inquiry' })).filter((d) =>
-    inWindow(d, now),
-  )
+  const candidates = await provider.listDeals({ stage: 'inquiry' })
+  if (candidates.length === 0) {
+    console.info(`[${WORKER}]`, report)
+    return report
+  }
+
+  // The clock starts when the client sent, not when the sweep noticed. One read of a
+  // small table, and it is what stops the promise being kept by sweeping less often.
+  const arrivals = new Map<string, string>()
+  for (const email of await provider.listEmails().catch(() => [])) {
+    if (!email.dealId) continue
+    const seen = arrivals.get(email.dealId)
+    if (!seen || email.receivedAt < seen) arrivals.set(email.dealId, email.receivedAt)
+  }
+
+  const inquiries = candidates.filter((d) => inWindow(d, now, arrivals.get(d.id)))
   report.watched = inquiries.length
   if (inquiries.length === 0) {
     console.info(`[${WORKER}]`, report)
@@ -65,7 +78,9 @@ export async function run(now: Date = new Date()): Promise<SlaReport> {
   }
 
   const drafts = await provider.listDrafts()
-  const late = inquiries.filter((deal) => slaState(deal, drafts, now).breached)
+  const late = inquiries.filter(
+    (deal) => slaState(deal, drafts, now, DEFAULT_QUIET_HOURS, arrivals.get(deal.id)).breached,
+  )
   report.breached = late.length
   if (late.length === 0) {
     console.info(`[${WORKER}]`, report)
@@ -77,7 +92,7 @@ export async function run(now: Date = new Date()): Promise<SlaReport> {
     const title = `${MARKER} — ${deal.name}`
     if (tasks.some((t) => t.dealId === deal.id && t.title === title)) continue
 
-    const state = slaState(deal, drafts, now)
+    const state = slaState(deal, drafts, now, DEFAULT_QUIET_HOURS, arrivals.get(deal.id))
     try {
       await notify({
         type: 'red-alert',

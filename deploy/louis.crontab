@@ -15,7 +15,7 @@ CRON_TZ=America/Los_Angeles
 CRON_SECRET=replace-me
 
 # Email intake (critical: runs even at the AI cap)
-*/15 * * * * curl -sS --fail --max-time 280 -H "Authorization: Bearer $CRON_SECRET" https://louis-v3.vercel.app/api/cron/f2-email-intake > /dev/null
+0 * * * * curl -sS --fail --max-time 280 -H "Authorization: Bearer $CRON_SECRET" https://louis-v3.vercel.app/api/cron/f2-email-intake > /dev/null
 
 # Research agent
 0 8 * * * curl -sS --fail --max-time 280 -H "Authorization: Bearer $CRON_SECRET" https://louis-v3.vercel.app/api/cron/f3-research > /dev/null

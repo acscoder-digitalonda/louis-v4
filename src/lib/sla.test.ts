@@ -121,3 +121,36 @@ describe('inWindow', () => {
     assert.equal(inWindow({ stage: 'qualified', createdAt: '2026-09-08T15:00:00.000Z' }, now), false)
   })
 })
+
+describe('the clock starts when the client sent', () => {
+  // A deal's createdAt is when the sweep got round to it. Measuring from that means the
+  // promise is kept by sweeping less often — which is the opposite of keeping it.
+  const swept = { id: 'rec1', createdAt: '2026-09-08T17:30:00.000Z' } // noticed at 10:30 local
+  const arrived = '2026-09-08T16:00:00.000Z' // sent at 09:00 local, an hour and a half earlier
+
+  it('breaches on the real wait, not the observed one', () => {
+    const byDiscovery = slaState(swept, [], at('2026-09-08T17:40:00Z'))
+    assert.equal(byDiscovery.breached, false, 'ten minutes since we noticed')
+
+    const byArrival = slaState(swept, [], at('2026-09-08T17:40:00Z'), DEFAULT_QUIET_HOURS, arrived)
+    assert.equal(byArrival.breached, true, 'one hundred minutes since the client wrote')
+    assert.equal(byArrival.startedAt, arrived)
+  })
+
+  it('falls back to the deal when there is no email', () => {
+    // A deal typed in by hand starts when it was typed.
+    const s = slaState(swept, [], at('2026-09-08T17:40:00Z'), DEFAULT_QUIET_HOURS, null)
+    assert.equal(s.startedAt, swept.createdAt)
+  })
+
+  it('keeps the 24-hour window on the same clock', () => {
+    // Otherwise an enquiry swept late falls out of the window before it is ever judged.
+    const now = at('2026-09-08T17:40:00Z')
+    assert.equal(inWindow({ stage: 'inquiry', createdAt: swept.createdAt }, now, arrived), true)
+    assert.equal(
+      inWindow({ stage: 'inquiry', createdAt: swept.createdAt }, now, '2026-09-05T16:00:00Z'),
+      false,
+      'three days old by the client’s clock, whatever ours says',
+    )
+  })
+})
